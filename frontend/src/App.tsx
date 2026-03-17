@@ -35,14 +35,19 @@ function App() {
         <input data-testid="input-model" placeholder="Модель" onChange={e => setForm({...form, model: e.target.value})} required />
         
         {/* НОВОЕ ПОЛЕ: ГОД ВЫПУСКА */}
-        <input 
-          data-testid="input-year" 
-          type="number" 
-          placeholder="Год выпуска (с 1990)" 
-          value={form.year}
-          onChange={e => setForm({...form, year: Number(e.target.value)})} 
-          required 
-        />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '14px' }}>
+            <Calendar size={16} /> Год выпуска (с 1990)
+          </label>
+          <input 
+            data-testid="input-year" 
+            type="number" 
+            placeholder="Напр. 2023" 
+            value={form.year}
+            onChange={e => setForm({...form, year: Number(e.target.value)})} 
+            required 
+          />
+        </div>
         
         <input data-testid="input-vin" placeholder="VIN (17 символов)" onChange={e => setForm({...form, vin: e.target.value})} required />
         <input data-testid="input-mileage" type="number" placeholder="Пробег" onChange={e => setForm({...form, mileage: Number(e.target.value)})} required />
