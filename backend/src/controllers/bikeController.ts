@@ -1,32 +1,34 @@
 import { Request, Response } from 'express';
-import { BikeService } from '../services/bikeService'; // Импортируем наш Сервис
+import { BikeService } from '../services/bikeService';
 
 /**
  * КОНТРОЛЛЕР БАЙКОВ
- * Он только принимает запрос и отдает ответ.
- * Вся логика теперь спрятана в BikeService.
+ * Обрабатывает HTTP-запросы и возвращает JSON-ответы.
  */
 
-// 1. Получить все байки
+// Получить список байков (поддерживает ?status=...)
 export const getAllBikes = async (req: Request, res: Response) => {
   try {
-    const bikes = await BikeService.getAllBikes();
+    // Извлекаем статус из Query String: /api/bikes?status=repair
+    const { status } = req.query;
+    
+    // Запрашиваем данные у сервиса, приводя статус к строке
+    const bikes = await BikeService.getAllBikes(status as string);
+    
+    // Возвращаем результат QA-инструментам или фронтенду
     res.json(bikes);
   } catch (error: any) {
-    // Если что-то пошло не так, отдаем 500 ошибку
-    res.status(500).json({ error: 'Ошибка при получении списка байков' });
+    res.status(500).json({ error: 'Ошибка сервера при получении списка байков' });
   }
 };
 
-// 2. Создать байк
+// Создать новый байк
 export const createBike = async (req: Request, res: Response) => {
   try {
     const newBike = await BikeService.createBike(req.body);
-    // 201 - объект успешно создан
     res.status(201).json(newBike);
   } catch (error: any) {
-    // ВАЖНО ДЛЯ QA: Если Сервис выкинет ошибку (например, год < 1990), 
-    // она попадет сюда, и мы отдадим 400 (Bad Request) с текстом ошибки.
+    // Возвращаем 400 ошибку, если не прошли правила в Сервисе
     res.status(400).json({ error: error.message });
   }
 };
