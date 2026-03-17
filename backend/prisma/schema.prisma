@@ -1,3 +1,4 @@
+// Настройки подключения к базе
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
@@ -7,21 +8,24 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// ТАБЛИЦА ПОЛЬЗОВАТЕЛЕЙ (Для тестов авторизации и ролей)
 model User {
-  id       String @id @default(uuid())
-  username String @unique
-  password String
-  role     String // 'admin', 'mechanic', 'guest'
+  id           String @id @default(uuid())
+  username     String @unique
+  passwordHash String // Здесь будем хранить зашифрованный пароль
+  role         String // Роли: 'admin', 'mechanic', 'guest'
 }
 
+// ТАБЛИЦА БАЙКОВ (Расширенная для тестов валидации)
 model Bike {
   id          String   @id @default(uuid())
-  brand       String
-  model       String
-  year        Int
-  vin         String   @unique
-  mileage     Int
-  status      String   // 'available', 'repair', 'sold'
-  lastService DateTime
-  notes       String?
+  brand       String   // Марка (напр. KTM)
+  model       String   // Модель
+  year        Int      // Год выпуска (QA-кейс: проверь диапазон 1990-2025)
+  vin         String   @unique // Уникальный номер (QA-кейс: ровно 17 символов)
+  mileage     Int      // Пробег (QA-кейс: не может быть меньше 0)
+  status      String   // Статус: 'available', 'repair', 'sold'
+  lastService DateTime // Дата последнего ТО
+  notes       String?  // Примечания (может быть пустым)
+  createdAt   DateTime @default(now()) // Дата добавления в систему
 }

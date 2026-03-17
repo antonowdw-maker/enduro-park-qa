@@ -1,11 +1,10 @@
 import { Router } from 'express';
-// Добавь createBike в фигурные скобки ниже:
-import { getAllBikes, createBike } from '../controllers/bikeController'; 
+import { getAllBikes, createBike } from '../controllers/bikeController';
 
 const router = Router();
 
 // GET /api/bikes — получить все байки
-router.get('/', getAllBikes);
-router.post('/', createBike); // <--- Добавляем возможность создания
+router.get('/', getAllBikes); // Показать всех
+router.post('/', createBike); // Создать нового
 
 export default router;

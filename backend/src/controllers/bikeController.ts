@@ -1,42 +1,32 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { BikeService } from '../services/bikeService'; // Импортируем наш Сервис
 
-const prisma = new PrismaClient();
+/**
+ * КОНТРОЛЛЕР БАЙКОВ
+ * Он только принимает запрос и отдает ответ.
+ * Вся логика теперь спрятана в BikeService.
+ */
 
-// Получение списка всех байков (для GET запроса)
+// 1. Получить все байки
 export const getAllBikes = async (req: Request, res: Response) => {
   try {
-    // Тянем все записи из таблицы Bike в SQLite
-    const bikes = await prisma.bike.findMany();
+    const bikes = await BikeService.getAllBikes();
     res.json(bikes);
-  } catch (error) {
-    // В случае ошибки возвращаем 500 статус (кейс для негативного теста)
-    res.status(500).json({ error: 'Ошибка сервера при получении списка' });
+  } catch (error: any) {
+    // Если что-то пошло не так, отдаем 500 ошибку
+    res.status(500).json({ error: 'Ошибка при получении списка байков' });
   }
 };
 
-// Создание нового байка (для POST запроса)
+// 2. Создать байк
 export const createBike = async (req: Request, res: Response) => {
   try {
-    const { brand, model, year, vin, mileage, status } = req.body;
-    
-    // Создаем запись в БД. Важно: Prisma сама проверит уникальность VIN
-    const newBike = await prisma.bike.create({
-      data: {
-        brand,
-        model,
-        year: Number(year), // Преобразуем в число для БД
-        vin,
-        mileage: Number(mileage),
-        status,
-        lastService: new Date() // Устанавливаем текущую дату ТО
-      }
-    });
-    
-    // Возвращаем 201 статус — объект успешно создан
+    const newBike = await BikeService.createBike(req.body);
+    // 201 - объект успешно создан
     res.status(201).json(newBike);
-  } catch (error) {
-    // Если VIN дублируется, БД выдаст ошибку, и мы вернем 400
-    res.status(400).json({ error: 'Ошибка: VIN должен быть уникальным' });
+  } catch (error: any) {
+    // ВАЖНО ДЛЯ QA: Если Сервис выкинет ошибку (например, год < 1990), 
+    // она попадет сюда, и мы отдадим 400 (Bad Request) с текстом ошибки.
+    res.status(400).json({ error: error.message });
   }
 };
