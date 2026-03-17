@@ -4,14 +4,13 @@ import bcrypt from 'bcryptjs'; // Библиотека для шифровани
 const prisma = new PrismaClient();
 
 async function main() {
-  // 1. Очищаем базу перед заполнением (чтобы не было дублей при перезапуске)
+  // Очищаем старые данные
   await prisma.user.deleteMany();
   await prisma.bike.deleteMany();
 
-  // 2. Создаем зашифрованный пароль 'admin123' для всех тестовых юзеров
   const hashedSharedPassword = await bcrypt.hash('admin123', 10);
 
-  // 3. Создаем пользователей с разными ролями
+  // Создаем пользователей (как и раньше)
   await prisma.user.createMany({
     data: [
       { username: 'admin', passwordHash: hashedSharedPassword, role: 'admin' },
@@ -20,25 +19,41 @@ async function main() {
     ],
   });
 
-  // 4. Создаем 10 байков (тестовый набор для фильтров и сортировок)
-  await prisma.bike.createMany({
-        data: [
-      { brand: 'KTM', model: '300 EXC', year: 2023, vin: 'KTM2023SAMPLE0001', mileage: 45, status: 'available', lastService: new Date() },
-      { brand: 'Honda', model: 'CRF450R', year: 2021, vin: 'HONDA2021SAMPLE02', mileage: 120, status: 'repair', lastService: new Date() },
-      { brand: 'Husqvarna', model: 'TE300', year: 2022, vin: 'HUSQ2022SAMPLE003', mileage: 80, status: 'available', lastService: new Date() },
-      { brand: 'Yamaha', model: 'YZ250F', year: 2020, vin: 'YAMA2020SAMPLE004', mileage: 210, status: 'sold', lastService: new Date() },
-      { brand: 'Beta', model: 'RR300', year: 2023, vin: 'BETA2023SAMPLE005', mileage: 15, status: 'available', lastService: new Date() },
-      { brand: 'GasGas', model: 'EC300', year: 2022, vin: 'GASG2022SAMPLE006', mileage: 65, status: 'repair', lastService: new Date() },
-      { brand: 'Sherco', model: 'SE300', year: 2021, vin: 'SHER2021SAMPLE007', mileage: 140, status: 'available', lastService: new Date() },
-      { brand: 'KTM', model: '500 EXC-F', year: 1995, vin: 'KTM1995OLDIE00008', mileage: 5000, status: 'repair', lastService: new Date() },
-      { brand: 'Honda', model: 'XR650R', year: 2005, vin: 'HONDA2005LEGEND09', mileage: 1500, status: 'available', lastService: new Date() },
-      { brand: 'Kawasaki', model: 'KX450', year: 2024, vin: 'KAWA2024NEWBIE010', mileage: 0, status: 'available', lastService: new Date() },
-    ],
-  });
+  // Генератор случайных байков для тестов пагинации и поиска
+  const brands = ['KTM', 'Honda', 'Yamaha', 'Husqvarna', 'Beta', 'GasGas', 'Sherco', 'Kawasaki', 'Suzuki', 'BMW'];
+  const models = ['300 EXC', 'CRF450R', 'YZ250F', 'TE300', 'RR300', 'EC300', 'SE300', 'KX450', 'RM-Z450', 'R1250GS'];
+  const statuses = ['available', 'repair', 'sold'];
 
-  console.log('✅ База успешно наполнена: 3 пользователя и 10 байков.');
+  const testBikes = [];
+
+  for (let i = 1; i <= 50; i++) {
+    const brand = brands[Math.floor(Math.random() * brands.length)];
+    testBikes.push({
+      brand: brand,
+      model: models[Math.floor(Math.random() * models.length)],
+      year: 1990 + Math.floor(Math.random() * 36), // Года от 1990 до 2026
+      vin: `${brand.substring(0, 3).toUpperCase()}${2020 + i}SAMPLE${i.toString().padStart(3, '0')}`, // Ровно 17 символов
+      mileage: Math.floor(Math.random() * 5000),
+      status: statuses[Math.floor(Math.random() * statuses.length)],
+      lastService: new Date(),
+    });
+  }
+
+  await prisma.bike.createMany({ data: testBikes });
+
+  console.log('✅ База успешно наполнена: 3 пользователя и 50 случайных байков для тестов!');
 }
 
+// --- ЭТОТ БЛОК НУЖНО ДОБАВИТЬ В КОНЕЦ ФАЙЛА ---
+
 main()
-  .catch((e) => console.error(e))
-  .finally(() => prisma.$disconnect());
+  .then(async () => {
+    // Если всё прошло успешно — отключаемся от базы
+    await prisma.$disconnect()
+  })
+  .catch(async (e) => {
+    // Если произошла ошибка — выводим её и выходим с кодом ошибки
+    console.error(e)
+    await prisma.$disconnect()
+    process.exit(1)
+  })
