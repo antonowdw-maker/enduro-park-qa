@@ -16,7 +16,7 @@ function App() {
         <Bike size={32} /> Эндуро Парк (QA-Стенд)
       </h1>
       
-      <table border={1} cellPadding={10} style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <table border={1} cellPadding={10} style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
         <thead>
           <tr style={{ background: '#f4f4f4' }}>
             <th>Бренд</th>
@@ -38,6 +38,7 @@ function App() {
           ))}
         </tbody>
       </table>
+
       
       {bikes.length === 0 && <p>Загрузка байков из базы...</p>}
     </div>
