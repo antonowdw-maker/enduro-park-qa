@@ -1,18 +1,27 @@
 import { z } from 'zod';
 
+const currentYear = new Date().getFullYear();
+
 /**
- * СХЕМА ВАЛИДАЦИИ БАЙКА (Zod)
- * Описываем правила для полей.
+ * АКТУАЛИЗИРОВАННАЯ СХЕМА ВАЛИДАЦИИ (Zod)
+ * Теперь правила фронтенда строго совпадают с бэкендом.
  */
 export const bikeSchema = z.object({
-  brand: z.string().min(2, "Минимум 2 символа"),
+  brand: z.string().min(2, "Минимум 2 символа для бренда"),
   model: z.string().min(1, "Модель обязательна"),
-  year: z.number().min(1990, "Год должен быть не раньше 1990").max(new Date().getFullYear() + 1, "Год не из будущего"),
-  vin: z.string().length(17, "VIN должен быть ровно 17 символов"),
-  mileage: z.number().min(0, "Пробег не может быть отрицательным"),
+  
+  // ВАЛИДАЦИЯ ГОДА: От 1990 до Текущий + 1
+  year: z.number()
+    .min(1990, "Год выпуска не может быть раньше 1990")
+    .max(currentYear + 1, `Год не может быть позже ${currentYear + 1}`),
+  
+  // ВАЛИДАЦИЯ VIN: Строго 17 символов
+  vin: z.string().length(17, "VIN должен содержать ровно 17 символов"),
+  
+  // ВАЛИДАЦИЯ ПРОБЕГА: Только положительные числа
+  mileage: z.number().min(0, "Пробег не может быть отрицательным числом"),
+  
   status: z.enum(['available', 'repair', 'sold'])
 });
 
-// ЭТОЙ СТРОЧКИ СКОРЕЕ ВСЕГО НЕ ХВАТАЛО:
-// Мы экспортируем тип данных, чтобы App.tsx понимал, что такое BikeFormData
 export type BikeFormData = z.infer<typeof bikeSchema>;

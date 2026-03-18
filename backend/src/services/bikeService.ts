@@ -1,38 +1,42 @@
 import { BikeRepository } from '../repositories/bikeRepository';
 
 /**
- * СЕРВИС БАЙКОВ
- * Основное место для бизнес-логики и предварительной проверки данных.
+ * СЕРВИС БАЙКОВ (Версия: "Максимальная защита")
  */
 export const BikeService = {
-  /**
-   * Получить список байков с учетом фильтров и пагинации
-   * @param status - фильтр по состоянию
-   * @param search - строка поиска
-   * @param page - номер текущей страницы
-   * @param limit - количество элементов на странице
-   */
   async getAllBikes(status?: string, search?: string, page?: number, limit?: number) {
-    // Просто пробрасываем все параметры в репозиторий для выполнения запроса
     return await BikeRepository.findAll({ status, search, page, limit });
   },
 
-  /**
-   * Создать новый байк с проверкой бизнес-правил
-   * @param bikeData - данные из формы
-   */
-  async createBike(bikeData: any) {
-    // QA-Кейс (Бизнес-правило): Год не может быть меньше 1990
-    if (bikeData.year < 1990) {
-      throw new Error('Год выпуска не может быть раньше 1990');
+  async createBike(bikeData: any, currentUserRole: string) {
+    const currentYear = new Date().getFullYear();
+
+    // 1. ВАЛИДАЦИЯ ГОДА (Нижняя и Верхняя граница)
+    if (bikeData.year < 1990 || bikeData.year > currentYear + 1) {
+      throw new Error(`Год должен быть от 1990 до ${currentYear + 1}`);
     }
 
-    // QA-Кейс (Бизнес-правило): VIN должен быть строго 17 символов
+    // 2. ВАЛИДАЦИЯ ПРОБЕГА (Негативный кейс)
+    if (bikeData.mileage < 0) {
+      throw new Error('Пробег не может быть отрицательным');
+    }
+
+    // 3. ВАЛИДАЦИЯ VIN (Длина)
     if (!bikeData.vin || bikeData.vin.length !== 17) {
       throw new Error('VIN должен содержать ровно 17 символов');
     }
 
-    // Если проверки пройдены, создаем запись через репозиторий
-    return await BikeRepository.create(bikeData);
+    // --- ЛОВУШКА ДЛЯ QA-ТЕСТОВ (Оставляем как есть!) ---
+    if (bikeData.brand.toUpperCase() === 'TEST' && bikeData.model === '123') {
+      console.log('🚩 Сработала ловушка TEST-123');
+      throw new Error('Ошибка безопасности: Ваша роль [guest] не позволяет создавать тестовые записи');
+    }
+
+    const preparedData = {
+      ...bikeData,
+      lastService: new Date() 
+    };
+
+    return await BikeRepository.create(preparedData);
   }
 };
