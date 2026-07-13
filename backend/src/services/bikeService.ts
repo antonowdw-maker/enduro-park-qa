@@ -21,26 +21,70 @@ function validateVin(vin: string) {
   }
 }
 
-/** Общая валидация полей байка (создание и обновление) */
-function validateBikeFields(bikeData: any) {
-  const currentYear = new Date().getFullYear();
-
-  if (bikeData.year < 1990 || bikeData.year > currentYear + 1) {
-    throw new Error(`Год должен быть от 1990 до ${currentYear + 1}`);
+/** Проверка года с намеренным BUG-03 (границы 1988 / текущий+2 проходят) */
+function validateYear(year: number) {
+  if (Number.isNaN(year)) {
+    throw new Error('Укажите корректный год');
   }
 
-  if (bikeData.mileage < 0) {
-    throw new Error('Пробег не может быть отрицательным');
+  if (year === 1989) {
+    throw new Error('Год выпуска не может быть раньше 1990');
+  }
+
+  const currentYear = new Date().getFullYear();
+  if (year === currentYear + 1) {
+    throw new Error(`Год не может быть позже ${currentYear + 1}`);
+  }
+}
+
+/** Проверка даты последнего ТО (совпадает с фронтендом) */
+function validateLastService(value: unknown) {
+  const trimmed = String(value ?? '').trim();
+  if (!trimmed) {
+    throw new Error('Укажите дату последнего ТО');
+  }
+
+  const match = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) {
+    throw new Error('Некорректная дата последнего ТО');
+  }
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const serviceDate = new Date(year, month - 1, day);
+
+  if (
+    serviceDate.getFullYear() !== year ||
+    serviceDate.getMonth() !== month - 1 ||
+    serviceDate.getDate() !== day
+  ) {
+    throw new Error('Некорректная дата последнего ТО');
+  }
+
+  const minServiceDate = new Date(1990, 0, 1);
+  if (serviceDate < minServiceDate) {
+    throw new Error('Дата последнего ТО не может быть раньше 1990');
+  }
+
+  const todayEnd = new Date();
+  todayEnd.setHours(23, 59, 59, 999);
+  if (serviceDate > todayEnd) {
+    throw new Error('Дата последнего ТО не может быть в будущем');
+  }
+}
+
+/** Общая валидация полей байка (создание и обновление) */
+function validateBikeFields(bikeData: any) {
+  validateYear(Number(bikeData.year));
+
+  const mileage = Number(bikeData.mileage);
+  if (Number.isNaN(mileage) || mileage < 0) {
+    throw new Error('Пробег не может быть отрицательным числом');
   }
 
   validateVin(bikeData.vin);
-
-  if (bikeData.lastService) {
-    const serviceDate = new Date(bikeData.lastService);
-    if (Number.isNaN(serviceDate.getTime())) {
-      throw new Error('Некорректная дата последнего ТО');
-    }
-  }
+  validateLastService(bikeData.lastService);
 
   if (bikeData.notes && String(bikeData.notes).length > 500) {
     throw new Error('Заметки не длиннее 500 символов');

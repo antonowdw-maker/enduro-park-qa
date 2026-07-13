@@ -50,6 +50,8 @@ export default function BikeFormModal({
   } = useForm<BikeFormData>({
     resolver: zodResolver(bikeSchema),
     defaultValues: defaultFormValues,
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
   });
 
   // При открытии — подставляем данные (создание или редактирование)
@@ -70,6 +72,7 @@ export default function BikeFormModal({
   if (!open) return null;
 
   const title = mode === 'create' ? 'Добавить байк' : 'Редактировать байк';
+  const todayIso = new Date().toISOString().slice(0, 10);
 
   return (
     <div
@@ -212,6 +215,8 @@ export default function BikeFormModal({
               type="date"
               {...register('lastService')}
               data-testid="input-lastService"
+              max={todayIso}
+              min="1990-01-01"
               className={`w-full rounded-lg border p-2.5 font-semibold outline-none transition-all focus:ring-2 focus:ring-blue-500 ${errors.lastService ? 'border-rose-500 bg-rose-50' : 'border-slate-200'}`}
             />
             {errors.lastService && (
