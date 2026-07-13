@@ -1,39 +1,50 @@
 import axios from 'axios';
 
 /**
- * НАСТРОЙКА API
+ * НАСТРОЙКА API-КЛИЕНТА
  * withCredentials: true — КРИТИЧЕСКИ ВАЖНО ДЛЯ QA!
- * Без этого параметра браузер не будет сохранять и отправлять куки (токены).
+ * Без этого параметра браузер не будет сохранять и отправлять cookie (JWT-токен).
  */
+
+// Тип пользователя, который возвращает бэкенд после логина или /me
+export type AuthUser = {
+  id: string;
+  username: string;
+  role: string;
+};
+
 const api = axios.create({
   baseURL: '/api',
-  withCredentials: true, 
+  withCredentials: true,
 });
 
-// Получить список байков
+/** GET /auth/me — проверить, есть ли активная сессия (cookie) */
+export const getMe = async (): Promise<AuthUser> => {
+  const response = await api.get('/auth/me');
+  return response.data;
+};
+
+/** GET /bikes — получить список байков с фильтрами и пагинацией */
 export const getBikes = async (status: string = '', search: string = '', page: number = 1, limit: number = 10) => {
   const response = await api.get('/bikes', {
-    params: { status, search, page, limit }
+    params: { status, search, page, limit },
   });
   return response.data;
 };
 
-// Создать новый байк
+/** POST /bikes — создать новый байк (требуется роль mechanic или admin) */
 export const createBike = async (bikeData: any) => {
   const response = await api.post('/bikes', bikeData);
   return response.data;
 };
 
-/** 
- * АВТОРИЗАЦИЯ 
- */
-// Вход в систему (POST /api/auth/login)
-export const loginRequest = async (credentials: any) => {
+/** POST /auth/login — вход в систему */
+export const loginRequest = async (credentials: { username: string; password: string }): Promise<AuthUser> => {
   const response = await api.post('/auth/login', credentials);
   return response.data;
 };
 
-// Выход из системы (POST /api/auth/logout)
+/** POST /auth/logout — выход из системы (очистка cookie на сервере) */
 export const logoutRequest = async () => {
   const response = await api.post('/auth/logout');
   return response.data;

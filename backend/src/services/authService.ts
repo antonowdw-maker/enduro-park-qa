@@ -1,9 +1,11 @@
-import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from '../config';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'qa-secret';
-
-export const generateToken = (userId: string, role: string) => {
-  // Создаем токен на 24 часа. Для тестов это идеальное время.
-  return jwt.sign({ userId, role }, JWT_SECRET, { expiresIn: '24h' });
+/**
+ * СЕРВИС АВТОРИЗАЦИИ
+ * Отвечает за создание JWT-токена (паспорта пользователя).
+ */
+export const generateToken = (userId: string, username: string, role: string) => {
+  // Создаем токен на 24 часа — в payload кладем id, имя и роль
+  return jwt.sign({ userId, username, role }, JWT_SECRET, { expiresIn: '24h' });
 };

@@ -1,17 +1,18 @@
 import { Router } from 'express';
-// Импортируем логику входа и выхода из нашего контроллера
-import { login, logout } from '../controllers/authController';
+import { login, logout, me } from '../controllers/authController';
+import { authenticate } from '../middleware/authMiddleware';
 
 const router = Router();
 
 /**
  * МАРШРУТЫ АВТОРИЗАЦИИ
- * POST /api/auth/login  - для входа
- * POST /api/auth/logout - для выхода
+ * POST /api/auth/login  — вход (публичный)
+ * POST /api/auth/logout — выход (публичный)
+ * GET  /api/auth/me     — текущий пользователь (нужна валидная cookie)
  */
 
-// QA-Кейс: проверить, что метод именно POST (безопасная передача пароля)
 router.post('/login', login);
 router.post('/logout', logout);
+router.get('/me', authenticate, me);
 
 export default router;

@@ -1,62 +1,74 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import { AuthRequest } from '../middleware/authMiddleware';
+import { generateToken } from '../services/authService';
 
 const prisma = new PrismaClient();
-// Секретный ключ для подписи паспорта (в реале прячется в .env)
-const JWT_SECRET = 'super-secret-key-for-qa-benchmarking';
+
+// Настройки cookie для JWT (требование F-AUTH-02: httpOnly + SameSite)
+const AUTH_COOKIE_OPTIONS = {
+  httpOnly: true,       // JavaScript в браузере не может прочитать токен (защита от XSS)
+  secure: false,        // true только для HTTPS в продакшне
+  sameSite: 'lax' as const,
+  maxAge: 24 * 60 * 60 * 1000, // 24 часа
+};
 
 /**
  * КОНТРОЛЛЕР АВТОРИЗАЦИИ
- * Логика входа, выхода и проверки личности.
+ * Логика входа, выхода и проверки текущей сессии.
  */
-export const login = async (req: Request, res: Response) => {
+
+// POST /api/auth/login — вход в систему
+export const login = async (req: AuthRequest, res: Response) => {
   try {
     const { username, password } = req.body;
 
-    // 1. Ищем пользователя в SQLite
+    // 1. Ищем пользователя в базе SQLite
     const user = await prisma.user.findUnique({ where: { username } });
 
+    // 2. Не раскрываем, что именно неверно (логин или пароль) — единое сообщение (F-AUTH-03)
     if (!user) {
-      return res.status(401).json({ error: 'Пользователь не найден' });
+      return res.status(401).json({ error: 'Неверные учётные данные' });
     }
 
-    // 2. Сверяем присланный пароль с хешем в базе
+    // 3. Сверяем присланный пароль с хешем в базе
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Неверный пароль' });
+      return res.status(401).json({ error: 'Неверные учётные данные' });
     }
 
-    // 3. Создаем JWT-токен (паспорт)
-    const token = jwt.sign(
-      { userId: user.id, username: user.username, role: user.role },
-      JWT_SECRET,
-      { expiresIn: '24h' }
-    );
+    // 4. Создаем JWT и отправляем в защищенной cookie
+    const token = generateToken(user.id, user.username, user.role);
+    res.cookie('token', token, AUTH_COOKIE_OPTIONS);
 
-    // 4. Отправляем токен в защищенной куке (httpOnly)
-    // Это значит, что JavaScript на фронте не сможет его прочитать (защита от XSS)
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: false, // Включаем true только для HTTPS
-      maxAge: 24 * 60 * 60 * 1000 // 24 часа
+    // 5. Возвращаем данные пользователя (без пароля!) — формат по спецификации API
+    res.json({
+      id: user.id,
+      username: user.username,
+      role: user.role,
     });
-
-    // Возвращаем инфо о пользователе (без пароля!)
-    res.json({ 
-      message: 'Успешный вход', 
-      user: { username: user.username, role: user.role } 
-    });
-
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Ошибка сервера при авторизации' });
   }
 };
 
-// Выход из системы (просто удаляем куку)
-export const logout = (req: Request, res: Response) => {
+// POST /api/auth/logout — выход из системы (удаляем cookie)
+export const logout = (_req: AuthRequest, res: Response) => {
   res.clearCookie('token');
-  res.json({ message: 'Вы успешно вышли' });
+  res.json({ message: 'Logged out' });
+};
+
+// GET /api/auth/me — получить текущего пользователя по cookie (для восстановления сессии после F5)
+export const me = (req: AuthRequest, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  res.json({
+    id: req.user.userId,
+    username: req.user.username,
+    role: req.user.role,
+  });
 };
