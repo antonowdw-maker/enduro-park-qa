@@ -41,7 +41,33 @@ export function getYearValidationError(year: number): string | null {
   return null;
 }
 
-/** Формат даты ТО из input type="date": YYYY-MM-DD */
+/** Подсказка формата даты ТО: текст + календарь */
+export const LAST_SERVICE_FORMAT_HINT =
+  'Ввод: ГГГГ-ММ-ДД или 8 цифр (20100101 → 2010-01-01). Можно выбрать в календаре. От 1990-01-01 до сегодня.';
+
+/**
+ * Маска даты ТО с автопреобразованием.
+ * `20100101` / `2010-01-01` / `2010/01/01` → `2010-01-01`
+ */
+export function formatLastServiceMask(value: string): string {
+  const digits = String(value).replace(/\D/g, '').slice(0, 8);
+  if (digits.length <= 4) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 4)}-${digits.slice(4)}`;
+  return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6)}`;
+}
+
+/** Alias для совместимости */
+export function normalizeLastServiceInput(value: string): string {
+  return formatLastServiceMask(value);
+}
+
+/** Полная ISO-дата YYYY-MM-DD (для value у type="date") */
+export function toCompleteLastServiceIso(value: string): string {
+  const formatted = formatLastServiceMask(value);
+  return /^\d{4}-\d{2}-\d{2}$/.test(formatted) ? formatted : '';
+}
+
+/** Формат даты ТО: YYYY-MM-DD */
 const LAST_SERVICE_DATE_REGEX = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 /**

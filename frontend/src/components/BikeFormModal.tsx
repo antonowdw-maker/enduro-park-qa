@@ -2,7 +2,15 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { X } from 'lucide-react';
-import { bikeSchema, type BikeFormData, VIN_FORMAT_HINT, normalizeVinInput } from '../schemas';
+import {
+  bikeSchema,
+  type BikeFormData,
+  VIN_FORMAT_HINT,
+  LAST_SERVICE_FORMAT_HINT,
+  normalizeVinInput,
+  formatLastServiceMask,
+  toCompleteLastServiceIso,
+} from '../schemas';
 
 /** Режим модального окна: создание или редактирование */
 export type BikeModalMode = 'create' | 'edit';
@@ -46,6 +54,8 @@ export default function BikeFormModal({
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<BikeFormData>({
     resolver: zodResolver(bikeSchema),
@@ -53,6 +63,11 @@ export default function BikeFormModal({
     mode: 'onSubmit',
     reValidateMode: 'onChange',
   });
+
+  const lastServiceValue = watch('lastService');
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const calendarValue = toCompleteLastServiceIso(lastServiceValue ?? '');
+  const lastServiceField = register('lastService');
 
   // При открытии — подставляем данные (создание или редактирование)
   useEffect(() => {
@@ -72,7 +87,6 @@ export default function BikeFormModal({
   if (!open) return null;
 
   const title = mode === 'create' ? 'Добавить байк' : 'Редактировать байк';
-  const todayIso = new Date().toISOString().slice(0, 10);
 
   return (
     <div
@@ -211,14 +225,43 @@ export default function BikeFormModal({
 
           <div>
             <label className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400">Последнее ТО</label>
-            <input
-              type="date"
-              {...register('lastService')}
-              data-testid="input-lastService"
-              max={todayIso}
-              min="1990-01-01"
-              className={`w-full rounded-lg border p-2.5 font-semibold outline-none transition-all focus:ring-2 focus:ring-blue-500 ${errors.lastService ? 'border-rose-500 bg-rose-50' : 'border-slate-200'}`}
-            />
+            <div className="flex gap-2">
+              <input
+                type="text"
+                name={lastServiceField.name}
+                ref={lastServiceField.ref}
+                onBlur={lastServiceField.onBlur}
+                value={lastServiceValue ?? ''}
+                onChange={(event) => {
+                  setValue('lastService', formatLastServiceMask(event.target.value), {
+                    shouldDirty: true,
+                    // не валидируем на каждый символ до первой ошибки / submit
+                    shouldValidate: Boolean(errors.lastService),
+                  });
+                }}
+                data-testid="input-lastService"
+                inputMode="numeric"
+                autoComplete="off"
+                placeholder="2024-06-15 или 20240615"
+                className={`min-w-0 flex-1 rounded-lg border p-2.5 font-mono text-sm tracking-wide outline-none transition-all focus:ring-2 focus:ring-blue-500 ${errors.lastService ? 'border-rose-500 bg-rose-50' : 'border-slate-200'}`}
+              />
+              <input
+                type="date"
+                data-testid="input-lastService-calendar"
+                value={calendarValue}
+                min="1990-01-01"
+                max={todayIso}
+                onChange={(event) => {
+                  setValue('lastService', event.target.value, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                }}
+                aria-label="Выбрать дату последнего ТО в календаре"
+                className={`w-[9.5rem] shrink-0 rounded-lg border p-2.5 outline-none transition-all focus:ring-2 focus:ring-blue-500 ${errors.lastService ? 'border-rose-500 bg-rose-50' : 'border-slate-200'}`}
+              />
+            </div>
+            <p className="mt-1 text-[10px] leading-snug text-slate-400">{LAST_SERVICE_FORMAT_HINT}</p>
             {errors.lastService && (
               <p data-testid="error-lastService" className="mt-1 text-[10px] font-bold uppercase text-rose-500">
                 {errors.lastService.message}
