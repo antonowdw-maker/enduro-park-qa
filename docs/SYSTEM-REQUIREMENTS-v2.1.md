@@ -173,7 +173,8 @@
 
 | Метод | Auth | Роли | Примечание |
 |-------|------|------|------------|
-| GET /bikes | Опционально | public | Без cookie — 200; **невалидный** cookie — 401 |
+| GET /bikes | Опционально | public | Без cookie — 200; невалидный cookie — **200**, cookie сброшена |
+| GET /auth/me | Да | — | Невалидный cookie — **401** |
 | POST /bikes | Да | mechanic, admin | |
 | PUT /bikes/:id | Да | mechanic, admin | |
 | DELETE /bikes/:id | Да | admin | |

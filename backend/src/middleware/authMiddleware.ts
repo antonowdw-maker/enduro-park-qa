@@ -1,6 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../config';
+import { JWT_SECRET, IS_PRODUCTION } from '../config';
+
+/** Опции для сброса cookie (должны совпадать с установкой при login) */
+const CLEAR_TOKEN_COOKIE = {
+  httpOnly: true,
+  secure: IS_PRODUCTION,
+  sameSite: 'lax' as const,
+};
 
 /**
  * Расширяем стандартный тип запроса Express, 
@@ -41,8 +48,9 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
 };
 
 /**
- * Опциональная авторизация для GET /bikes (итерация 8):
- * без cookie — публичный просмотр; с невалидным токеном — 401.
+ * Опциональная авторизация для GET /bikes:
+ * без cookie — публичный просмотр;
+ * невалидный/устаревший токен — очищаем cookie и всё равно отдаём список (главная публична).
  */
 export const optionalAuthenticate = (req: AuthRequest, res: Response, next: NextFunction) => {
   const token = req.cookies.token;
@@ -55,8 +63,8 @@ export const optionalAuthenticate = (req: AuthRequest, res: Response, next: Next
     const decoded: any = jwt.verify(token, JWT_SECRET);
 
     if (decoded.role === 'guest') {
-      res.clearCookie('token');
-      return res.status(401).json({ error: 'Unauthorized' });
+      res.clearCookie('token', CLEAR_TOKEN_COOKIE);
+      return next();
     }
 
     req.user = {
@@ -66,7 +74,9 @@ export const optionalAuthenticate = (req: AuthRequest, res: Response, next: Next
     };
     next();
   } catch {
-    return res.status(401).json({ error: 'Unauthorized' });
+    // Старый JWT (напр. после смены JWT_SECRET) — не блокируем публичный просмотр
+    res.clearCookie('token', CLEAR_TOKEN_COOKIE);
+    next();
   }
 };
 

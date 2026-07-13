@@ -43,9 +43,13 @@
 **Шаги:** GET `/api/bikes` без cookie.  
 **Ожидание:** 200, список байков.
 
-### TC-AUTH-10: GET /bikes с невалидным cookie
-**Шаги:** GET `/api/bikes` с cookie `token=invalid`.  
-**Ожидание:** 401 Unauthorized.
+### TC-AUTH-10: Невалидный cookie на GET /bikes
+**Шаги:** в браузере cookie `token=invalid` → GET `/api/bikes`.  
+**Ожидание:** **200**, список байков; cookie `token` **удалена** (публичная главная не блокируется).
+
+### TC-AUTH-11: Невалидный cookie на GET /auth/me
+**Шаги:** cookie `token=invalid` → GET `/api/auth/me`.  
+**Ожидание:** **401** Unauthorized.
 
 ### TC-AUTH-09: Возврат с login на главную
 **Шаги:** `/login` → `back-to-home-btn`.  

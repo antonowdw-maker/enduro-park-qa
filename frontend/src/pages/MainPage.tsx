@@ -491,7 +491,7 @@ export default function MainPage() {
 
         {/* ФИЛЬТРЫ ПО СТАТУСУ (F-FILTER-01) и диапазоны год/пробег (F-FILTER-03…05) */}
         <div className="mb-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between p-4">
+          <div className="flex items-center p-4">
             <div className="flex items-center gap-3">
               <Filter size={18} className="ml-2 text-slate-400" />
               <button
@@ -520,21 +520,8 @@ export default function MainPage() {
                 onClick={() => handleStatusFilter('sold')}
                 className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold transition-all ${activeStatus === 'sold' ? 'bg-rose-600 text-white shadow-md' : 'bg-rose-100 text-rose-700'}`}
               >
-                <Tag size={14} /> Продан
-              </button>
-            </div>
-            <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
-              <span>Записей:</span>
-              <select
-                data-testid="pagination-limit"
-                value={limit}
-                onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}
-                className="cursor-pointer rounded-lg border border-slate-200 bg-white p-1 font-black text-blue-600 outline-none"
-              >
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-              </select>
+              <Tag size={14} /> Продан
+            </button>
             </div>
           </div>
 
@@ -697,9 +684,24 @@ export default function MainPage() {
               </table>
             </div>
 
-            <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/50 p-4">
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Всего в базе: {total}</span>
-              <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4 border-t border-slate-100 bg-slate-50/50 p-4">
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                Всего в базе: {total}
+              </span>
+              <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                Записей на странице
+                <select
+                  data-testid="pagination-limit"
+                  value={limit}
+                  onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}
+                  className="cursor-pointer rounded-lg border border-slate-200 bg-white px-2 py-1 font-black text-blue-600 outline-none"
+                >
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                </select>
+              </label>
+              <div className="ml-auto flex items-center gap-4">
                 <button
                   data-testid="pagination-prev"
                   type="button"
