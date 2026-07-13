@@ -1,17 +1,31 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { bikeSchema, type BikeFormData } from '../schemas';
-import { getBikes, createBike } from '../api';
+import { type BikeFormData } from '../schemas';
+import { getBikes, createBike, updateBike, deleteBike } from '../api';
 import { useAuth } from '../contexts/AuthContext';
+import BikeFormModal, { type BikeModalMode } from '../components/BikeFormModal';
+import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 import {
   Bike, Plus, Filter, Check, Wrench, RefreshCcw,
   ChevronLeft, ChevronRight, LogOut, Tag, ArrowUp, ArrowDown,
+  Pencil, Trash2,
 } from 'lucide-react';
 
 /** Поля, по которым разрешена сортировка (F-SORT-01) */
 type SortField = 'brand' | 'model' | 'year' | 'vin' | 'mileage' | 'status' | 'lastService';
+
+/** Строка таблицы байков с бэкенда */
+type BikeRow = {
+  id: string;
+  brand: string;
+  model: string;
+  year: number;
+  vin: string;
+  mileage: number;
+  status: string;
+  lastService: string;
+  notes?: string | null;
+};
 
 /**
  * Возвращает текст статуса для отображения в таблице.
@@ -31,6 +45,20 @@ function formatLastService(value: string): string {
 /** Форматирование пробега с разделителем тысяч */
 function formatMileage(km: number): string {
   return `${km.toLocaleString('ru-RU')} км`;
+}
+
+/** Преобразование байка из API в значения формы модалки */
+function bikeToFormValues(bike: BikeRow): Partial<BikeFormData> {
+  return {
+    brand: bike.brand,
+    model: bike.model,
+    year: bike.year,
+    vin: bike.vin,
+    mileage: bike.mileage,
+    status: bike.status as BikeFormData['status'],
+    lastService: new Date(bike.lastService).toISOString().slice(0, 10),
+    notes: bike.notes ?? '',
+  };
 }
 
 /**
@@ -74,28 +102,34 @@ function SortableHeader({
 
 /**
  * ГЛАВНАЯ СТРАНИЦА (/)
- * Таблица байков, фильтры, форма добавления, пагинация.
- * Доступна только авторизованным пользователям (через ProtectedRoute).
+ * Таблица байков, фильтры, модалка CRUD, пагинация.
  */
 export default function MainPage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   // --- СОСТОЯНИЯ ДАННЫХ ---
-  const [bikes, setBikes] = useState<any[]>([]);
+  const [bikes, setBikes] = useState<BikeRow[]>([]);
   const [total, setTotal] = useState(0);
   const [activeStatus, setActiveStatus] = useState('');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  // Сортировка таблицы (F-SORT-02): по умолчанию марка по возрастанию (TC-SORT-01)
   const [sortBy, setSortBy] = useState<SortField>('brand');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
-  // --- НАСТРОЙКА ФОРМЫ БАЙКА С ВАЛИДАЦИЕЙ ZOD ---
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<BikeFormData>({
-    resolver: zodResolver(bikeSchema),
-    defaultValues: { year: 2024, mileage: 0, status: 'available' },
-  });
+  // --- МОДАЛЬНОЕ ОКНО ФОРМЫ (F-BIKE-CREATE / F-BIKE-EDIT) ---
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<BikeModalMode>('create');
+  const [editingBike, setEditingBike] = useState<BikeRow | null>(null);
+  const [formServerError, setFormServerError] = useState<string | null>(null);
+
+  // --- ПОДТВЕРЖДЕНИЕ УДАЛЕНИЯ (модалка вместо window.confirm) ---
+  const [deleteTarget, setDeleteTarget] = useState<BikeRow | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const canCreateOrEdit = user?.role === 'admin' || user?.role === 'mechanic';
+  const canDelete = user?.role === 'admin';
 
   // Загрузка списка байков с бэкенда (фильтр, пагинация, сортировка)
   const loadData = () => {
@@ -105,48 +139,29 @@ export default function MainPage() {
         setTotal(res.total);
       })
       .catch(() => {
-        // Сессия протухла — выходим и уходим на логин
         logout().then(() => navigate('/login', { replace: true }));
       });
   };
 
-  // Перезагружаем при смене фильтра, страницы, лимита или сортировки
   useEffect(() => {
     loadData();
   }, [activeStatus, page, limit, sortBy, sortOrder]);
 
-  // --- ОБРАБОТКА ВЫХОДА (F-AUTH-05: редирект на /login) ---
   const handleLogout = async () => {
     await logout();
     navigate('/login', { replace: true });
   };
 
-  // --- ОБРАБОТКА ДОБАВЛЕНИЯ БАЙКА ---
-  const onAddBike = async (data: BikeFormData) => {
-    try {
-      await createBike(data);
-      loadData();
-      reset();
-      alert('Успех: Байк добавлен!');
-    } catch (err: any) {
-      // Здесь мы поймаем ловушку TEST/123 или ошибки валидации с бэкенда
-      alert('Ошибка: ' + (err.response?.data?.error || 'Запрос отклонен'));
-    }
-  };
-
   const totalPages = Math.ceil(total / limit) || 1;
 
-  // Применить фильтр по статусу и вернуться на первую страницу (F-FILTER-02)
   const handleStatusFilter = (status: string) => {
     setActiveStatus(status);
     setPage(1);
   };
 
-  // Переход на предыдущую / следующую страницу (F-PAGINATION-02)
   const handlePrevPage = () => setPage((p) => Math.max(1, p - 1));
   const handleNextPage = () => setPage((p) => Math.min(totalPages, p + 1));
 
-  // Смена сортировки по клику на заголовок колонки (F-SORT-02)
   const handleSort = (field: SortField) => {
     if (sortBy === field) {
       setSortOrder((order) => (order === 'asc' ? 'desc' : 'asc'));
@@ -157,13 +172,79 @@ export default function MainPage() {
     setPage(1);
   };
 
+  // Открыть модалку в режиме создания (F-BIKE-CREATE-01)
+  const openCreateModal = () => {
+    setEditingBike(null);
+    setModalMode('create');
+    setFormServerError(null);
+    setModalOpen(true);
+  };
+
+  // Открыть модалку в режиме редактирования (F-BIKE-EDIT-01)
+  const openEditModal = (bike: BikeRow) => {
+    setEditingBike(bike);
+    setModalMode('edit');
+    setFormServerError(null);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditingBike(null);
+    setFormServerError(null);
+  };
+
+  // Сохранение формы: создание или обновление
+  const handleFormSubmit = async (data: BikeFormData) => {
+    try {
+      if (modalMode === 'create') {
+        await createBike(data);
+      } else if (editingBike) {
+        await updateBike(editingBike.id, data);
+      }
+      closeModal();
+      loadData();
+    } catch (err: any) {
+      setFormServerError(err.response?.data?.error || 'Запрос отклонен');
+    }
+  };
+
+  // Открыть модалку подтверждения удаления
+  const openDeleteModal = (bike: BikeRow) => {
+    setDeleteTarget(bike);
+    setDeleteError(null);
+  };
+
+  const closeDeleteModal = () => {
+    if (isDeleting) return;
+    setDeleteTarget(null);
+    setDeleteError(null);
+  };
+
+  // Подтверждённое удаление (F-BIKE-DELETE-02)
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+
+    setIsDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteBike(deleteTarget.id);
+      setDeleteTarget(null);
+      loadData();
+    } catch (err: any) {
+      setDeleteError(err.response?.data?.error || 'Не удалось удалить');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (!user) return null;
 
   return (
     <div className="min-h-screen bg-slate-50 p-8 font-sans text-slate-900">
       <div className="mx-auto max-w-[88rem]">
 
-        {/* ШАПКА: логотип, имя пользователя, кнопка выхода */}
+        {/* ШАПКА */}
         <header className="mb-10 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="rounded-xl bg-blue-600 p-3 text-white shadow-lg shadow-blue-200">
@@ -173,19 +254,19 @@ export default function MainPage() {
               Enduro Park Manager
             </h1>
           </div>
-          <div className="flex items-center gap-4 bg-white p-2 px-4 rounded-full border border-slate-200 shadow-sm">
+          <div className="flex items-center gap-4 rounded-full border border-slate-200 bg-white p-2 px-4 shadow-sm">
             <div className="flex flex-col items-end">
-              <span className="text-[10px] font-black text-slate-400 uppercase leading-none tracking-widest">
+              <span className="text-[10px] font-black uppercase leading-none tracking-widest text-slate-400">
                 Пользователь
               </span>
-              <span className="text-sm font-bold text-blue-600 uppercase leading-tight tracking-tighter">
+              <span className="text-sm font-bold uppercase leading-tight tracking-tighter text-blue-600">
                 {user.username} [{user.role}]
               </span>
             </div>
             <button
               data-testid="logout-btn"
               onClick={handleLogout}
-              className="p-2 text-rose-500 hover:bg-rose-50 rounded-full transition-all"
+              className="rounded-full p-2 text-rose-500 transition-all hover:bg-rose-50"
               title="Завершить сеанс"
             >
               <LogOut size={20} />
@@ -194,10 +275,9 @@ export default function MainPage() {
         </header>
 
         {/* ФИЛЬТРЫ ПО СТАТУСУ (F-FILTER-01) */}
-        <div className="mb-8 flex items-center justify-between rounded-2xl bg-white p-4 shadow-sm border border-slate-200">
+        <div className="mb-8 flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center gap-3">
-            <Filter size={18} className="text-slate-400 ml-2" />
-            {/* Кнопка «Все» — сбрасывает фильтр по статусу */}
+            <Filter size={18} className="ml-2 text-slate-400" />
             <button
               data-testid="filter-all"
               onClick={() => handleStatusFilter('')}
@@ -205,7 +285,6 @@ export default function MainPage() {
             >
               <RefreshCcw size={14} /> Все
             </button>
-            {/* Кнопка «Доступен» — status = available */}
             <button
               data-testid="filter-available"
               onClick={() => handleStatusFilter('available')}
@@ -213,7 +292,6 @@ export default function MainPage() {
             >
               <Check size={14} /> Доступен
             </button>
-            {/* BUG-01: текст кнопки «Ремонт» ≠ текст в таблице «В ремонте» */}
             <button
               data-testid="filter-repair"
               onClick={() => handleStatusFilter('repair')}
@@ -221,7 +299,6 @@ export default function MainPage() {
             >
               <Wrench size={14} /> Ремонт
             </button>
-            {/* Кнопка «Продан» — status = sold */}
             <button
               data-testid="filter-sold"
               onClick={() => handleStatusFilter('sold')}
@@ -230,14 +307,13 @@ export default function MainPage() {
               <Tag size={14} /> Продан
             </button>
           </div>
-          {/* F-PAGINATION-01: выбор количества строк на странице (10 / 20 / 50) */}
-          <div className="flex items-center gap-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+          <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
             <span>Записей:</span>
             <select
               data-testid="pagination-limit"
               value={limit}
               onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}
-              className="rounded-lg border border-slate-200 bg-white p-1 outline-none text-blue-600 font-black cursor-pointer"
+              className="cursor-pointer rounded-lg border border-slate-200 bg-white p-1 font-black text-blue-600 outline-none"
             >
               <option value={10}>10</option>
               <option value={20}>20</option>
@@ -246,107 +322,27 @@ export default function MainPage() {
           </div>
         </div>
 
-        {/*
-          Flex + фиксированная ширина формы (lg:w-96 shrink-0):
-          блок «Новый байк» не сужается при появлении/исчезновении скроллбара.
-        */}
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
-
-          {/* СЕКЦИЯ: ФОРМА ДОБАВЛЕНИЯ — ширина фиксирована, не сжимается при пагинации */}
-          <section className="w-full shrink-0 rounded-2xl bg-white p-6 shadow-sm border border-slate-200 lg:w-96">
-            <h2 className="mb-6 flex items-center gap-2 text-lg font-bold text-slate-700 uppercase tracking-tighter underline decoration-blue-500 decoration-4 underline-offset-4">
-              <Plus size={20} className="text-blue-600" /> Новый байк
-            </h2>
-            <form onSubmit={handleSubmit(onAddBike)} className="space-y-4">
-              <div>
-                <label className="mb-1 block text-[10px] font-black uppercase text-slate-400 tracking-widest">Марка</label>
-                <input
-                  {...register('brand')}
-                  data-testid="input-brand"
-                  className={`w-full rounded-lg border p-2.5 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-semibold ${errors.brand ? 'border-rose-500 bg-rose-50' : 'border-slate-200'}`}
-                  placeholder="Напр. KTM"
-                />
-                {errors.brand && (
-                  <p className="mt-1 text-[10px] text-rose-500 font-bold uppercase">{errors.brand.message}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="mb-1 block text-[10px] font-black uppercase text-slate-400 tracking-widest">Модель</label>
-                <input
-                  {...register('model')}
-                  data-testid="input-model"
-                  className={`w-full rounded-lg border p-2.5 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-semibold ${errors.model ? 'border-rose-500 bg-rose-50' : 'border-slate-200'}`}
-                  placeholder="Напр. 300 EXC"
-                />
-                {errors.model && (
-                  <p className="mt-1 text-[10px] text-rose-500 font-bold uppercase">{errors.model.message}</p>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="mb-1 block text-[10px] font-black uppercase text-slate-400 tracking-widest">Год</label>
-                  <input
-                    type="number"
-                    {...register('year', { valueAsNumber: true })}
-                    className={`w-full rounded-lg border p-2.5 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-semibold ${errors.year ? 'border-rose-500 bg-rose-50' : 'border-slate-200'}`}
-                  />
-                  {errors.year && (
-                    <p className="mt-1 text-[10px] text-rose-500 font-bold uppercase leading-none mt-2">{errors.year.message}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="mb-1 block text-[10px] font-black uppercase text-slate-400 tracking-widest">Пробег</label>
-                  <input
-                    type="number"
-                    {...register('mileage', { valueAsNumber: true })}
-                    className={`w-full rounded-lg border p-2.5 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-semibold ${errors.mileage ? 'border-rose-500 bg-rose-50' : 'border-slate-200'}`}
-                  />
-                  {errors.mileage && (
-                    <p className="mt-1 text-[10px] text-rose-500 font-bold uppercase leading-none mt-2">{errors.mileage.message}</p>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label className="mb-1 block text-[10px] font-black uppercase text-slate-400 tracking-widest">VIN (17 знаков)</label>
-                <input
-                  {...register('vin')}
-                  className={`w-full rounded-lg border p-2.5 outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm transition-all ${errors.vin ? 'border-rose-500 bg-rose-50 text-rose-900' : 'border-slate-200'}`}
-                  placeholder="Уникальный номер..."
-                />
-                {errors.vin && (
-                  <p className="mt-1 text-[10px] text-rose-500 font-bold uppercase">{errors.vin.message}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="mb-1 block text-[10px] font-black uppercase text-slate-400 tracking-widest">Статус в парке</label>
-                <select
-                  {...register('status')}
-                  className="w-full rounded-lg border border-slate-200 p-2.5 outline-none bg-white font-bold text-slate-700 cursor-pointer"
+        {/* ТАБЛИЦА (F-BIKE-LIST-01) */}
+        <section>
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            {/* Панель над таблицей: кнопка «Добавить байк» (F-BIKE-CREATE-01) */}
+            <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-4 py-3">
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                Реестр мотоциклов
+              </span>
+              {canCreateOrEdit && (
+                <button
+                  type="button"
+                  data-testid="add-bike-btn"
+                  onClick={openCreateModal}
+                  className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-black uppercase tracking-widest text-white shadow-md shadow-blue-200 transition-all hover:bg-blue-700"
                 >
-                  <option value="available">Доступен</option>
-                  <option value="repair">В ремонте</option>
-                  <option value="sold">Продан</option>
-                </select>
-              </div>
+                  <Plus size={16} /> Добавить байк
+                </button>
+              )}
+            </div>
 
-              <button
-                type="submit"
-                data-testid="btn-submit"
-                className="w-full rounded-xl bg-blue-600 py-4 font-black text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 active:scale-[0.98] mt-4 uppercase tracking-widest text-xs"
-              >
-                Добавить в базу
-              </button>
-            </form>
-          </section>
-
-          {/* СЕКЦИЯ: ТАБЛИЦА (F-BIKE-LIST-01) — все колонки + сортировка */}
-          <section className="min-w-0 flex-1">
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <div className="overflow-x-auto">
+            <div className="overflow-x-auto">
               <table className="w-full min-w-[1100px] border-collapse text-left text-sm">
                 <thead className="bg-slate-50">
                   <tr>
@@ -363,74 +359,123 @@ export default function MainPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {bikes.map((bike) => (
-                    <tr key={bike.id} data-testid={`bike-row-${bike.vin}`} className="hover:bg-slate-50/50 transition-colors">
+                    <tr key={bike.id} data-testid={`bike-row-${bike.vin}`} className="transition-colors hover:bg-slate-50/50">
                       <td className="px-4 py-3 font-black uppercase tracking-tighter text-blue-600">{bike.brand}</td>
-                      <td className="px-4 py-3 text-slate-500 text-xs font-bold uppercase italic tracking-widest">{bike.model}</td>
-                      <td className="px-4 py-3 text-center text-slate-500 font-black">{bike.year}</td>
+                      <td className="px-4 py-3 text-xs font-bold uppercase italic tracking-widest text-slate-500">{bike.model}</td>
+                      <td className="px-4 py-3 text-center font-black text-slate-500">{bike.year}</td>
                       <td className="px-4 py-3 font-mono text-xs font-semibold text-blue-500">{bike.vin}</td>
-                      <td className="px-4 py-3 text-right text-slate-600 font-semibold">{formatMileage(bike.mileage)}</td>
+                      <td className="px-4 py-3 text-right font-semibold text-slate-600">{formatMileage(bike.mileage)}</td>
                       <td className="px-4 py-3 text-center">
                         <span
-                          className={`inline-flex items-center rounded-md px-2 py-1 text-[9px] font-black uppercase tracking-widest border ${
+                          className={`inline-flex items-center rounded-md border px-2 py-1 text-[9px] font-black uppercase tracking-widest ${
                             bike.status === 'available'
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
                               : bike.status === 'repair'
-                                ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                : 'bg-rose-50 text-rose-700 border-rose-200'
+                                ? 'border-amber-200 bg-amber-50 text-amber-700'
+                                : 'border-rose-200 bg-rose-50 text-rose-700'
                           }`}
                         >
                           {getStatusLabel(bike.status)}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-center text-slate-500 text-xs font-semibold">
+                      <td className="px-4 py-3 text-center text-xs font-semibold text-slate-500">
                         {bike.lastService ? formatLastService(bike.lastService) : '—'}
                       </td>
-                      <td className="px-4 py-3 text-slate-500 text-xs max-w-[8rem] truncate" title={bike.notes || ''}>
+                      <td className="max-w-[8rem] truncate px-4 py-3 text-xs text-slate-500" title={bike.notes || ''}>
                         {bike.notes || '—'}
                       </td>
-                      {/* Кнопки edit/delete — итерация 5 (F-BIKE-EDIT/DELETE) */}
-                      <td className="px-4 py-3 text-center text-slate-300 text-xs">—</td>
+                      <td className="px-4 py-3 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          {canCreateOrEdit && (
+                            <button
+                              type="button"
+                              data-testid={`edit-bike-${bike.vin}`}
+                              onClick={() => openEditModal(bike)}
+                              title="Редактировать"
+                              className="rounded-lg border border-slate-200 p-1.5 text-blue-600 transition-all hover:bg-blue-50"
+                            >
+                              <Pencil size={14} />
+                            </button>
+                          )}
+                          {canDelete && (
+                            <button
+                              type="button"
+                              data-testid={`delete-bike-${bike.vin}`}
+                              onClick={() => openDeleteModal(bike)}
+                              title="Удалить"
+                              className="rounded-lg border border-slate-200 p-1.5 text-rose-600 transition-all hover:bg-rose-50"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          )}
+                          {!canCreateOrEdit && !canDelete && (
+                            <span className="text-slate-300">—</span>
+                          )}
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-              </div>
+            </div>
 
-              {/* F-PAGINATION-02: навигация по страницам таблицы */}
-              <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/50 p-4">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Всего в базе: {total}</span>
-                <div className="flex items-center gap-4">
-                  <button
-                    data-testid="pagination-prev"
-                    type="button"
-                    disabled={page === 1}
-                    onClick={handlePrevPage}
-                    title="Предыдущая страница"
-                    aria-label="Предыдущая страница"
-                    className="p-2 rounded-full border border-slate-200 bg-white shadow-sm disabled:opacity-30 transition-all hover:bg-slate-100"
-                  >
-                    <ChevronLeft size={20} />
-                  </button>
-                  <span className="text-[10px] font-black text-blue-600 uppercase tracking-tighter">
-                    СТРАНИЦА {page} ИЗ {totalPages}
-                  </span>
-                  <button
-                    data-testid="pagination-next"
-                    type="button"
-                    disabled={page === totalPages}
-                    onClick={handleNextPage}
-                    title="Следующая страница"
-                    aria-label="Следующая страница"
-                    className="p-2 rounded-full border border-slate-200 bg-white shadow-sm disabled:opacity-30 transition-all hover:bg-slate-100"
-                  >
-                    <ChevronRight size={20} />
-                  </button>
-                </div>
+            <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/50 p-4">
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Всего в базе: {total}</span>
+              <div className="flex items-center gap-4">
+                <button
+                  data-testid="pagination-prev"
+                  type="button"
+                  disabled={page === 1}
+                  onClick={handlePrevPage}
+                  title="Предыдущая страница"
+                  aria-label="Предыдущая страница"
+                  className="rounded-full border border-slate-200 bg-white p-2 shadow-sm transition-all hover:bg-slate-100 disabled:opacity-30"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <span className="text-[10px] font-black uppercase tracking-tighter text-blue-600">
+                  СТРАНИЦА {page} ИЗ {totalPages}
+                </span>
+                <button
+                  data-testid="pagination-next"
+                  type="button"
+                  disabled={page === totalPages}
+                  onClick={handleNextPage}
+                  title="Следующая страница"
+                  aria-label="Следующая страница"
+                  className="rounded-full border border-slate-200 bg-white p-2 shadow-sm transition-all hover:bg-slate-100 disabled:opacity-30"
+                >
+                  <ChevronRight size={20} />
+                </button>
               </div>
             </div>
-          </section>
-        </div>
+          </div>
+        </section>
       </div>
+
+      {/* Модальное окно добавления / редактирования */}
+      <BikeFormModal
+        open={modalOpen}
+        mode={modalMode}
+        initialValues={editingBike ? bikeToFormValues(editingBike) : null}
+        serverError={formServerError}
+        onClose={closeModal}
+        onSubmit={handleFormSubmit}
+      />
+
+      <ConfirmDeleteModal
+        open={deleteTarget !== null}
+        title="Удалить байк?"
+        description={
+          deleteTarget
+            ? `${deleteTarget.brand} ${deleteTarget.model} · VIN ${deleteTarget.vin}. Это действие нельзя отменить.`
+            : ''
+        }
+        error={deleteError}
+        isDeleting={isDeleting}
+        onConfirm={confirmDelete}
+        onCancel={closeDeleteModal}
+      />
     </div>
   );
 }

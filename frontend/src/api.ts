@@ -45,6 +45,17 @@ export const createBike = async (bikeData: any) => {
   return response.data;
 };
 
+/** PUT /bikes/:id — обновить байк (mechanic или admin) */
+export const updateBike = async (id: string, bikeData: any) => {
+  const response = await api.put(`/bikes/${id}`, bikeData);
+  return response.data;
+};
+
+/** DELETE /bikes/:id — удалить байк (только admin) */
+export const deleteBike = async (id: string) => {
+  await api.delete(`/bikes/${id}`);
+};
+
 /** POST /auth/login — вход в систему */
 export const loginRequest = async (credentials: { username: string; password: string }): Promise<AuthUser> => {
   const response = await api.post('/auth/login', credentials);
