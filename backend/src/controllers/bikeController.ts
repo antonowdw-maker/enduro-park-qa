@@ -1,15 +1,17 @@
 import { Request, Response } from 'express';
 import { BikeService } from '../services/bikeService';
 
-// Список байков
+// Список байков (с фильтрами, сортировкой и пагинацией)
 export const getAllBikes = async (req: Request, res: Response) => {
   try {
-    const { status, search, page, limit } = req.query;
+    const { status, search, page, limit, sortBy, order } = req.query;
     const result = await BikeService.getAllBikes(
-      status as string, 
-      search as string, 
-      Number(page) || 1, 
-      Number(limit) || 10
+      status as string,
+      search as string,
+      Number(page) || 1,
+      Number(limit) || 10,
+      sortBy as string,
+      order === 'asc' || order === 'desc' ? order : undefined,
     );
     res.json(result);
   } catch (error: any) {

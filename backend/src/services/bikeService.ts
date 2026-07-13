@@ -4,8 +4,15 @@ import { BikeRepository } from '../repositories/bikeRepository';
  * СЕРВИС БАЙКОВ (Версия: "Максимальная защита")
  */
 export const BikeService = {
-  async getAllBikes(status?: string, search?: string, page?: number, limit?: number) {
-    return await BikeRepository.findAll({ status, search, page, limit });
+  async getAllBikes(
+    status?: string,
+    search?: string,
+    page?: number,
+    limit?: number,
+    sortBy?: string,
+    order?: 'asc' | 'desc',
+  ) {
+    return await BikeRepository.findAll({ status, search, page, limit, sortBy, order });
   },
 
   async createBike(bikeData: any, currentUserRole: string) {
