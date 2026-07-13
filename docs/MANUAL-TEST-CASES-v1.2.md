@@ -11,12 +11,12 @@
 ## 1. Аутентификация
 
 ### TC-AUTH-01: Вход под admin
-**Предусловия:** seed (`admin` / `admin123`).  
-**Шаги:** `/login` → admin / admin123 → «Войти».  
+**Предусловия:** seed; в `.env` задан `SEED_ADMIN_PASSWORD`.  
+**Шаги:** `/login` → `admin` + пароль из `.env` → «Войти».  
 **Ожидание:** `/`; `user-username`=admin; `user-role`=admin; `logout-btn`; httpOnly cookie.
 
 ### TC-AUTH-02: Вход под mechanic
-**Данные:** mechanic / admin123.  
+**Данные:** `mechanic` + `SEED_MECHANIC_PASSWORD` из `.env`.  
 **Ожидание:** как TC-AUTH-01, role=mechanic.
 
 ### ~~TC-AUTH-03~~ — **УДАЛЁН** (роль guest снята)

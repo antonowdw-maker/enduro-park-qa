@@ -1,19 +1,25 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { buildDeterministicBikes, getSeedSummary, SEED_BIKE_COUNT } from './seedData';
+import { getSeedPasswords } from '../src/config';
 
 const prisma = new PrismaClient();
 
 async function main() {
+  const { adminPassword, mechanicPassword } = getSeedPasswords();
+
   await prisma.user.deleteMany();
   await prisma.bike.deleteMany();
 
-  const hashedSharedPassword = await bcrypt.hash('admin123', 10);
+  const [adminHash, mechanicHash] = await Promise.all([
+    bcrypt.hash(adminPassword, 10),
+    bcrypt.hash(mechanicPassword, 10),
+  ]);
 
   await prisma.user.createMany({
     data: [
-      { username: 'admin', passwordHash: hashedSharedPassword, role: 'admin' },
-      { username: 'mechanic', passwordHash: hashedSharedPassword, role: 'mechanic' },
+      { username: 'admin', passwordHash: adminHash, role: 'admin' },
+      { username: 'mechanic', passwordHash: mechanicHash, role: 'mechanic' },
     ],
   });
 
@@ -23,10 +29,9 @@ async function main() {
   const summary = getSeedSummary(bikes);
   console.log('✅ Seed завершён (детерминированный набор):');
   console.log(`   версия: ${summary.version}`);
-  console.log(`   пользователи: admin, mechanic (admin123)`);
+  console.log(`   пользователи: admin, mechanic (пароли из .env — не логируются)`);
   console.log(`   байки: ${summary.total} (available=${summary.byStatus.available}, repair=${summary.byStatus.repair}, sold=${summary.byStatus.sold})`);
   console.log(`   первый VIN: ${summary.firstVin}`);
-  console.log(`   якорные VIN: ${summary.fixtureVins.join(', ')}`);
 
   if (bikes.length !== SEED_BIKE_COUNT) {
     throw new Error(`Ожидалось ${SEED_BIKE_COUNT} байков, получено ${bikes.length}`);

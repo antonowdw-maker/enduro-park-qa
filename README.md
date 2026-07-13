@@ -8,10 +8,14 @@
 - **База данных:** SQLite (файл `backend/prisma/dev.db`).
 
 ## 🚀 Запуск проекта
-1. **Подготовка базы:**
+1. **Секреты (обязательно):**
+   - Скопируйте `backend/.env.example` → `backend/.env`
+   - Заполните `JWT_SECRET`, `SEED_ADMIN_PASSWORD`, `SEED_MECHANIC_PASSWORD` (см. [`docs/SECURITY.md`](docs/SECURITY.md))
+   - Логины: `admin` / `mechanic` — пароли **только в `.env`**, не в git
+2. **Подготовка базы:**
    - В папке `backend`: `npx prisma db push`
    - Наполнение данными (50 байков, детерминированно): `npm run seed`
-2. **Запуск (в двух терминалах):**
+3. **Запуск (в двух терминалах):**
    - Бэкенд: `cd backend && npm run dev` (доступен на http://localhost:5000)
    - Фронтенд: `cd frontend && npm run dev` (доступен на http://localhost:5173)
 
@@ -42,6 +46,7 @@
 Сюда попадают идеи из ревью кода и обсуждений — то, что **не входит** в таблицу итераций выше, но стоит не забыть. При новых предложениях «сделать позже» — дополняем этот список.
 
 **Отклонения от PDF-требований и статус ручных ТК** — в [`docs/IMPLEMENTATION-NOTES.md`](docs/IMPLEMENTATION-NOTES.md).  
+**Безопасность и деплой** — [`docs/SECURITY.md`](docs/SECURITY.md).  
 **Актуальные требования v2.5 и ТК v1.6** — [`docs/SYSTEM-REQUIREMENTS-v2.1.md`](docs/SYSTEM-REQUIREMENTS-v2.1.md), [`docs/MANUAL-TEST-CASES-v1.2.md`](docs/MANUAL-TEST-CASES-v1.2.md).
 
 ### UX / интерфейс
@@ -54,6 +59,7 @@
 - [ ] Исправить `useEffect` в `MainPage`: вынести `loadData` в `useCallback` и корректно указать зависимости (сейчас работает, но формально неполный deps-массив).
 
 ### Бэкенд / инфраструктура
+- [x] Секреты в `.env`, не в git; валидация паролей seed и JWT (см. `docs/SECURITY.md`).
 - [ ] Убрать или задействовать `authService.ts` — сейчас логин идёт через `authController`, сервис может дублировать логику.
 - [ ] Удалить случайный `package-lock.json` в корне репозитория (если не нужен для Playwright в корне).
 

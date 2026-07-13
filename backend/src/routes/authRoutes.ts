@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { login, logout, me } from '../controllers/authController';
 import { authenticate } from '../middleware/authMiddleware';
+import { loginRateLimit } from '../middleware/loginRateLimit';
 
 const router = Router();
 
@@ -11,7 +12,7 @@ const router = Router();
  * GET  /api/auth/me     — текущий пользователь (нужна валидная cookie)
  */
 
-router.post('/login', login);
+router.post('/login', loginRateLimit, login);
 router.post('/logout', logout);
 router.get('/me', authenticate, me);
 

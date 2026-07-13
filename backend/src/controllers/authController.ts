@@ -3,15 +3,16 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { AuthRequest } from '../middleware/authMiddleware';
 import { generateToken } from '../services/authService';
+import { IS_PRODUCTION } from '../config';
 
 const prisma = new PrismaClient();
 
 // Настройки cookie для JWT (требование F-AUTH-02: httpOnly + SameSite)
 const AUTH_COOKIE_OPTIONS = {
-  httpOnly: true,       // JavaScript в браузере не может прочитать токен (защита от XSS)
-  secure: false,        // true только для HTTPS в продакшне
+  httpOnly: true,
+  secure: IS_PRODUCTION,
   sameSite: 'lax' as const,
-  maxAge: 24 * 60 * 60 * 1000, // 24 часа
+  maxAge: 24 * 60 * 60 * 1000,
 };
 
 /**
