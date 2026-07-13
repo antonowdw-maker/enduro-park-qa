@@ -10,7 +10,7 @@
 ## 🚀 Запуск проекта
 1. **Подготовка базы:**
    - В папке `backend`: `npx prisma db push`
-   - Наполнение данными (50 байков): `npm run seed`
+   - Наполнение данными (50 байков, детерминированно): `npm run seed`
 2. **Запуск (в двух терминалах):**
    - Бэкенд: `cd backend && npm run dev` (доступен на http://localhost:5000)
    - Фронтенд: `cd frontend && npm run dev` (доступен на http://localhost:5173)
@@ -34,7 +34,7 @@
 | 6 | Роли в UI (аноним / mechanic / admin) | ✅ |
 | 7 | Валидация + `error-*` testid + BUG-03 | ✅ |
 | 8 | API: auth на GET /bikes, offset, фильтры год/пробег | ✅ |
-| 9 | Seed: детерминированные данные для тестов | |
+| 9 | Seed: детерминированные данные для тестов | ✅ |
 | 10 | Playwright + GitHub Actions CI | |
 
 ## 📝 Бэклог улучшений (вне плана итераций)
@@ -42,7 +42,7 @@
 Сюда попадают идеи из ревью кода и обсуждений — то, что **не входит** в таблицу итераций выше, но стоит не забыть. При новых предложениях «сделать позже» — дополняем этот список.
 
 **Отклонения от PDF-требований и статус ручных ТК** — в [`docs/IMPLEMENTATION-NOTES.md`](docs/IMPLEMENTATION-NOTES.md).  
-**Актуальные требования v2.4 и ТК v1.5** — [`docs/SYSTEM-REQUIREMENTS-v2.1.md`](docs/SYSTEM-REQUIREMENTS-v2.1.md), [`docs/MANUAL-TEST-CASES-v1.2.md`](docs/MANUAL-TEST-CASES-v1.2.md).
+**Актуальные требования v2.5 и ТК v1.6** — [`docs/SYSTEM-REQUIREMENTS-v2.1.md`](docs/SYSTEM-REQUIREMENTS-v2.1.md), [`docs/MANUAL-TEST-CASES-v1.2.md`](docs/MANUAL-TEST-CASES-v1.2.md).
 
 ### UX / интерфейс
 - [ ] Перенести `pagination-limit` из блока фильтров к пагинации под таблицей (сейчас testid на месте, но расположение неудобное).
