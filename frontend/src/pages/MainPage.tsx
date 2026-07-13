@@ -87,6 +87,10 @@ export default function MainPage() {
     setPage(1);
   };
 
+  // Переход на предыдущую / следующую страницу (F-PAGINATION-02)
+  const handlePrevPage = () => setPage((p) => Math.max(1, p - 1));
+  const handleNextPage = () => setPage((p) => Math.min(totalPages, p + 1));
+
   if (!user) return null;
 
   return (
@@ -123,7 +127,7 @@ export default function MainPage() {
           </div>
         </header>
 
-        {/* ФИЛЬТРЫ ПО СТАТУСУ (F-FILTER-01) + выбор количества записей на странице */}
+        {/* ФИЛЬТРЫ ПО СТАТУСУ (F-FILTER-01) */}
         <div className="mb-8 flex items-center justify-between rounded-2xl bg-white p-4 shadow-sm border border-slate-200">
           <div className="flex items-center gap-3">
             <Filter size={18} className="text-slate-400 ml-2" />
@@ -160,9 +164,11 @@ export default function MainPage() {
               <Tag size={14} /> Продан
             </button>
           </div>
+          {/* F-PAGINATION-01: выбор количества строк на странице (10 / 20 / 50) */}
           <div className="flex items-center gap-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">
             <span>Записей:</span>
             <select
+              data-testid="pagination-limit"
               value={limit}
               onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}
               className="rounded-lg border border-slate-200 bg-white p-1 outline-none text-blue-600 font-black cursor-pointer"
@@ -174,10 +180,14 @@ export default function MainPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        {/*
+          Flex + фиксированная ширина формы (lg:w-96 shrink-0):
+          блок «Новый байк» не сужается при появлении/исчезновении скроллбара.
+        */}
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
 
-          {/* СЕКЦИЯ: ФОРМА ДОБАВЛЕНИЯ НОВОГО БАЙКА */}
-          <section className="rounded-2xl bg-white p-6 shadow-sm border border-slate-200 h-fit">
+          {/* СЕКЦИЯ: ФОРМА ДОБАВЛЕНИЯ — ширина фиксирована, не сжимается при пагинации */}
+          <section className="w-full shrink-0 rounded-2xl bg-white p-6 shadow-sm border border-slate-200 lg:w-96">
             <h2 className="mb-6 flex items-center gap-2 text-lg font-bold text-slate-700 uppercase tracking-tighter underline decoration-blue-500 decoration-4 underline-offset-4">
               <Plus size={20} className="text-blue-600" /> Новый байк
             </h2>
@@ -267,8 +277,8 @@ export default function MainPage() {
             </form>
           </section>
 
-          {/* СЕКЦИЯ: ТАБЛИЦА БАЙКОВ + ПАГИНАЦИЯ */}
-          <section className="lg:col-span-2">
+          {/* СЕКЦИЯ: ТАБЛИЦА — высота по количеству строк (без искусственного растягивания) */}
+          <section className="min-w-0 flex-1">
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
               <table className="w-full border-collapse text-left text-sm">
                 <thead className="bg-slate-50 font-black text-slate-400 uppercase tracking-widest">
@@ -306,13 +316,17 @@ export default function MainPage() {
                 </tbody>
               </table>
 
-              {/* Нижняя панель: счётчик записей и кнопки «назад / вперёд» */}
+              {/* F-PAGINATION-02: навигация по страницам таблицы */}
               <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/50 p-4">
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Всего в базе: {total}</span>
                 <div className="flex items-center gap-4">
                   <button
+                    data-testid="pagination-prev"
+                    type="button"
                     disabled={page === 1}
-                    onClick={() => setPage((p) => p - 1)}
+                    onClick={handlePrevPage}
+                    title="Предыдущая страница"
+                    aria-label="Предыдущая страница"
                     className="p-2 rounded-full border border-slate-200 bg-white shadow-sm disabled:opacity-30 transition-all hover:bg-slate-100"
                   >
                     <ChevronLeft size={20} />
@@ -321,8 +335,12 @@ export default function MainPage() {
                     СТРАНИЦА {page} ИЗ {totalPages}
                   </span>
                   <button
+                    data-testid="pagination-next"
+                    type="button"
                     disabled={page === totalPages}
-                    onClick={() => setPage((p) => p + 1)}
+                    onClick={handleNextPage}
+                    title="Следующая страница"
+                    aria-label="Следующая страница"
                     className="p-2 rounded-full border border-slate-200 bg-white shadow-sm disabled:opacity-30 transition-all hover:bg-slate-100"
                   >
                     <ChevronRight size={20} />
