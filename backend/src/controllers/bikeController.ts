@@ -22,7 +22,7 @@ export const getAllBikes = async (req: Request, res: Response) => {
 // Создание байка (с передачей роли из токена)
 export const createBike = async (req: any, res: Response) => {
   try {
-    const userRole = req.user?.role || 'guest';
+    const userRole = req.user!.role;
 
     const newBike = await BikeService.createBike(req.body, userRole);
     res.status(201).json(newBike);
@@ -49,7 +49,7 @@ export const updateBike = async (req: any, res: Response) => {
 /** Удаление байка по id (DELETE /bikes/:id) */
 export const deleteBike = async (req: any, res: Response) => {
   try {
-    const userRole = req.user?.role || 'guest';
+    const userRole = req.user!.role;
     await BikeService.deleteBike(req.params.id, userRole);
     res.status(204).send();
   } catch (error: any) {

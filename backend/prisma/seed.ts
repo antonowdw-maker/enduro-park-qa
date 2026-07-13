@@ -10,12 +10,11 @@ async function main() {
 
   const hashedSharedPassword = await bcrypt.hash('admin123', 10);
 
-  // Создаем пользователей (как и раньше)
+  // Создаем пользователей (admin и mechanic; роль guest снята в v2.1)
   await prisma.user.createMany({
     data: [
       { username: 'admin', passwordHash: hashedSharedPassword, role: 'admin' },
       { username: 'mechanic', passwordHash: hashedSharedPassword, role: 'mechanic' },
-      { username: 'guest', passwordHash: hashedSharedPassword, role: 'guest' },
     ],
   });
 
@@ -41,7 +40,7 @@ async function main() {
 
   await prisma.bike.createMany({ data: testBikes });
 
-  console.log('✅ База успешно наполнена: 3 пользователя и 50 случайных байков для тестов!');
+  console.log('✅ База успешно наполнена: 2 пользователя и 50 случайных байков для тестов!');
 }
 
 // --- ЭТОТ БЛОК НУЖНО ДОБАВИТЬ В КОНЕЦ ФАЙЛА ---

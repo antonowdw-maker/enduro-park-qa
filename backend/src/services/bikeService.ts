@@ -99,7 +99,7 @@ export const BikeService = {
       throw new Error('NOT_FOUND');
     }
 
-    return await BikeRepository.update(id, prepareBikeData(bikeData, false));
+    return await BikeRepository.update(id, prepareBikeData(bikeData, true));
   },
 
   /** Удаление байка (DELETE /bikes/:id) — только admin */

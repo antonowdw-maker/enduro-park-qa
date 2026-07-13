@@ -39,6 +39,11 @@ export const login = async (req: AuthRequest, res: Response) => {
       return res.status(401).json({ error: 'Неверные учётные данные' });
     }
 
+    // Роль guest снята в v2.1 — старые записи в БД не принимаем
+    if (user.role === 'guest') {
+      return res.status(401).json({ error: 'Неверные учётные данные' });
+    }
+
     // 4. Создаем JWT и отправляем в защищенной cookie
     const token = generateToken(user.id, user.username, user.role);
     res.cookie('token', token, AUTH_COOKIE_OPTIONS);
@@ -63,6 +68,12 @@ export const logout = (_req: AuthRequest, res: Response) => {
 // GET /api/auth/me — получить текущего пользователя по cookie (для восстановления сессии после F5)
 export const me = (req: AuthRequest, res: Response) => {
   if (!req.user) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  // Старая сессия guest — сбрасываем (роль удалена в v2.1)
+  if (req.user.role === 'guest') {
+    res.clearCookie('token');
     return res.status(401).json({ error: 'Unauthorized' });
   }
 

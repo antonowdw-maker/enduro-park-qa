@@ -177,8 +177,7 @@ export default function BikeFormModal({
               maxLength={17}
               autoComplete="off"
               spellCheck={false}
-              readOnly={mode === 'edit'}
-              className={`w-full rounded-lg border p-2.5 font-mono text-sm tracking-wider outline-none transition-all focus:ring-2 focus:ring-blue-500 ${errors.vin ? 'border-rose-500 bg-rose-50 text-rose-900' : 'border-slate-200'} ${mode === 'edit' ? 'bg-slate-50 text-slate-500' : ''}`}
+              className={`w-full rounded-lg border p-2.5 font-mono text-sm tracking-wider outline-none transition-all focus:ring-2 focus:ring-blue-500 ${errors.vin ? 'border-rose-500 bg-rose-50 text-rose-900' : 'border-slate-200'}`}
               placeholder="1HGBH41JXMN109186"
             />
             <p className="mt-1 text-[10px] leading-snug text-slate-400">{VIN_FORMAT_HINT}</p>

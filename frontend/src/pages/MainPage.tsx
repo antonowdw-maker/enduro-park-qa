@@ -7,7 +7,7 @@ import BikeFormModal, { type BikeModalMode } from '../components/BikeFormModal';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 import {
   Bike, Plus, Filter, Check, Wrench, RefreshCcw,
-  ChevronLeft, ChevronRight, LogOut, Tag, ArrowUp, ArrowDown,
+  ChevronLeft, ChevronRight, LogOut, LogIn, Tag, ArrowUp, ArrowDown,
   Pencil, Trash2,
 } from 'lucide-react';
 
@@ -128,10 +128,12 @@ export default function MainPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Ролевая модель (TC-ROLE-01…02): без входа — только просмотр; mechanic — без удаления; admin — полный доступ
   const canCreateOrEdit = user?.role === 'admin' || user?.role === 'mechanic';
   const canDelete = user?.role === 'admin';
+  const isReadOnly = !canCreateOrEdit && !canDelete;
 
-  // Загрузка списка байков с бэкенда (фильтр, пагинация, сортировка)
+  // Загрузка списка байков с бэкенда (фильтр, пагинация, сортировка) — доступна без авторизации
   const loadData = () => {
     getBikes(activeStatus, '', page, limit, sortBy, sortOrder)
       .then((res) => {
@@ -139,7 +141,8 @@ export default function MainPage() {
         setTotal(res.total);
       })
       .catch(() => {
-        logout().then(() => navigate('/login', { replace: true }));
+        setBikes([]);
+        setTotal(0);
       });
   };
 
@@ -149,7 +152,7 @@ export default function MainPage() {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/login', { replace: true });
+    navigate('/', { replace: true });
   };
 
   const totalPages = Math.ceil(total / limit) || 1;
@@ -238,8 +241,6 @@ export default function MainPage() {
     }
   };
 
-  if (!user) return null;
-
   return (
     <div className="min-h-screen bg-slate-50 p-8 font-sans text-slate-900">
       <div className="mx-auto max-w-[88rem]">
@@ -255,22 +256,37 @@ export default function MainPage() {
             </h1>
           </div>
           <div className="flex items-center gap-4 rounded-full border border-slate-200 bg-white p-2 px-4 shadow-sm">
-            <div className="flex flex-col items-end">
-              <span className="text-[10px] font-black uppercase leading-none tracking-widest text-slate-400">
-                Пользователь
-              </span>
-              <span className="text-sm font-bold uppercase leading-tight tracking-tighter text-blue-600">
-                {user.username} [{user.role}]
-              </span>
-            </div>
-            <button
-              data-testid="logout-btn"
-              onClick={handleLogout}
-              className="rounded-full p-2 text-rose-500 transition-all hover:bg-rose-50"
-              title="Завершить сеанс"
-            >
-              <LogOut size={20} />
-            </button>
+            {user ? (
+              <>
+                <div className="flex flex-col items-end">
+                  <span className="text-[10px] font-black uppercase leading-none tracking-widest text-slate-400">
+                    Пользователь
+                  </span>
+                  <span className="text-sm font-bold uppercase leading-tight tracking-tighter text-blue-600">
+                    <span data-testid="user-username">{user.username}</span>
+                    {' '}
+                    [<span data-testid="user-role">{user.role}</span>]
+                  </span>
+                </div>
+                <button
+                  data-testid="logout-btn"
+                  onClick={handleLogout}
+                  className="rounded-full p-2 text-rose-500 transition-all hover:bg-rose-50"
+                  title="Завершить сеанс"
+                >
+                  <LogOut size={20} />
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                data-testid="header-login-btn"
+                onClick={() => navigate('/login')}
+                className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-xs font-black uppercase tracking-widest text-white shadow-md transition-all hover:bg-blue-700"
+              >
+                <LogIn size={16} /> Войти
+              </button>
+            )}
           </div>
         </header>
 
@@ -408,8 +424,8 @@ export default function MainPage() {
                               <Trash2 size={14} />
                             </button>
                           )}
-                          {!canCreateOrEdit && !canDelete && (
-                            <span className="text-slate-300">—</span>
+                          {isReadOnly && (
+                            <span data-testid="actions-readonly-placeholder" className="text-slate-300">—</span>
                           )}
                         </div>
                       </td>

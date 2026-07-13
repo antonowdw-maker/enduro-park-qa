@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Bike, LogIn, Lock, User } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
@@ -109,6 +109,16 @@ export default function LoginPage() {
             <LogIn size={20} /> Войти
           </button>
         </form>
+
+        <p className="mt-6 text-center">
+          <Link
+            to="/"
+            data-testid="back-to-home-btn"
+            className="text-xs font-bold uppercase tracking-widest text-slate-400 transition-colors hover:text-blue-600"
+          >
+            ← На главную без входа
+          </Link>
+        </p>
       </div>
     </div>
   );
