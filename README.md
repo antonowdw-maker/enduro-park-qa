@@ -31,7 +31,7 @@
 | 3 | Пагинация + testid, layout формы | ✅ |
 | 4 | Таблица: все колонки + сортировка | ✅ |
 | 5 | CRUD: модалка добавления/редактирования, delete, API PUT/DELETE | ✅ |
-| 6 | Роли в UI (guest / mechanic / admin) | 🔜 |
+| 6 | Роли в UI (аноним / mechanic / admin) | ✅ |
 | 7 | Валидация + `error-*` testid + BUG-03 | |
 | 8 | API: auth на GET /bikes, offset, фильтры год/пробег | |
 | 9 | Seed: детерминированные данные для тестов | |
@@ -41,7 +41,8 @@
 
 Сюда попадают идеи из ревью кода и обсуждений — то, что **не входит** в таблицу итераций выше, но стоит не забыть. При новых предложениях «сделать позже» — дополняем этот список.
 
-**Отклонения от PDF-требований и статус ручных ТК** — в [`docs/IMPLEMENTATION-NOTES.md`](docs/IMPLEMENTATION-NOTES.md) (журнал «код vs спецификация»).
+**Отклонения от PDF-требований и статус ручных ТК** — в [`docs/IMPLEMENTATION-NOTES.md`](docs/IMPLEMENTATION-NOTES.md).  
+**Актуальные требования v2.1 и ТК v1.2** — [`docs/SYSTEM-REQUIREMENTS-v2.1.md`](docs/SYSTEM-REQUIREMENTS-v2.1.md), [`docs/MANUAL-TEST-CASES-v1.2.md`](docs/MANUAL-TEST-CASES-v1.2.md).
 
 ### UX / интерфейс
 - [ ] Перенести `pagination-limit` из блока фильтров к пагинации под таблицей (сейчас testid на месте, но расположение неудобное).
@@ -70,4 +71,5 @@
 - [x] Сортировка по умолчанию: марка по возрастанию (TC-SORT-01).
 - [x] Модалка CRUD: `add-bike-btn`, `edit-bike-{vin}`, `delete-bike-{vin}`, PUT/DELETE API.
 - [x] Подтверждение удаления в приложении: `delete-confirm-modal`, `delete-confirm-btn`, `delete-cancel-btn`.
-- [x] Валидация и маска VIN (17 символов, без I/O/Q) + подсказка формата.
+- [x] Роли в UI: анонимный просмотр без входа; mechanic без delete; admin — полный доступ; `header-login-btn`.
+- [x] VIN редактируем при update; уникальность при create и update.
