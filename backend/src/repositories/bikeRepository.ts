@@ -22,7 +22,7 @@ const CASE_INSENSITIVE_SORT_FIELDS = ['brand', 'model', 'vin', 'status'] as cons
 
 /** Собирает SQL-условие WHERE из фильтров списка */
 function buildWhereSql(filters?: {
-  status?: string;
+  statuses?: string[];
   search?: string;
   yearFrom?: number;
   yearTo?: number;
@@ -31,8 +31,10 @@ function buildWhereSql(filters?: {
 }): Prisma.Sql {
   const conditions: Prisma.Sql[] = [];
 
-  if (filters?.status && filters.status !== 'all') {
-    conditions.push(Prisma.sql`status = ${filters.status}`);
+  if (filters?.statuses && filters.statuses.length > 0) {
+    conditions.push(
+      Prisma.sql`status IN (${Prisma.join(filters.statuses.map((s) => Prisma.sql`${s}`))})`,
+    );
   }
   if (filters?.search) {
     const pattern = `%${filters.search}%`;
@@ -64,7 +66,7 @@ export const BikeRepository = {
    * @param filters - объект с параметрами поиска
    */
   async findAll(filters?: {
-    status?: string;
+    statuses?: string[];
     search?: string;
     yearFrom?: number;
     yearTo?: number;

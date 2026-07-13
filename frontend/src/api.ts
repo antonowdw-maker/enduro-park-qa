@@ -26,7 +26,7 @@ export const getMe = async (): Promise<AuthUser> => {
 
 /** Параметры GET /bikes */
 export type GetBikesParams = {
-  status?: string;
+  statuses?: string[];
   search?: string;
   page?: number;
   limit?: number;
@@ -40,7 +40,7 @@ export type GetBikesParams = {
 
 /** GET /bikes — список байков (фильтры, сортировка sortBy/order, пагинация через offset) */
 export const getBikes = async ({
-  status = '',
+  statuses = [],
   search = '',
   page = 1,
   limit = 10,
@@ -52,13 +52,16 @@ export const getBikes = async ({
   mileageTo,
 }: GetBikesParams = {}) => {
   const params: Record<string, string | number> = {
-    status,
     search,
     limit,
     offset: (page - 1) * limit,
     sortBy,
     order,
   };
+
+  if (statuses.length > 0) {
+    params.status = statuses.join(',');
+  }
 
   if (yearFrom !== '' && yearFrom !== undefined) params.yearFrom = yearFrom;
   if (yearTo !== '' && yearTo !== undefined) params.yearTo = yearTo;

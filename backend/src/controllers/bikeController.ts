@@ -42,6 +42,25 @@ function resolvePagination(query: {
   return { limit, offset, page };
 }
 
+const ALLOWED_BIKE_STATUSES = ['available', 'repair', 'sold'] as const;
+
+/** Парсит status=available,repair или повторяющиеся query-параметры */
+function parseStatuses(value: unknown): string[] | undefined {
+  if (value === undefined || value === '') {
+    return undefined;
+  }
+
+  const rawParts = Array.isArray(value)
+    ? value.flatMap((item) => String(item).split(','))
+    : String(value).split(',');
+
+  const statuses = rawParts
+    .map((part) => part.trim())
+    .filter((part) => ALLOWED_BIKE_STATUSES.includes(part as (typeof ALLOWED_BIKE_STATUSES)[number]));
+
+  return statuses.length > 0 ? statuses : undefined;
+}
+
 // Список байков (с фильтрами, сортировкой и пагинацией)
 export const getAllBikes = async (req: Request, res: Response) => {
   try {
@@ -66,7 +85,7 @@ export const getAllBikes = async (req: Request, res: Response) => {
     });
 
     const result = await BikeService.getAllBikes({
-      status: status as string,
+      statuses: parseStatuses(status),
       search: search as string,
       ...pagination,
       sortBy: sortBy as string,

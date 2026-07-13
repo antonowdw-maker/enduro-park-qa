@@ -244,7 +244,7 @@ export default function MainPage() {
   // --- СОСТОЯНИЯ ДАННЫХ ---
   const [bikes, setBikes] = useState<BikeRow[]>([]);
   const [total, setTotal] = useState(0);
-  const [activeStatus, setActiveStatus] = useState('');
+  const [activeStatuses, setActiveStatuses] = useState<string[]>([]);
   const [yearFrom, setYearFrom] = useState('');
   const [yearTo, setYearTo] = useState('');
   const [mileageFrom, setMileageFrom] = useState('');
@@ -275,12 +275,12 @@ export default function MainPage() {
     [yearFrom, yearTo, mileageFrom, mileageTo],
   );
   const hasFilterErrors = Object.keys(filterErrors).length > 0;
-  const hasActiveFilters = activeStatus !== '' || yearFrom !== '' || yearTo !== '' || mileageFrom !== '' || mileageTo !== '';
+  const hasActiveFilters = activeStatuses.length > 0 || yearFrom !== '' || yearTo !== '' || mileageFrom !== '' || mileageTo !== '';
 
   // Загрузка списка байков с бэкенда (фильтр, пагинация, сортировка) — доступна без авторизации
   const loadData = () => {
     getBikes({
-      status: activeStatus,
+      statuses: activeStatuses,
       page,
       limit,
       sortBy,
@@ -303,7 +303,7 @@ export default function MainPage() {
   useEffect(() => {
     if (hasFilterErrors) return;
     loadData();
-  }, [activeStatus, yearFrom, yearTo, mileageFrom, mileageTo, page, limit, sortBy, sortOrder, hasFilterErrors]);
+  }, [activeStatuses, yearFrom, yearTo, mileageFrom, mileageTo, page, limit, sortBy, sortOrder, hasFilterErrors]);
 
   const handleLogout = async () => {
     await logout();
@@ -312,10 +312,24 @@ export default function MainPage() {
 
   const totalPages = Math.ceil(total / limit) || 1;
 
+  /** Мультивыбор статусов: повторный клик снимает фильтр; «Все» — сброс */
   const handleStatusFilter = (status: string) => {
-    setActiveStatus(status);
+    if (status === '') {
+      setActiveStatuses([]);
+      setPage(1);
+      return;
+    }
+
+    setActiveStatuses((prev) => {
+      if (prev.includes(status)) {
+        return prev.filter((item) => item !== status);
+      }
+      return [...prev, status];
+    });
     setPage(1);
   };
+
+  const isStatusFilterActive = (status: string) => activeStatuses.includes(status);
 
   /** Ввод года: только цифры, максимум 4 */
   const handleYearFilterChange = (
@@ -353,7 +367,7 @@ export default function MainPage() {
   };
 
   const handleClearAllFilters = () => {
-    setActiveStatus('');
+    setActiveStatuses([]);
     setYearFrom('');
     setYearTo('');
     setMileageFrom('');
@@ -497,28 +511,28 @@ export default function MainPage() {
               <button
                 data-testid="filter-all"
                 onClick={() => handleStatusFilter('')}
-                className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold transition-all ${activeStatus === '' ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-100 text-slate-600'}`}
+                className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold transition-all ${activeStatuses.length === 0 ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-100 text-slate-600'}`}
               >
                 <RefreshCcw size={14} /> Все
               </button>
               <button
                 data-testid="filter-available"
                 onClick={() => handleStatusFilter('available')}
-                className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold transition-all ${activeStatus === 'available' ? 'bg-emerald-600 text-white shadow-md' : 'bg-emerald-100 text-emerald-700'}`}
+                className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold transition-all ${isStatusFilterActive('available') ? 'bg-emerald-600 text-white shadow-md' : 'bg-emerald-100 text-emerald-700'}`}
               >
                 <Check size={14} /> Доступен
               </button>
               <button
                 data-testid="filter-repair"
                 onClick={() => handleStatusFilter('repair')}
-                className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold transition-all ${activeStatus === 'repair' ? 'bg-amber-600 text-white shadow-md' : 'bg-amber-100 text-amber-700'}`}
+                className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold transition-all ${isStatusFilterActive('repair') ? 'bg-amber-600 text-white shadow-md' : 'bg-amber-100 text-amber-700'}`}
               >
                 <Wrench size={14} /> Ремонт
               </button>
               <button
                 data-testid="filter-sold"
                 onClick={() => handleStatusFilter('sold')}
-                className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold transition-all ${activeStatus === 'sold' ? 'bg-rose-600 text-white shadow-md' : 'bg-rose-100 text-rose-700'}`}
+                className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold transition-all ${isStatusFilterActive('sold') ? 'bg-rose-600 text-white shadow-md' : 'bg-rose-100 text-rose-700'}`}
               >
               <Tag size={14} /> Продан
             </button>

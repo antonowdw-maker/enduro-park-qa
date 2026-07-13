@@ -112,7 +112,7 @@ function prepareBikeData(bikeData: any, includeVin = true) {
 
 export const BikeService = {
   async getAllBikes(filters: {
-    status?: string;
+    statuses?: string[];
     search?: string;
     page?: number;
     limit?: number;

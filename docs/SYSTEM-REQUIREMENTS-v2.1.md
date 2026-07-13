@@ -124,7 +124,8 @@
 
 | ID | Требование | Роли | Проверка |
 |----|------------|------|----------|
-| F-FILTER-01 | Фильтр по статусу | public | `filter-all`, `filter-available`, `filter-repair`, `filter-sold` |
+| F-FILTER-01 | Фильтр по статусу (мультивыбор) | public | `filter-all`, `filter-available`, `filter-repair`, `filter-sold` |
+| F-FILTER-02 | Несколько статусов одновременно | public | клик вкл/выкл; API `status=available,repair` |
 | F-FILTER-03 | Год от / до | public | `filter-year-from`, `filter-year-to` |
 | F-FILTER-04 | Пробег от / до | public | `filter-mileage-from`, `filter-mileage-to` |
 | F-FILTER-05 | Пустое поле диапазона — фильтр не применяется | public | API без соответствующего query-параметра |
@@ -158,7 +159,7 @@
 
 | Параметр | Описание |
 |----------|----------|
-| `status` | available / repair / sold (пусто — все) |
+| `status` | Один или несколько через запятую: `available`, `repair`, `sold` (пусто — все) |
 | `search` | Поиск по марке/модели |
 | `yearFrom`, `yearTo` | Диапазон года выпуска (включительно) |
 | `mileageFrom`, `mileageTo` | Диапазон пробега (включительно) |
