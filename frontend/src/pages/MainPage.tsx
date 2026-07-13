@@ -7,8 +7,11 @@ import { getBikes, createBike } from '../api';
 import { useAuth } from '../contexts/AuthContext';
 import {
   Bike, Plus, Filter, Check, Wrench, RefreshCcw,
-  ChevronLeft, ChevronRight, LogOut, Tag,
+  ChevronLeft, ChevronRight, LogOut, Tag, ArrowUp, ArrowDown,
 } from 'lucide-react';
+
+/** Поля, по которым разрешена сортировка (F-SORT-01) */
+type SortField = 'brand' | 'model' | 'year' | 'vin' | 'mileage' | 'status' | 'lastService';
 
 /**
  * Возвращает текст статуса для отображения в таблице.
@@ -18,6 +21,55 @@ function getStatusLabel(status: string): string {
   if (status === 'available') return 'Доступен';
   if (status === 'repair') return 'В ремонте';
   return 'Продан';
+}
+
+/** Форматирование даты последнего ТО для колонки таблицы */
+function formatLastService(value: string): string {
+  return new Date(value).toLocaleDateString('ru-RU');
+}
+
+/** Форматирование пробега с разделителем тысяч */
+function formatMileage(km: number): string {
+  return `${km.toLocaleString('ru-RU')} км`;
+}
+
+/**
+ * КЛИКАБЕЛЬНЫЙ ЗАГОЛОВОК КОЛОНКИ (F-SORT-01, F-SORT-02)
+ * Первый клик — по возрастанию, повторный — по убыванию.
+ */
+function SortableHeader({
+  testId,
+  field,
+  label,
+  sortBy,
+  sortOrder,
+  onSort,
+  align = 'left',
+}: {
+  testId: string;
+  field: SortField;
+  label: string;
+  sortBy: SortField;
+  sortOrder: 'asc' | 'desc';
+  onSort: (field: SortField) => void;
+  align?: 'left' | 'center' | 'right';
+}) {
+  const alignClass =
+    align === 'center' ? 'justify-center' : align === 'right' ? 'justify-end' : 'justify-start';
+
+  return (
+    <th className={`px-4 py-3 ${align === 'center' ? 'text-center' : align === 'right' ? 'text-right' : 'text-left'}`}>
+      <button
+        type="button"
+        data-testid={testId}
+        onClick={() => onSort(field)}
+        className={`inline-flex w-full items-center gap-1 text-[10px] font-black uppercase tracking-widest transition-colors hover:text-blue-600 ${alignClass} ${sortBy === field ? 'text-blue-600' : 'text-slate-400'}`}
+      >
+        {label}
+        {sortBy === field && (sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
+      </button>
+    </th>
+  );
 }
 
 /**
@@ -35,6 +87,9 @@ export default function MainPage() {
   const [activeStatus, setActiveStatus] = useState('');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
+  // Сортировка таблицы (F-SORT-02): по умолчанию марка по возрастанию (TC-SORT-01)
+  const [sortBy, setSortBy] = useState<SortField>('brand');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   // --- НАСТРОЙКА ФОРМЫ БАЙКА С ВАЛИДАЦИЕЙ ZOD ---
   const { register, handleSubmit, reset, formState: { errors } } = useForm<BikeFormData>({
@@ -42,9 +97,9 @@ export default function MainPage() {
     defaultValues: { year: 2024, mileage: 0, status: 'available' },
   });
 
-  // Загрузка списка байков с бэкенда (учитывает фильтр и пагинацию)
+  // Загрузка списка байков с бэкенда (фильтр, пагинация, сортировка)
   const loadData = () => {
-    getBikes(activeStatus, '', page, limit)
+    getBikes(activeStatus, '', page, limit, sortBy, sortOrder)
       .then((res) => {
         setBikes(res.bikes);
         setTotal(res.total);
@@ -55,10 +110,10 @@ export default function MainPage() {
       });
   };
 
-  // Перезагружаем данные при смене фильтра, страницы или лимита
+  // Перезагружаем при смене фильтра, страницы, лимита или сортировки
   useEffect(() => {
     loadData();
-  }, [activeStatus, page, limit]);
+  }, [activeStatus, page, limit, sortBy, sortOrder]);
 
   // --- ОБРАБОТКА ВЫХОДА (F-AUTH-05: редирект на /login) ---
   const handleLogout = async () => {
@@ -91,11 +146,22 @@ export default function MainPage() {
   const handlePrevPage = () => setPage((p) => Math.max(1, p - 1));
   const handleNextPage = () => setPage((p) => Math.min(totalPages, p + 1));
 
+  // Смена сортировки по клику на заголовок колонки (F-SORT-02)
+  const handleSort = (field: SortField) => {
+    if (sortBy === field) {
+      setSortOrder((order) => (order === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+    setPage(1);
+  };
+
   if (!user) return null;
 
   return (
     <div className="min-h-screen bg-slate-50 p-8 font-sans text-slate-900">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-[88rem]">
 
         {/* ШАПКА: логотип, имя пользователя, кнопка выхода */}
         <header className="mb-10 flex items-center justify-between">
@@ -277,30 +343,35 @@ export default function MainPage() {
             </form>
           </section>
 
-          {/* СЕКЦИЯ: ТАБЛИЦА — высота по количеству строк (без искусственного растягивания) */}
+          {/* СЕКЦИЯ: ТАБЛИЦА (F-BIKE-LIST-01) — все колонки + сортировка */}
           <section className="min-w-0 flex-1">
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <table className="w-full border-collapse text-left text-sm">
-                <thead className="bg-slate-50 font-black text-slate-400 uppercase tracking-widest">
+              <div className="overflow-x-auto">
+              <table className="w-full min-w-[1100px] border-collapse text-left text-sm">
+                <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-6 py-4">Мотоцикл</th>
-                    <th className="px-6 py-4 text-center">Год</th>
-                    <th className="px-6 py-4">VIN-код</th>
-                    <th className="px-6 py-4 text-right">Статус</th>
+                    <SortableHeader testId="sort-brand" field="brand" label="Марка" sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} />
+                    <SortableHeader testId="sort-model" field="model" label="Модель" sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} />
+                    <SortableHeader testId="sort-year" field="year" label="Год" sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} align="center" />
+                    <SortableHeader testId="sort-vin" field="vin" label="VIN" sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} />
+                    <SortableHeader testId="sort-mileage" field="mileage" label="Пробег" sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} align="right" />
+                    <SortableHeader testId="sort-status" field="status" label="Статус" sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} align="center" />
+                    <SortableHeader testId="sort-lastService" field="lastService" label="Последнее ТО" sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} align="center" />
+                    <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Заметки</th>
+                    <th className="px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-slate-400">Действия</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {bikes.map((bike) => (
                     <tr key={bike.id} data-testid={`bike-row-${bike.vin}`} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-6 py-4 font-bold text-slate-700 leading-tight">
-                        <div className="uppercase tracking-tighter text-blue-600 font-black">{bike.brand}</div>
-                        <div className="text-slate-400 text-[10px] font-bold uppercase italic tracking-widest">{bike.model}</div>
-                      </td>
-                      <td className="px-6 py-4 text-center text-slate-500 font-black">{bike.year}</td>
-                      <td className="px-6 py-4 font-mono text-xs font-semibold text-blue-500">{bike.vin}</td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-4 py-3 font-black uppercase tracking-tighter text-blue-600">{bike.brand}</td>
+                      <td className="px-4 py-3 text-slate-500 text-xs font-bold uppercase italic tracking-widest">{bike.model}</td>
+                      <td className="px-4 py-3 text-center text-slate-500 font-black">{bike.year}</td>
+                      <td className="px-4 py-3 font-mono text-xs font-semibold text-blue-500">{bike.vin}</td>
+                      <td className="px-4 py-3 text-right text-slate-600 font-semibold">{formatMileage(bike.mileage)}</td>
+                      <td className="px-4 py-3 text-center">
                         <span
-                          className={`inline-flex items-center rounded-md px-3 py-1 text-[9px] font-black uppercase tracking-widest border ${
+                          className={`inline-flex items-center rounded-md px-2 py-1 text-[9px] font-black uppercase tracking-widest border ${
                             bike.status === 'available'
                               ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                               : bike.status === 'repair'
@@ -311,10 +382,19 @@ export default function MainPage() {
                           {getStatusLabel(bike.status)}
                         </span>
                       </td>
+                      <td className="px-4 py-3 text-center text-slate-500 text-xs font-semibold">
+                        {bike.lastService ? formatLastService(bike.lastService) : '—'}
+                      </td>
+                      <td className="px-4 py-3 text-slate-500 text-xs max-w-[8rem] truncate" title={bike.notes || ''}>
+                        {bike.notes || '—'}
+                      </td>
+                      {/* Кнопки edit/delete — итерация 5 (F-BIKE-EDIT/DELETE) */}
+                      <td className="px-4 py-3 text-center text-slate-300 text-xs">—</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              </div>
 
               {/* F-PAGINATION-02: навигация по страницам таблицы */}
               <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/50 p-4">

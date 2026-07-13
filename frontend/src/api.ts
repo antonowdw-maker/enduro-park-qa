@@ -24,10 +24,17 @@ export const getMe = async (): Promise<AuthUser> => {
   return response.data;
 };
 
-/** GET /bikes — получить список байков с фильтрами и пагинацией */
-export const getBikes = async (status: string = '', search: string = '', page: number = 1, limit: number = 10) => {
+/** GET /bikes — список байков (фильтры, сортировка sortBy/order, пагинация) */
+export const getBikes = async (
+  status: string = '',
+  search: string = '',
+  page: number = 1,
+  limit: number = 10,
+  sortBy: string = 'brand',
+  order: 'asc' | 'desc' = 'asc',
+) => {
   const response = await api.get('/bikes', {
-    params: { status, search, page, limit },
+    params: { status, search, page, limit, sortBy, order },
   });
   return response.data;
 };
