@@ -2,7 +2,7 @@
 
 **Версия:** 2.5  
 **Дата:** 13.07.2026  
-**Изменения от v2.4:** итерация 9 — детерминированный seed, якорные VIN.
+**Изменения от v2.4:** итерация 9 — детерминированный seed, якорные VIN; бэклог — мультистатус (F-FILTER-02), дата ТО текст+календарь+маска (F-BIKE-VALID-01).
 
 **История:** v2.4 — валидация фильтров; v2.3 — offset, фильтры год/пробег; v2.2 — валидация, BUG-03, дата ТО; v2.1 — публичная главная, без guest, VIN редактируем; v2.0 — исходный PDF.
 
@@ -151,6 +151,7 @@
 | Очистка фильтров | `filter-clear-all`, `filter-year-from-clear`, `filter-year-to-clear`, `filter-mileage-from-clear`, `filter-mileage-to-clear` |
 | Ошибки фильтров | `error-filter-year-from`, `error-filter-year-to`, `error-filter-mileage-from`, `error-filter-mileage-to` |
 | Ошибки полей | `error-brand`, `error-model`, `error-year`, `error-vin`, `error-mileage`, `error-status`, `error-lastService`, `error-notes` |
+| Дата последнего ТО | `input-lastService` (текст), `input-lastService-calendar` (календарь) |
 | Ошибка API в форме | `form-server-error` |
 
 ---
