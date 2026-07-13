@@ -2,6 +2,21 @@ import { Prisma, PrismaClient, Bike } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+/**
+ * Преобразует ошибки Prisma в понятные сообщения для UI.
+ * P2002 — нарушение уникальности (например, дубликат VIN).
+ */
+function handlePrismaError(error: unknown): never {
+  if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+    const fields = error.meta?.target as string[] | undefined;
+    if (fields?.includes('vin')) {
+      throw new Error('Мотоцикл с таким VIN уже существует в базе');
+    }
+    throw new Error('Такая запись уже существует');
+  }
+  throw error;
+}
+
 /** Поля, для которых сортировка должна быть без учёта регистра (SQLite BINARY по умолчанию) */
 const CASE_INSENSITIVE_SORT_FIELDS = ['brand', 'model', 'vin', 'status'] as const;
 
@@ -86,11 +101,24 @@ export const BikeRepository = {
 
   // Создать новую запись
   async create(data: any) {
-    return await prisma.bike.create({ data });
+    try {
+      return await prisma.bike.create({ data });
+    } catch (error) {
+      handlePrismaError(error);
+    }
+  },
+
+  // Обновить существующую запись по id
+  async update(id: string, data: any) {
+    try {
+      return await prisma.bike.update({ where: { id }, data });
+    } catch (error) {
+      handlePrismaError(error);
+    }
   },
 
   // Удалить байк
   async delete(id: string) {
     return await prisma.bike.delete({ where: { id } });
-  }
+  },
 };

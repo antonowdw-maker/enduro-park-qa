@@ -1,20 +1,19 @@
 import { Router } from 'express';
-import { getAllBikes, createBike } from '../controllers/bikeController';
-// Импортируем нашего "Охранника"
+import { getAllBikes, createBike, updateBike, deleteBike } from '../controllers/bikeController';
 import { protect } from '../middleware/authMiddleware';
 
 const router = Router();
 
-// 1. GET /api/bikes - Доступно ВСЕМ (даже гостям без логина)
+// GET /api/bikes — список (пока без auth, итерация 8)
 router.get('/', getAllBikes);
 
-/**
- * 2. POST /api/bikes - Доступно ТОЛЬКО авторизованным пользователям
- * с ролями 'admin' или 'mechanic'.
- * 
- * QA-Кейс: попробуй отправить этот запрос без логина или под ролью 'guest'
- * Ожидаемый результат: Ошибка 401 или 403.
- */
+// POST /api/bikes — создание (mechanic, admin)
 router.post('/', protect(['admin', 'mechanic']), createBike);
+
+// PUT /api/bikes/:id — редактирование (mechanic, admin)
+router.put('/:id', protect(['admin', 'mechanic']), updateBike);
+
+// DELETE /api/bikes/:id — удаление (только admin)
+router.delete('/:id', protect(['admin']), deleteBike);
 
 export default router;
