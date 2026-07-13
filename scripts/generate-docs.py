@@ -15,14 +15,14 @@ FILES = [
     (
         DOCS / "SYSTEM-REQUIREMENTS-v2.1.md",
         [
-            DESKTOP / "Системные требования к проекту Enduro Park Manager v2.1.docx",
+            DESKTOP / "Системные требования к проекту Enduro Park Manager v2.2.docx",
             DESKTOP / "Системные требования к проекту Enduro Park Manager.docx",
         ],
     ),
     (
         DOCS / "MANUAL-TEST-CASES-v1.2.md",
         [
-            DESKTOP / "Тестовые кейсы ручные v1.2.docx",
+            DESKTOP / "Тестовые кейсы ручные v1.3.docx",
             DESKTOP / "Тестовые кейсы ручные.docx",
         ],
     ),

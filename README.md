@@ -32,7 +32,7 @@
 | 4 | Таблица: все колонки + сортировка | ✅ |
 | 5 | CRUD: модалка добавления/редактирования, delete, API PUT/DELETE | ✅ |
 | 6 | Роли в UI (аноним / mechanic / admin) | ✅ |
-| 7 | Валидация + `error-*` testid + BUG-03 | |
+| 7 | Валидация + `error-*` testid + BUG-03 | ✅ |
 | 8 | API: auth на GET /bikes, offset, фильтры год/пробег | |
 | 9 | Seed: детерминированные данные для тестов | |
 | 10 | Playwright + GitHub Actions CI | |
@@ -42,7 +42,7 @@
 Сюда попадают идеи из ревью кода и обсуждений — то, что **не входит** в таблицу итераций выше, но стоит не забыть. При новых предложениях «сделать позже» — дополняем этот список.
 
 **Отклонения от PDF-требований и статус ручных ТК** — в [`docs/IMPLEMENTATION-NOTES.md`](docs/IMPLEMENTATION-NOTES.md).  
-**Актуальные требования v2.1 и ТК v1.2** — [`docs/SYSTEM-REQUIREMENTS-v2.1.md`](docs/SYSTEM-REQUIREMENTS-v2.1.md), [`docs/MANUAL-TEST-CASES-v1.2.md`](docs/MANUAL-TEST-CASES-v1.2.md).
+**Актуальные требования v2.2 и ТК v1.3** — [`docs/SYSTEM-REQUIREMENTS-v2.1.md`](docs/SYSTEM-REQUIREMENTS-v2.1.md), [`docs/MANUAL-TEST-CASES-v1.2.md`](docs/MANUAL-TEST-CASES-v1.2.md).
 
 ### UX / интерфейс
 - [ ] Перенести `pagination-limit` из блока фильтров к пагинации под таблицей (сейчас testid на месте, но расположение неудобное).
@@ -58,7 +58,7 @@
 - [ ] Удалить случайный `package-lock.json` в корне репозитория (если не нужен для Playwright в корне).
 
 ### Документация / тест-кейсы
-- [ ] Обновить ручные ТК: ошибка поля «Марка» — «Минимум 2 символа для марки» (`error-brand`); правило min 2 символа оставить для автотестов.
+- [ ] Обновить ручные ТК: ошибка поля «Марка» — «Минимум 2 символа для марки» (`error-brand`); правило min 2 символа оставить для автотестов. *(включено в v1.2)*
 
 ### Автотесты (практики, дополняют итерацию 10)
 - [ ] Page Object: `login.page.ts`, `dashboard.page.ts` — локаторы в одном месте.
@@ -72,4 +72,4 @@
 - [x] Модалка CRUD: `add-bike-btn`, `edit-bike-{vin}`, `delete-bike-{vin}`, PUT/DELETE API.
 - [x] Подтверждение удаления в приложении: `delete-confirm-modal`, `delete-confirm-btn`, `delete-cancel-btn`.
 - [x] Роли в UI: анонимный просмотр без входа; mechanic без delete; admin — полный доступ; `header-login-btn`.
-- [x] VIN редактируем при update; уникальность при create и update.
+- [x] Валидация формы: `error-*` testid, BUG-03 (год 1988/2028 проходят).
