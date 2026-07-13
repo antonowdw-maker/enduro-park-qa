@@ -35,7 +35,9 @@
 | F-BIKE-DELETE | Подтверждение | `delete-confirm-modal` | ✅ Принято | В v2.1 |
 | VIN | 17 символов | + без I/O/Q + буквы и цифры; **редактируем при update** | ✅ Принято | В v2.1 |
 | Дубликат VIN | — | Сообщение при create **и** update | ✅ Добавлено | TC-BIKE-EDIT-VIN-02 |
-| Пагинация API | `offset` | Используется `page` | ⏳ Итерация 8 | — |
+| Пагинация API | `offset` | `offset` + `page` (обратная совместимость) | ✅ Итерация 8 | В v2.3 |
+| Фильтры год/пробег | yearFrom…mileageTo | API + UI testid | ✅ Итерация 8 | В v2.3 |
+| GET /bikes auth | PDF: обязательный | Опциональный: без cookie OK, невалидный → 401 | ✅ Итерация 8 | В v2.3 |
 | BUG-03 | Год 1988/2028 проходят | Ошибка только на 1989 и current+1 | ✅ Намеренный баг | TC-BIKE-NEG-07/09 |
 | lastService | Не описано в v2.0 | ≥ 1990-01-01, ≤ сегодня, реальная дата | ✅ Добавлено v2.2 | TC-BIKE-NEG-11…14 |
 | BUG-02 | Нестандартная ошибка TEST/123 | Текст про guest в form-server-error | ✅ Намеренный баг | TC-BIKE-NEG-10 |
@@ -54,6 +56,10 @@
 | TC-ROLE-05 (старый) | guest POST | ⏭ Удалён | Заменён: POST без cookie → 401 |
 | TC-BIKE-EDIT-VIN-* | VIN при edit | ✅ Новые в v1.2 | |
 | TC-BIKE-NEG-* | Негативная валидация | ✅ Работает | `error-*`, BUG-03, дата ТО |
+| TC-FILTER-YEAR-* / MILEAGE-* | — | ✅ Новые в v1.4 | Итерация 8 |
+| TC-API-OFFSET-01 | — | ✅ Новый в v1.4 | offset в ответе API |
+| TC-AUTH-10 | — | ✅ Новый в v1.4 | Невалидный cookie → 401 |
+| TC-FILTER-VALID-* / CLEAR-* | — | ✅ Новые в v1.5 | Валидация и очистка фильтров |
 
 ---
 
@@ -63,9 +69,12 @@
 - `back-to-home-btn` — на главную с `/login`
 - `user-username`, `user-role` — шапка после входа
 - `actions-readonly-placeholder` — нет прав на действия
+- `filter-year-from`, `filter-year-to`, `filter-mileage-from`, `filter-mileage-to` — диапазоны (ит. 8)
+- `filter-clear-all`, `filter-*-clear` — сброс фильтров (v2.4)
+- `error-filter-*` — ошибки валидации диапазонов (v2.4)
 
 Удалено: `guest-readonly-banner`
 
 ---
 
-*Последнее обновление: итерация 7 — валидация, BUG-03, дата ТО (v2.2 / TC v1.3).*
+*Последнее обновление: итерация 8 — валидация фильтров, кнопки очистки (v2.4 / TC v1.5).*

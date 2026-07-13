@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Генерация docx из markdown-файлов требований и ТК (v2.1 / v1.2)."""
+"""Генерация docx из markdown-файлов требований и ТК (v2.4 / v1.5)."""
 from pathlib import Path
 import re
 import sys
@@ -15,14 +15,14 @@ FILES = [
     (
         DOCS / "SYSTEM-REQUIREMENTS-v2.1.md",
         [
-            DESKTOP / "Системные требования к проекту Enduro Park Manager v2.2.docx",
+            DESKTOP / "Системные требования к проекту Enduro Park Manager v2.4.docx",
             DESKTOP / "Системные требования к проекту Enduro Park Manager.docx",
         ],
     ),
     (
         DOCS / "MANUAL-TEST-CASES-v1.2.md",
         [
-            DESKTOP / "Тестовые кейсы ручные v1.3.docx",
+            DESKTOP / "Тестовые кейсы ручные v1.5.docx",
             DESKTOP / "Тестовые кейсы ручные.docx",
         ],
     ),

@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { getAllBikes, createBike, updateBike, deleteBike } from '../controllers/bikeController';
-import { protect } from '../middleware/authMiddleware';
+import { optionalAuthenticate, protect } from '../middleware/authMiddleware';
 
 const router = Router();
 
-// GET /api/bikes — список (пока без auth, итерация 8)
-router.get('/', getAllBikes);
+// GET /api/bikes — список (публичный; невалидный токен → 401)
+router.get('/', optionalAuthenticate, getAllBikes);
 
 // POST /api/bikes — создание (mechanic, admin)
 router.post('/', protect(['admin', 'mechanic']), createBike);

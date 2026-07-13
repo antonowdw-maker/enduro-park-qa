@@ -21,7 +21,14 @@ function handlePrismaError(error: unknown): never {
 const CASE_INSENSITIVE_SORT_FIELDS = ['brand', 'model', 'vin', 'status'] as const;
 
 /** Собирает SQL-условие WHERE из фильтров списка */
-function buildWhereSql(filters?: { status?: string; search?: string }): Prisma.Sql {
+function buildWhereSql(filters?: {
+  status?: string;
+  search?: string;
+  yearFrom?: number;
+  yearTo?: number;
+  mileageFrom?: number;
+  mileageTo?: number;
+}): Prisma.Sql {
   const conditions: Prisma.Sql[] = [];
 
   if (filters?.status && filters.status !== 'all') {
@@ -30,6 +37,18 @@ function buildWhereSql(filters?: { status?: string; search?: string }): Prisma.S
   if (filters?.search) {
     const pattern = `%${filters.search}%`;
     conditions.push(Prisma.sql`(brand LIKE ${pattern} OR model LIKE ${pattern})`);
+  }
+  if (filters?.yearFrom !== undefined) {
+    conditions.push(Prisma.sql`year >= ${filters.yearFrom}`);
+  }
+  if (filters?.yearTo !== undefined) {
+    conditions.push(Prisma.sql`year <= ${filters.yearTo}`);
+  }
+  if (filters?.mileageFrom !== undefined) {
+    conditions.push(Prisma.sql`mileage >= ${filters.mileageFrom}`);
+  }
+  if (filters?.mileageTo !== undefined) {
+    conditions.push(Prisma.sql`mileage <= ${filters.mileageTo}`);
   }
 
   return conditions.length > 0 ? Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}` : Prisma.empty;
@@ -47,14 +66,19 @@ export const BikeRepository = {
   async findAll(filters?: {
     status?: string;
     search?: string;
+    yearFrom?: number;
+    yearTo?: number;
+    mileageFrom?: number;
+    mileageTo?: number;
     page?: number;
     limit?: number;
+    offset?: number;
     sortBy?: string;
     order?: 'asc' | 'desc';
   }) {
-    const page = filters?.page || 1;
     const limit = filters?.limit || 10;
-    const skip = (page - 1) * limit;
+    const offset = filters?.offset ?? (Math.max(1, filters?.page || 1) - 1) * limit;
+    const page = Math.floor(offset / limit) + 1;
 
     // Белый список полей для сортировки (F-SORT-01)
     const allowedSortFields = ['brand', 'model', 'year', 'vin', 'mileage', 'status', 'lastService'] as const;
@@ -80,7 +104,7 @@ export const BikeRepository = {
     const total = Number(countResult[0].count);
 
     const bikes = await prisma.$queryRaw<Bike[]>(
-      Prisma.sql`SELECT * FROM Bike ${whereSql} ${orderClause} LIMIT ${limit} OFFSET ${skip}`,
+      Prisma.sql`SELECT * FROM Bike ${whereSql} ${orderClause} LIMIT ${limit} OFFSET ${offset}`,
     );
 
     return {
@@ -88,6 +112,7 @@ export const BikeRepository = {
       total,
       page,
       limit,
+      offset,
       totalPages: Math.ceil(total / limit),
       sortBy: sortField,
       order: sortOrder,

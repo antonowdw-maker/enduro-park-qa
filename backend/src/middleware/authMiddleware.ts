@@ -41,6 +41,36 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
 };
 
 /**
+ * Опциональная авторизация для GET /bikes (итерация 8):
+ * без cookie — публичный просмотр; с невалидным токеном — 401.
+ */
+export const optionalAuthenticate = (req: AuthRequest, res: Response, next: NextFunction) => {
+  const token = req.cookies.token;
+
+  if (!token) {
+    return next();
+  }
+
+  try {
+    const decoded: any = jwt.verify(token, JWT_SECRET);
+
+    if (decoded.role === 'guest') {
+      res.clearCookie('token');
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    req.user = {
+      userId: decoded.userId,
+      username: decoded.username,
+      role: decoded.role,
+    };
+    next();
+  } catch {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+};
+
+/**
  * MIDDLEWARE ЗАЩИТЫ (ОХРАННИК)
  */
 export const protect = (allowedRoles: string[]) => {

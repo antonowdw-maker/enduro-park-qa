@@ -1,10 +1,10 @@
 # Системные требования к проекту Enduro Park Manager
 
-**Версия:** 2.2  
+**Версия:** 2.4  
 **Дата:** 13.07.2026  
-**Изменения от v2.1:** итерация 7 — валидация формы, `error-*`, BUG-03, правила даты ТО.
+**Изменения от v2.3:** валидация диапазонных фильтров, кнопки очистки, запрет отрицательных значений.
 
-**История:** v2.1 — публичная главная, без guest, VIN редактируем; v2.0 — исходный PDF.
+**История:** v2.3 — offset, фильтры год/пробег; v2.2 — валидация, BUG-03, дата ТО; v2.1 — публичная главная, без guest, VIN редактируем; v2.0 — исходный PDF.
 
 ---
 
@@ -89,6 +89,22 @@
 
 ---
 
+## 4.3 Фильтры списка (итерация 8)
+
+| ID | Требование | Роли | Проверка |
+|----|------------|------|----------|
+| F-FILTER-01 | Фильтр по статусу | public | `filter-all`, `filter-available`, `filter-repair`, `filter-sold` |
+| F-FILTER-03 | Год от / до | public | `filter-year-from`, `filter-year-to` |
+| F-FILTER-04 | Пробег от / до | public | `filter-mileage-from`, `filter-mileage-to` |
+| F-FILTER-05 | Пустое поле диапазона — фильтр не применяется | public | API без соответствующего query-параметра |
+| F-FILTER-06 | Сброс всех фильтров (статус + диапазоны) | public | `filter-clear-all` |
+| F-FILTER-07 | Очистка отдельного поля | public | `filter-{field}-clear` |
+| F-FILTER-08 | «До» ≥ «от» (год и пробег) | public | `error-filter-year-to`, `error-filter-mileage-to`; запрос не уходит при ошибке |
+| F-FILTER-09 | Только неотрицательные значения | public | минус не вводится; `error-filter-*` при отрицательном |
+| F-FILTER-10 | Год в фильтре — только цифры, **не более 4** | public | `filter-year-from`, `filter-year-to`; `maxLength=4` |
+
+---
+
 ## 6.1.2 data-testid
 
 | Элемент | data-testid |
@@ -97,6 +113,9 @@
 | На главную (login) | `back-to-home-btn` |
 | Пользователь / роль | `user-username`, `user-role` |
 | Нет прав на действия | `actions-readonly-placeholder` |
+| Фильтры год/пробег | `filter-year-from`, `filter-year-to`, `filter-mileage-from`, `filter-mileage-to` |
+| Очистка фильтров | `filter-clear-all`, `filter-year-from-clear`, `filter-year-to-clear`, `filter-mileage-from-clear`, `filter-mileage-to-clear` |
+| Ошибки фильтров | `error-filter-year-from`, `error-filter-year-to`, `error-filter-mileage-from`, `error-filter-mileage-to` |
 | Ошибки полей | `error-brand`, `error-model`, `error-year`, `error-vin`, `error-mileage`, `error-status`, `error-lastService`, `error-notes` |
 | Ошибка API в форме | `form-server-error` |
 
@@ -104,12 +123,29 @@
 
 ## 6.2 API — мотоциклы
 
-| Метод | Auth | Роли |
-|-------|------|------|
-| GET /bikes | Нет | public |
-| POST /bikes | Да | mechanic, admin |
-| PUT /bikes/:id | Да | mechanic, admin |
-| DELETE /bikes/:id | Да | admin |
+### GET /bikes — query-параметры
+
+| Параметр | Описание |
+|----------|----------|
+| `status` | available / repair / sold (пусто — все) |
+| `search` | Поиск по марке/модели |
+| `yearFrom`, `yearTo` | Диапазон года выпуска (включительно) |
+| `mileageFrom`, `mileageTo` | Диапазон пробега (включительно) |
+| `sortBy`, `order` | Сортировка (asc/desc) |
+| `limit` | 1…50, по умолчанию 10 |
+| `offset` | Смещение (приоритет над `page`) |
+| `page` | Номер страницы (если `offset` не передан) |
+
+Ответ: `{ bikes, total, limit, offset, page, totalPages, sortBy, order }`.
+
+### Авторизация
+
+| Метод | Auth | Роли | Примечание |
+|-------|------|------|------------|
+| GET /bikes | Опционально | public | Без cookie — 200; **невалидный** cookie — 401 |
+| POST /bikes | Да | mechanic, admin | |
+| PUT /bikes/:id | Да | mechanic, admin | |
+| DELETE /bikes/:id | Да | admin | |
 
 ---
 

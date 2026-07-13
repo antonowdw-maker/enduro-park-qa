@@ -33,7 +33,7 @@
 | 5 | CRUD: модалка добавления/редактирования, delete, API PUT/DELETE | ✅ |
 | 6 | Роли в UI (аноним / mechanic / admin) | ✅ |
 | 7 | Валидация + `error-*` testid + BUG-03 | ✅ |
-| 8 | API: auth на GET /bikes, offset, фильтры год/пробег | |
+| 8 | API: auth на GET /bikes, offset, фильтры год/пробег | ✅ |
 | 9 | Seed: детерминированные данные для тестов | |
 | 10 | Playwright + GitHub Actions CI | |
 
@@ -42,7 +42,7 @@
 Сюда попадают идеи из ревью кода и обсуждений — то, что **не входит** в таблицу итераций выше, но стоит не забыть. При новых предложениях «сделать позже» — дополняем этот список.
 
 **Отклонения от PDF-требований и статус ручных ТК** — в [`docs/IMPLEMENTATION-NOTES.md`](docs/IMPLEMENTATION-NOTES.md).  
-**Актуальные требования v2.2 и ТК v1.3** — [`docs/SYSTEM-REQUIREMENTS-v2.1.md`](docs/SYSTEM-REQUIREMENTS-v2.1.md), [`docs/MANUAL-TEST-CASES-v1.2.md`](docs/MANUAL-TEST-CASES-v1.2.md).
+**Актуальные требования v2.4 и ТК v1.5** — [`docs/SYSTEM-REQUIREMENTS-v2.1.md`](docs/SYSTEM-REQUIREMENTS-v2.1.md), [`docs/MANUAL-TEST-CASES-v1.2.md`](docs/MANUAL-TEST-CASES-v1.2.md).
 
 ### UX / интерфейс
 - [ ] Перенести `pagination-limit` из блока фильтров к пагинации под таблицей (сейчас testid на месте, но расположение неудобное).

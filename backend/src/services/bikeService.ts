@@ -111,15 +111,20 @@ function prepareBikeData(bikeData: any, includeVin = true) {
 }
 
 export const BikeService = {
-  async getAllBikes(
-    status?: string,
-    search?: string,
-    page?: number,
-    limit?: number,
-    sortBy?: string,
-    order?: 'asc' | 'desc',
-  ) {
-    return await BikeRepository.findAll({ status, search, page, limit, sortBy, order });
+  async getAllBikes(filters: {
+    status?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+    offset?: number;
+    sortBy?: string;
+    order?: 'asc' | 'desc';
+    yearFrom?: number;
+    yearTo?: number;
+    mileageFrom?: number;
+    mileageTo?: number;
+  }) {
+    return await BikeRepository.findAll(filters);
   },
 
   async createBike(bikeData: any, currentUserRole: string) {

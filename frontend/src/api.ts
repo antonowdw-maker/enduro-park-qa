@@ -24,18 +24,48 @@ export const getMe = async (): Promise<AuthUser> => {
   return response.data;
 };
 
-/** GET /bikes — список байков (фильтры, сортировка sortBy/order, пагинация) */
-export const getBikes = async (
-  status: string = '',
-  search: string = '',
-  page: number = 1,
-  limit: number = 10,
-  sortBy: string = 'brand',
-  order: 'asc' | 'desc' = 'asc',
-) => {
-  const response = await api.get('/bikes', {
-    params: { status, search, page, limit, sortBy, order },
-  });
+/** Параметры GET /bikes */
+export type GetBikesParams = {
+  status?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  order?: 'asc' | 'desc';
+  yearFrom?: number | '';
+  yearTo?: number | '';
+  mileageFrom?: number | '';
+  mileageTo?: number | '';
+};
+
+/** GET /bikes — список байков (фильтры, сортировка sortBy/order, пагинация через offset) */
+export const getBikes = async ({
+  status = '',
+  search = '',
+  page = 1,
+  limit = 10,
+  sortBy = 'brand',
+  order = 'asc',
+  yearFrom,
+  yearTo,
+  mileageFrom,
+  mileageTo,
+}: GetBikesParams = {}) => {
+  const params: Record<string, string | number> = {
+    status,
+    search,
+    limit,
+    offset: (page - 1) * limit,
+    sortBy,
+    order,
+  };
+
+  if (yearFrom !== '' && yearFrom !== undefined) params.yearFrom = yearFrom;
+  if (yearTo !== '' && yearTo !== undefined) params.yearTo = yearTo;
+  if (mileageFrom !== '' && mileageFrom !== undefined) params.mileageFrom = mileageFrom;
+  if (mileageTo !== '' && mileageTo !== undefined) params.mileageTo = mileageTo;
+
+  const response = await api.get('/bikes', { params });
   return response.data;
 };
 
