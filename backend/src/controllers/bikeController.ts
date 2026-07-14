@@ -61,12 +61,24 @@ function parseStatuses(value: unknown): string[] | undefined {
   return statuses.length > 0 ? statuses : undefined;
 }
 
+/** Парсит опциональную строку фильтра (пустое — не применяется) */
+function parseOptionalString(value: unknown, maxLen = 64): string | undefined {
+  const scalar = queryScalar(value);
+  if (scalar === undefined || scalar === '') {
+    return undefined;
+  }
+  const trimmed = String(scalar).trim().slice(0, maxLen);
+  return trimmed === '' ? undefined : trimmed;
+}
+
 // Список байков (с фильтрами, сортировкой и пагинацией)
 export const getAllBikes = async (req: Request, res: Response) => {
   try {
     const {
       status,
       search,
+      brand,
+      model,
       page,
       limit,
       offset,
@@ -86,7 +98,9 @@ export const getAllBikes = async (req: Request, res: Response) => {
 
     const result = await BikeService.getAllBikes({
       statuses: parseStatuses(status),
-      search: search as string,
+      search: parseOptionalString(search),
+      brand: parseOptionalString(brand),
+      model: parseOptionalString(model),
       ...pagination,
       sortBy: sortBy as string,
       order: order === 'asc' || order === 'desc' ? order : undefined,

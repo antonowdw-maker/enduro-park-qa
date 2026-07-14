@@ -102,14 +102,16 @@ test.describe('Filters', () => {
     await expect(mainPage.bikeRow(SEED_VINS.soldYamaha)).toBeVisible();
   });
 
-  test('TC-FILTER-CLEAR-01: filter-clear-all сбрасывает статус и диапазоны', async ({ page }) => {
+  test('TC-FILTER-CLEAR-01: filter-clear-all сбрасывает статус, марку и диапазоны', async ({ page }) => {
     const mainPage = new MainPage(page);
     await mainPage.filterAvailable().click();
+    await mainPage.brandFilter().fill('KTM');
     await mainPage.yearFrom().fill('2020');
     await mainPage.mileageFrom().fill('1000');
     await expect(mainPage.bikeRow(SEED_VINS.repairHonda)).toHaveCount(0);
 
     await mainPage.filterClearAll().click();
+    await expect(mainPage.brandFilter()).toHaveValue('');
     await expect(mainPage.yearFrom()).toHaveValue('');
     await expect(mainPage.mileageFrom()).toHaveValue('');
     await expect(mainPage.bikeRow(SEED_VINS.availableKtm)).toBeVisible();
@@ -158,5 +160,37 @@ test.describe('Filters', () => {
     await mainPage.yearFrom().click();
     await mainPage.yearFrom().pressSequentially('12345');
     await expect(mainPage.yearFrom()).toHaveValue('1234');
+  });
+
+  test('TC-FILTER-BRAND-01: фильтр по марке KTM', async ({ page }) => {
+    const mainPage = new MainPage(page);
+    await mainPage.brandFilter().fill('KTM');
+    await expect(mainPage.bikeRow(SEED_VINS.availableKtm)).toBeVisible();
+    await expect(mainPage.bikeRow(SEED_VINS.repairHonda)).toHaveCount(0);
+    await expect(mainPage.bikeRow(SEED_VINS.soldYamaha)).toHaveCount(0);
+  });
+
+  test('TC-FILTER-MODEL-01: фильтр по модели EXC', async ({ page }) => {
+    const mainPage = new MainPage(page);
+    await mainPage.modelFilter().fill('EXC');
+    await expect(mainPage.bikeRow(SEED_VINS.availableKtm)).toBeVisible();
+    await expect(mainPage.bikeRow(SEED_VINS.repairHonda)).toHaveCount(0);
+  });
+
+  test('TC-FILTER-BRAND-MODEL-01: марка + модель вместе', async ({ page }) => {
+    const mainPage = new MainPage(page);
+    await mainPage.brandFilter().fill('Honda');
+    await mainPage.modelFilter().fill('CRF');
+    await expect(mainPage.bikeRow(SEED_VINS.repairHonda)).toBeVisible();
+    await expect(mainPage.bikeRow(SEED_VINS.availableKtm)).toHaveCount(0);
+  });
+
+  test('TC-FILTER-BRAND-02: очистка filter-brand-clear', async ({ page }) => {
+    const mainPage = new MainPage(page);
+    await mainPage.brandFilter().fill('Yamaha');
+    await expect(mainPage.bikeRow(SEED_VINS.availableKtm)).toHaveCount(0);
+    await mainPage.brandFilterClear().click();
+    await expect(mainPage.brandFilter()).toHaveValue('');
+    await expect(mainPage.bikeRow(SEED_VINS.availableKtm)).toBeVisible();
   });
 });

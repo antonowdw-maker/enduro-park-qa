@@ -123,6 +123,8 @@ export const BikeService = {
   async getAllBikes(filters: {
     statuses?: string[];
     search?: string;
+    brand?: string;
+    model?: string;
     page?: number;
     limit?: number;
     offset?: number;

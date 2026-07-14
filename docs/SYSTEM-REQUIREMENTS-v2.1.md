@@ -1,10 +1,10 @@
 # Системные требования к проекту Enduro Park Manager
 
-**Версия:** 2.5  
-**Дата:** 13.07.2026  
-**Изменения от v2.4:** итерация 9 — детерминированный seed, якорные VIN; бэклог — мультистатус (F-FILTER-02), дата ТО текст+календарь+маска (F-BIKE-VALID-01).
+**Версия:** 2.6  
+**Дата:** 14.07.2026  
+**Изменения от v2.5:** фильтр по марке и модели (F-FILTER-11…14); API `brand`/`model`.
 
-**История:** v2.5 — текст `error-year` (текущий год) + приоритет сообщения VIN про I/O/Q; v2.4 — валидация фильтров; v2.3 — offset, фильтры год/пробег; v2.2 — валидация, BUG-03, дата ТО; v2.1 — публичная главная, без guest, VIN редактируем; v2.0 — исходный PDF.
+**История:** v2.6 — фильтр марка/модель; v2.5 — текст `error-year` (текущий год) + приоритет сообщения VIN про I/O/Q; v2.4 — валидация фильтров; v2.3 — offset, фильтры год/пробег; v2.2 — валидация, BUG-03, дата ТО; v2.1 — публичная главная, без guest, VIN редактируем; v2.0 — исходный PDF.
 
 ---
 
@@ -131,11 +131,15 @@
 | F-FILTER-03 | Год от / до | public | `filter-year-from`, `filter-year-to` |
 | F-FILTER-04 | Пробег от / до | public | `filter-mileage-from`, `filter-mileage-to` |
 | F-FILTER-05 | Пустое поле диапазона — фильтр не применяется | public | API без соответствующего query-параметра |
-| F-FILTER-06 | Сброс всех фильтров (статус + диапазоны) | public | `filter-clear-all` |
+| F-FILTER-06 | Сброс всех фильтров (статус + марка/модель + диапазоны) | public | `filter-clear-all` |
 | F-FILTER-07 | Очистка отдельного поля | public | `filter-{field}-clear` |
 | F-FILTER-08 | «До» ≥ «от» (год и пробег) | public | `error-filter-year-to`, `error-filter-mileage-to`; запрос не уходит при ошибке |
 | F-FILTER-09 | Только неотрицательные значения | public | минус не вводится; `error-filter-*` при отрицательном |
 | F-FILTER-10 | Год в фильтре — только цифры, **не более 4** | public | `filter-year-from`, `filter-year-to`; `maxLength=4` |
+| F-FILTER-11 | Фильтр по марке (подстрока) | public | `filter-brand`; API `brand` |
+| F-FILTER-12 | Фильтр по модели (подстрока) | public | `filter-model`; API `model` |
+| F-FILTER-13 | Марка и модель вместе (AND) | public | оба query-параметра одновременно |
+| F-FILTER-14 | Пустое поле марки/модели — фильтр не применяется | public | API без `brand`/`model` |
 
 ---
 
@@ -148,7 +152,8 @@
 | Пользователь / роль | `user-username`, `user-role` |
 | Нет прав на действия | `actions-readonly-placeholder` |
 | Фильтры год/пробег | `filter-year-from`, `filter-year-to`, `filter-mileage-from`, `filter-mileage-to` |
-| Очистка фильтров | `filter-clear-all`, `filter-year-from-clear`, `filter-year-to-clear`, `filter-mileage-from-clear`, `filter-mileage-to-clear` |
+| Фильтры марка/модель | `filter-brand`, `filter-model` |
+| Очистка фильтров | `filter-clear-all`, `filter-brand-clear`, `filter-model-clear`, `filter-year-from-clear`, `filter-year-to-clear`, `filter-mileage-from-clear`, `filter-mileage-to-clear` |
 | Ошибки фильтров | `error-filter-year-from`, `error-filter-year-to`, `error-filter-mileage-from`, `error-filter-mileage-to` |
 | Ошибки полей | `error-brand`, `error-model`, `error-year`, `error-vin`, `error-mileage`, `error-status`, `error-lastService`, `error-notes` |
 | Дата последнего ТО | `input-lastService` (текст), `input-lastService-calendar` (календарь) |
@@ -163,7 +168,9 @@
 | Параметр | Описание |
 |----------|----------|
 | `status` | Один или несколько через запятую: `available`, `repair`, `sold` (пусто — все) |
-| `search` | Поиск по марке/модели |
+| `search` | Поиск по марке/модели (общий; UI основной список его не использует) |
+| `brand` | Подстрока по марке (`LIKE %value%`) |
+| `model` | Подстрока по модели (`LIKE %value%`) |
 | `yearFrom`, `yearTo` | Диапазон года выпуска (включительно) |
 | `mileageFrom`, `mileageTo` | Диапазон пробега (включительно) |
 | `sortBy`, `order` | Сортировка (asc/desc) |

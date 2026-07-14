@@ -39,6 +39,8 @@ export default function MainPage() {
   const [bikes, setBikes] = useState<BikeRow[]>([]);
   const [total, setTotal] = useState(0);
   const [activeStatuses, setActiveStatuses] = useState<string[]>([]);
+  const [brandFilter, setBrandFilter] = useState('');
+  const [modelFilter, setModelFilter] = useState('');
   const [yearFrom, setYearFrom] = useState('');
   const [yearTo, setYearTo] = useState('');
   const [mileageFrom, setMileageFrom] = useState('');
@@ -69,12 +71,21 @@ export default function MainPage() {
     [yearFrom, yearTo, mileageFrom, mileageTo],
   );
   const hasFilterErrors = Object.keys(filterErrors).length > 0;
-  const hasActiveFilters = activeStatuses.length > 0 || yearFrom !== '' || yearTo !== '' || mileageFrom !== '' || mileageTo !== '';
+  const hasActiveFilters =
+    activeStatuses.length > 0 ||
+    brandFilter !== '' ||
+    modelFilter !== '' ||
+    yearFrom !== '' ||
+    yearTo !== '' ||
+    mileageFrom !== '' ||
+    mileageTo !== '';
 
   // Загрузка списка байков с бэкенда (фильтр, пагинация, сортировка) — доступна без авторизации
   const loadData = useCallback(() => {
     getBikes({
       statuses: activeStatuses,
+      brand: brandFilter,
+      model: modelFilter,
       page,
       limit,
       sortBy,
@@ -94,6 +105,8 @@ export default function MainPage() {
       });
   }, [
     activeStatuses,
+    brandFilter,
+    modelFilter,
     page,
     limit,
     sortBy,
@@ -133,6 +146,13 @@ export default function MainPage() {
     setPage(1);
   };
 
+  /** Ввод марки/модели: обрезка пробелов по краям не на каждый символ — только длина */
+  const handleTextFilterChange =
+    (setter: (value: string) => void) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      setter(event.target.value.slice(0, 40));
+      setPage(1);
+    };
+
   /** Ввод года: только цифры, максимум 4 */
   const handleYearFilterChange = (
     setter: (value: string) => void,
@@ -170,6 +190,8 @@ export default function MainPage() {
 
   const handleClearAllFilters = () => {
     setActiveStatuses([]);
+    setBrandFilter('');
+    setModelFilter('');
     setYearFrom('');
     setYearTo('');
     setMileageFrom('');
@@ -302,6 +324,8 @@ export default function MainPage() {
 
         <BikeFilters
           activeStatuses={activeStatuses}
+          brand={brandFilter}
+          model={modelFilter}
           yearFrom={yearFrom}
           yearTo={yearTo}
           mileageFrom={mileageFrom}
@@ -309,10 +333,14 @@ export default function MainPage() {
           filterErrors={filterErrors}
           hasActiveFilters={hasActiveFilters}
           onStatusFilter={handleStatusFilter}
+          onBrandChange={handleTextFilterChange(setBrandFilter)}
+          onModelChange={handleTextFilterChange(setModelFilter)}
           onYearFromChange={handleYearFilterChange(setYearFrom)}
           onYearToChange={handleYearFilterChange(setYearTo)}
           onMileageFromChange={handleMileageFilterChange(setMileageFrom)}
           onMileageToChange={handleMileageFilterChange(setMileageTo)}
+          onClearBrand={clearFilterField(setBrandFilter)}
+          onClearModel={clearFilterField(setModelFilter)}
           onClearYearFrom={clearFilterField(setYearFrom)}
           onClearYearTo={clearFilterField(setYearTo)}
           onClearMileageFrom={clearFilterField(setMileageFrom)}

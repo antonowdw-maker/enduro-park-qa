@@ -24,6 +24,8 @@ const CASE_INSENSITIVE_SORT_FIELDS = ['brand', 'model', 'vin', 'status'] as cons
 function buildWhereSql(filters?: {
   statuses?: string[];
   search?: string;
+  brand?: string;
+  model?: string;
   yearFrom?: number;
   yearTo?: number;
   mileageFrom?: number;
@@ -39,6 +41,14 @@ function buildWhereSql(filters?: {
   if (filters?.search) {
     const pattern = `%${filters.search}%`;
     conditions.push(Prisma.sql`(brand LIKE ${pattern} OR model LIKE ${pattern})`);
+  }
+  if (filters?.brand) {
+    const pattern = `%${filters.brand}%`;
+    conditions.push(Prisma.sql`brand LIKE ${pattern}`);
+  }
+  if (filters?.model) {
+    const pattern = `%${filters.model}%`;
+    conditions.push(Prisma.sql`model LIKE ${pattern}`);
   }
   if (filters?.yearFrom !== undefined) {
     conditions.push(Prisma.sql`year >= ${filters.yearFrom}`);
@@ -68,6 +78,8 @@ export const BikeRepository = {
   async findAll(filters?: {
     statuses?: string[];
     search?: string;
+    brand?: string;
+    model?: string;
     yearFrom?: number;
     yearTo?: number;
     mileageFrom?: number;

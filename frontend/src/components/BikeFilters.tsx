@@ -132,8 +132,64 @@ function FilterNumberInput({
   );
 }
 
+/** Поле текстового фильтра с кнопкой очистки (×) */
+function FilterTextInput({
+  label,
+  testId,
+  clearTestId,
+  value,
+  placeholder,
+  onChange,
+  onClear,
+}: {
+  label: string;
+  testId: string;
+  clearTestId: string;
+  value: string;
+  placeholder: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onClear: () => void;
+}) {
+  return (
+    <div className="w-36">
+      <label
+        htmlFor={testId}
+        className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400"
+      >
+        {label}
+      </label>
+      <div className="relative">
+        <input
+          id={testId}
+          data-testid={testId}
+          type="text"
+          autoComplete="off"
+          maxLength={40}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          className="w-full rounded-lg border border-slate-200 bg-white py-1.5 pl-2 pr-7 text-sm font-semibold outline-none transition-all focus:ring-2 focus:ring-blue-500"
+        />
+        {value !== '' && (
+          <button
+            type="button"
+            data-testid={clearTestId}
+            onClick={onClear}
+            className="absolute right-1 top-1/2 -translate-y-1/2 rounded p-0.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+            aria-label={`Очистить ${label}`}
+          >
+            <X size={14} />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export type BikeFiltersProps = {
   activeStatuses: string[];
+  brand: string;
+  model: string;
   yearFrom: string;
   yearTo: string;
   mileageFrom: string;
@@ -141,10 +197,14 @@ export type BikeFiltersProps = {
   filterErrors: Partial<Record<FilterFieldKey, string>>;
   hasActiveFilters: boolean;
   onStatusFilter: (status: string) => void;
+  onBrandChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onModelChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onYearFromChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onYearToChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onMileageFromChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onMileageToChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onClearBrand: () => void;
+  onClearModel: () => void;
   onClearYearFrom: () => void;
   onClearYearTo: () => void;
   onClearMileageFrom: () => void;
@@ -153,11 +213,13 @@ export type BikeFiltersProps = {
 };
 
 /**
- * ФИЛЬТРЫ СПИСКА (F-FILTER-01…05)
- * Статусы (мультивыбор) + диапазоны год/пробег.
+ * ФИЛЬТРЫ СПИСКА (F-FILTER-01…11)
+ * Статусы + марка/модель + диапазоны год/пробег.
  */
 export default function BikeFilters({
   activeStatuses,
+  brand,
+  model,
   yearFrom,
   yearTo,
   mileageFrom,
@@ -165,10 +227,14 @@ export default function BikeFilters({
   filterErrors,
   hasActiveFilters,
   onStatusFilter,
+  onBrandChange,
+  onModelChange,
   onYearFromChange,
   onYearToChange,
   onMileageFromChange,
   onMileageToChange,
+  onClearBrand,
+  onClearModel,
   onClearYearFrom,
   onClearYearTo,
   onClearMileageFrom,
@@ -211,6 +277,28 @@ export default function BikeFilters({
             <Tag size={14} /> Продан
           </button>
         </div>
+      </div>
+
+      <div className="flex flex-wrap items-start gap-4 border-t border-slate-100 bg-slate-50/50 px-4 py-3">
+        <span className="pt-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Марка / модель</span>
+        <FilterTextInput
+          label="Марка"
+          testId="filter-brand"
+          clearTestId="filter-brand-clear"
+          value={brand}
+          placeholder="KTM"
+          onChange={onBrandChange}
+          onClear={onClearBrand}
+        />
+        <FilterTextInput
+          label="Модель"
+          testId="filter-model"
+          clearTestId="filter-model-clear"
+          value={model}
+          placeholder="300 EXC"
+          onChange={onModelChange}
+          onClear={onClearModel}
+        />
       </div>
 
       <div className="flex flex-wrap items-start gap-4 border-t border-slate-100 bg-slate-50/50 px-4 py-3">

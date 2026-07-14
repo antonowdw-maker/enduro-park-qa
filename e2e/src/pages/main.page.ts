@@ -26,6 +26,10 @@ export class MainPage {
   readonly yearTo = () => this.page.getByTestId('filter-year-to');
   readonly mileageFrom = () => this.page.getByTestId('filter-mileage-from');
   readonly mileageTo = () => this.page.getByTestId('filter-mileage-to');
+  readonly brandFilter = () => this.page.getByTestId('filter-brand');
+  readonly modelFilter = () => this.page.getByTestId('filter-model');
+  readonly brandFilterClear = () => this.page.getByTestId('filter-brand-clear');
+  readonly modelFilterClear = () => this.page.getByTestId('filter-model-clear');
   readonly yearFromClear = () => this.page.getByTestId('filter-year-from-clear');
   readonly yearToClear = () => this.page.getByTestId('filter-year-to-clear');
 

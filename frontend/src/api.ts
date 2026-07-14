@@ -28,6 +28,8 @@ export const getMe = async (): Promise<AuthUser> => {
 export type GetBikesParams = {
   statuses?: string[];
   search?: string;
+  brand?: string;
+  model?: string;
   page?: number;
   limit?: number;
   sortBy?: string;
@@ -42,6 +44,8 @@ export type GetBikesParams = {
 export const getBikes = async ({
   statuses = [],
   search = '',
+  brand = '',
+  model = '',
   page = 1,
   limit = 10,
   sortBy = 'brand',
@@ -52,7 +56,6 @@ export const getBikes = async ({
   mileageTo,
 }: GetBikesParams = {}) => {
   const params: Record<string, string | number> = {
-    search,
     limit,
     offset: (page - 1) * limit,
     sortBy,
@@ -62,6 +65,10 @@ export const getBikes = async ({
   if (statuses.length > 0) {
     params.status = statuses.join(',');
   }
+
+  if (search.trim()) params.search = search.trim();
+  if (brand.trim()) params.brand = brand.trim();
+  if (model.trim()) params.model = model.trim();
 
   if (yearFrom !== '' && yearFrom !== undefined) params.yearFrom = yearFrom;
   if (yearTo !== '' && yearTo !== undefined) params.yearTo = yearTo;
