@@ -26,6 +26,10 @@ export default defineConfig({
     video: 'retain-on-failure',
     // Локаторы по умолчанию устойчивее к анимациям
     actionTimeout: 15_000,
+    // Для демо «по шагам»: SLOW_MO=800 npx playwright test --headed
+    launchOptions: {
+      slowMo: Number(process.env.SLOW_MO || 0) || 0,
+    },
   },
   projects: [
     {

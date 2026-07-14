@@ -5,16 +5,16 @@ import { getSeedCredentials } from '../src/helpers/env';
 
 /**
  * Smoke-авторизация (волна 10.1)
- * Проверяем критичный путь: публичная главная → логин admin → роль в шапке.
+ * Трассировка: TC-AUTH-01, TC-AUTH-04 (+ частично TC-AUTH-07).
  */
 test.describe('Auth smoke', () => {
   const { admin } = getSeedCredentials();
 
-  test('TC-AUTH: успешный вход под admin', async ({ page }) => {
+  test('TC-AUTH-01: успешный вход под admin', async ({ page }) => {
     const loginPage = new LoginPage(page);
     const mainPage = new MainPage(page);
 
-    // Главная доступна без cookie
+    // TC-AUTH-07 (частично): главная без cookie
     await mainPage.open();
     await mainPage.expectTableHasRows();
     await expect(mainPage.headerLogin()).toBeVisible();
@@ -30,7 +30,7 @@ test.describe('Auth smoke', () => {
     await expect(mainPage.addBike()).toBeVisible();
   });
 
-  test('TC-AUTH: неверный пароль показывает ошибку', async ({ page }) => {
+  test('TC-AUTH-04: неверный пароль показывает ошибку', async ({ page }) => {
     const loginPage = new LoginPage(page);
 
     await loginPage.open();

@@ -6,6 +6,8 @@
 
 **История:** v1.5 — валидация фильтров; v1.4 — offset, фильтры год/пробег; v1.3 — негативная валидация, BUG-03, дата ТО; v1.2 — публичная главная, без guest, VIN edit; v1.1 — исходный PDF.
 
+**Трассировка автотестов:** после каждой волны Playwright помечаем ТК ниже строкой `🤖 Автотест:` (файл + итерация). Ручной прогон таких ТК — по желанию / регрессия UI.
+
 ---
 
 ## 1. Аутентификация
@@ -13,7 +15,8 @@
 ### TC-AUTH-01: Вход под admin
 **Предусловия:** seed; в `.env` задан `SEED_ADMIN_PASSWORD`.  
 **Шаги:** `/login` → `admin` + пароль из `.env` → «Войти».  
-**Ожидание:** `/`; `user-username`=admin; `user-role`=admin; `logout-btn`; httpOnly cookie.
+**Ожидание:** `/`; `user-username`=admin; `user-role`=admin; `logout-btn`; httpOnly cookie.  
+🤖 **Автотест:** `e2e/tests/auth.spec.ts` → «TC-AUTH-01» (итерация 10.1; UI-путь; httpOnly cookie в E2E не ассертится).
 
 ### TC-AUTH-02: Вход под mechanic
 **Данные:** `mechanic` + `SEED_MECHANIC_PASSWORD` из `.env`.  
@@ -23,7 +26,8 @@
 
 ### TC-AUTH-04: Неверный пароль
 **Данные:** admin / wrongpassword.  
-**Ожидание:** `/login`; `login-error-message`; нет cookie.
+**Ожидание:** `/login`; `login-error-message`; нет cookie.  
+🤖 **Автотест:** `e2e/tests/auth.spec.ts` → «TC-AUTH-04» (итерация 10.1).
 
 ### TC-AUTH-05: Несуществующий пользователь
 **Данные:** unknown / anypassword.  
@@ -37,7 +41,8 @@
 ### TC-AUTH-07: Главная без авторизации
 **Предусловия:** cookies очищены.  
 **Шаги:** `http://localhost:5173/`.  
-**Ожидание:** нет редиректа на login; таблица; `header-login-btn`; нет `add-bike-btn`.
+**Ожидание:** нет редиректа на login; таблица; `header-login-btn`; нет `add-bike-btn`.  
+🤖 **Автотест (частично):** `e2e/tests/auth.spec.ts` → «TC-AUTH-01» (таблица + `header-login-btn`; отсутствие `add-bike-btn` — добить в 10.2).
 
 ### TC-AUTH-08: GET /bikes без cookie
 **Шаги:** GET `/api/bikes` без cookie.  

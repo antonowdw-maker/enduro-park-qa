@@ -28,3 +28,5 @@ npm run test:ui       # Playwright UI mode
 - Локаторы: `data-testid` через Page Object (`src/pages/`)
 - Пароли: только из `backend/.env`, не в git
 - Якорные VIN: `src/data/seed-vins.ts`
+- Имена тестов = ID ручных ТК (`TC-AUTH-01`); после волны — пометка в `docs/MANUAL-TEST-CASES-v1.2.md`
+- Демо с замедлением: `$env:SLOW_MO='900'; npx playwright test --headed`
