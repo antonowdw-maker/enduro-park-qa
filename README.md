@@ -39,7 +39,7 @@
 | 7 | Валидация + `error-*` testid + BUG-03 | ✅ |
 | 8 | API: auth на GET /bikes, offset, фильтры год/пробег | ✅ |
 | 9 | Seed: детерминированные данные для тестов | ✅ |
-| 10 | Playwright + GitHub Actions CI | |
+| 10 | Playwright + GitHub Actions CI | 🔄 10.1 инфра + auth smoke |
 
 ## 📝 Бэклог улучшений (вне плана итераций)
 
@@ -67,9 +67,12 @@
 - [x] Обновить ручные ТК: ошибка поля «Марка» — «Минимум 2 символа для марки» (`error-brand`); правило min 2 символа оставить для автотестов. *(включено в v1.2)*
 
 ### Автотесты (практики, дополняют итерацию 10)
-- [ ] Page Object: `login.page.ts`, `dashboard.page.ts` — локаторы в одном месте.
+- [x] Каталог `e2e/` (Playwright + TS), globalSetup (`db push` + seed), Page Object login/main, auth smoke.
+- [ ] Page Object: `bike-form.page.ts`; спеки roles / filters / crud.
 - [ ] Отдельный файл `known-bugs.spec.ts` для BUG-01 / BUG-02 / BUG-03 (ожидаемое поведение, не регрессия).
-- [ ] `globalSetup` в Playwright: `db push` + `seed` перед прогоном для стабильных данных.
+- [ ] GitHub Actions CI для `e2e/`.
+
+Подробнее: [`e2e/README.md`](e2e/README.md).
 
 ### Уже сделано (для истории)
 - [x] Единый `JWT_SECRET` в `config.ts` (было два разных секрета).

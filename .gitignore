@@ -10,6 +10,7 @@ backend/prisma/*.db-journal
 node_modules/
 frontend/node_modules/
 backend/node_modules/
+e2e/node_modules/
 
 # Сборка / логи
 dist/
@@ -17,10 +18,14 @@ build/
 *.log
 .DS_Store
 
-# Случайный lock в корне (зависимости — в frontend/ и backend/)
+# Случайный lock в корне (зависимости — в frontend/, backend/, e2e/)
 /package-lock.json
 
 # Playwright (итерация 10)
 test-results/
 playwright-report/
 blob-report/
+e2e/test-results/
+e2e/playwright-report/
+e2e/blob-report/
+e2e/playwright/.cache/

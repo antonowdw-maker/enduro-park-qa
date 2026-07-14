@@ -1,0 +1,20 @@
+{
+  "name": "enduro-park-e2e",
+  "private": true,
+  "version": "1.0.0",
+  "description": "E2E автотесты Enduro Park Manager (Playwright + TypeScript)",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:smoke": "playwright test tests/auth.spec.ts",
+    "report": "playwright show-report",
+    "install:browsers": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.53.2",
+    "@types/node": "^22.15.30",
+    "dotenv": "^16.5.0",
+    "typescript": "^5.8.3"
+  }
+}
