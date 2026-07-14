@@ -1,0 +1,98 @@
+# E2E гейт (итерация 10.4): Playwright перед merge / на push
+name: e2e
+
+on:
+  push:
+    branches: [main, 'feature/**']
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'e2e/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'e2e/**'
+      - '.github/workflows/**'
+
+concurrency:
+  group: e2e-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  playwright:
+    name: Playwright Chromium
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+            e2e/package-lock.json
+
+      # Эфемерные секреты CI (не в git и не в GitHub Secrets) — тесты читают backend/.env
+      - name: Create backend/.env for CI
+        run: |
+          set -euo pipefail
+          JWT="$(openssl rand -hex 32)"
+          ADMIN="CiAdmin!$(openssl rand -hex 10)"
+          MECH="CiMech!$(openssl rand -hex 10)"
+          {
+            echo "PORT=5000"
+            echo "DATABASE_URL=\"file:./dev.db\""
+            echo "NODE_ENV=development"
+            echo "JWT_SECRET=${JWT}"
+            echo "SEED_ADMIN_PASSWORD=${ADMIN}"
+            echo "SEED_MECHANIC_PASSWORD=${MECH}"
+            echo "CORS_ORIGIN=http://localhost:5173"
+            echo "ENABLE_LOGIN_RATE_LIMIT=false"
+          } > backend/.env
+          # не печатаем секреты в лог
+          echo "backend/.env создан (пароли эфемерные, только для этого job)"
+
+      - name: Install backend deps
+        working-directory: backend
+        run: npm ci
+
+      - name: Prisma generate
+        working-directory: backend
+        run: npx prisma generate
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install e2e deps
+        working-directory: e2e
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests
+        working-directory: e2e
+        env:
+          CI: true
+        run: npm test
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            e2e/playwright-report/
+            e2e/test-results/
+          retention-days: 7

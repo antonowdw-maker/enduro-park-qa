@@ -137,11 +137,14 @@
 |-------|------------|--------|
 | 10.1 | `e2e/` + config + globalSetup + auth smoke | ✅ |
 | 10.2 | POM + roles/filters | ✅ |
-| 10.3 | CRUD + known-bugs (`test.fail`) + roles API | 🔄 на QA |
-| 10.4 | GitHub Actions CI (гейт на PR) | ⏳ |
+| 10.3 | CRUD + known-bugs (`test.fail`) + roles API | ✅ |
+| 10.4 | GitHub Actions CI (гейт на PR) | 🔄 на проверке |
 | 10.5 | Матрица валидации / тест-дизайн (NEG/границы/маски/VIN edit) | ⏳ |
+| 10.6 | **Аудит покрытия:** бэклог + ручные ТК + код → gaps → добить E2E | ⏳ |
 
 **Автоматизировано (10.3):** TC-BIKE-CREATE/EDIT/DELETE; CREATE-VIN-01; NEG-01; LAST-01; ROLE-04…06; BUG-01…03 (`test.fail`); NEG-06 зелёный.
+
+**CI (10.4):** `.github/workflows/e2e.yml` — эфемерный `backend/.env`, Chromium, artifact отчёта при failure.
 
 **Заметка QA:** seed VIN вида `…QA…` содержат букву **Q** — фронтовый Zod режет до API; дубликат VIN в UI проверяем своим VIN (create×2).
 
@@ -149,10 +152,17 @@
 - Фильтр по марке / модели (UI + API + ТК + E2E).
 - Seed: современные китайские эндуро (Kayo, Regulmoto, Motoland, GR, Kews…) и актуальные европейские/прочие внедорожные.
 
+### После всех волн 10.* — аудит максимального покрытия
+1. Пройти идеи из бэклога README (product/CI/валидация).
+2. Матрица: каждый TC-* → 🤖 / частично / нет автотеста.
+3. Обход кода: auth, roles UI+API, filters, sort, pagination, CRUD, валидации, cookie edge (AUTH-08…11), logout.
+4. Список gaps с приоритетом (P0 блокер регрессии → P2 nice).
+5. Закрыть gaps спеками / пометить skip только с причиной.
+
 ### Не чинить намеренно
 
 BUG-01, BUG-02, BUG-03 — см. требования §7 / ручные ТК. В автотестах — правильные ожидания + `test.fail()`.
 
 ---
 
-*Последнее обновление: 14.07.2026 — бэклог product/seed идеи; 10.3 на проверке.*
+*Последнее обновление: 14.07.2026 — итерация 10.4 CI на проверке.*

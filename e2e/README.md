@@ -23,6 +23,19 @@ npm run test:ui       # Playwright UI mode
 Перед прогоном `globalSetup` делает `prisma db push` + `npm run seed` в `backend/`.
 `webServer` поднимает backend (:5000) и frontend (:5173), если они ещё не запущены.
 
+## CI (GitHub Actions) — итерация 10.4
+
+Воркфлоу: `.github/workflows/e2e.yml`
+
+| Когда | Что |
+|-------|-----|
+| `push` в `main` / `feature/**` | Прогон E2E (если менялись backend/frontend/e2e/workflow) |
+| `pull_request` → `main` | То же — **гейт перед merge** |
+
+CI сам пишет эфемерный `backend/.env` (случайные JWT/пароли), поднимает API+UI через `webServer`, `globalSetup` делает seed.
+
+Локально CI не обязателен: `cd e2e && npm test` при наличии своего `.env`.
+
 ## Практики
 
 - Локаторы: `data-testid` через Page Object (`src/pages/`)
@@ -30,3 +43,4 @@ npm run test:ui       # Playwright UI mode
 - Якорные VIN: `src/data/seed-vins.ts`
 - Имена тестов = ID ручных ТК (`TC-AUTH-01`); после волны — пометка в `docs/MANUAL-TEST-CASES-v1.2.md`
 - Демо с замедлением: `$env:SLOW_MO='900'; npx playwright test --headed`
+

@@ -23,6 +23,11 @@
 | (Опционально) `ENABLE_LOGIN_RATE_LIMIT=true` | Защита от перебора на публичном URL; **не включать** для CI/Playwright |
 | Сменить `JWT_SECRET` если старый светился в git | Старые сессии недействительны |
 
+## GitHub Actions (E2E)
+
+Воркфлоу `.github/workflows/e2e.yml` **сам генерирует** `JWT_SECRET` и пароли seed на каждый job (в `backend/.env`).  
+Отдельные GitHub Secrets для локальных паролей **не обязательны**. Не коммитьте `.env`.
+
 ## Что сделано в коде
 
 - `.env` в `.gitignore`, в репо только `.env.example`
