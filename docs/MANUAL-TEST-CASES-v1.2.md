@@ -1,12 +1,13 @@
 # Ручные тест-кейсы Enduro Park Manager (QA-Stand)
 
-**Версия:** 1.7  
+**Версия:** 1.8  
 **Дата:** 14.07.2026  
+**Изменения от v1.7:** seed-каталог modern — TC-SEED-05…07 (Kayo, Regulmoto, Motoland).  
 **Изменения от v1.6:** фильтр марка/модель — TC-FILTER-BRAND-*, TC-FILTER-MODEL-*, TC-FILTER-BRAND-MODEL-01.  
 **14.07.2026 (+ТТД):** матрица EP/BVA/decision table + API — `filters-brand-model*.spec.ts`.  
 **14.07.2026:** текст NEG-08 / `error-year` — «позже {текущий год}»; VIN I/O/Q → отдельное сообщение (не «17 символов»); TC-SORT/PAGINATION; пере-seed в E2E.
 
-**История:** v1.7 — фильтр марка/модель (+ТТД UI/API); v1.5 — валидация фильтров; v1.4 — offset, фильтры год/пробег; v1.3 — негативная валидация, BUG-03, дата ТО; v1.2 — публичная главная, без guest, VIN edit; v1.1 — исходный PDF.
+**История:** v1.8 — каталог seed modern; v1.7 — фильтр марка/модель (+ТТД UI/API); v1.5 — валидация фильтров; v1.4 — offset, фильтры год/пробег; v1.3 — негативная валидация, BUG-03, дата ТО; v1.2 — публичная главная, без guest, VIN edit; v1.1 — исходный PDF.
 
 **Трассировка автотестов:** после каждой волны Playwright помечаем ТК ниже строкой `🤖 Автотест:` (файл + итерация). Ручной прогон таких ТК — по желанию / регрессия UI.
 
@@ -338,7 +339,8 @@
 | TC-FILTER-MODEL-NEG-02 | decision | Honda+EXC → 0 | UI |
 | TC-FILTER-BRAND-BVA-01 | BVA | maxLength 40 | UI |
 | TC-FILTER-BRAND-DT-01…04 | decision table | марка×статус/год, модель×sold | UI |
-| TC-API-BRAND-* / MODEL-* | API-контракт | query `brand`/`model` | `filters-brand-model-api.spec.ts` |
+| TC-FILTER-BRAND-05 / MODEL-04 | EP каталог modern | Kayo / Athlete | UI |
+| TC-API-BRAND-* / MODEL-* | API-контракт | query `brand`/`model` (+ Kayo/Athlete) | `filters-brand-model-api.spec.ts` |
 
 ---
 
@@ -346,7 +348,7 @@
 
 ### TC-SEED-01: Повторный seed даёт тот же набор
 **Шаги:** `npm run seed` дважды подряд в `backend`.  
-**Ожидание:** в логе `первый VIN: KTM2020QA00000001`; `байки: 50 (available=19, repair=16, sold=15)`.  
+**Ожидание:** в логе `версия: 2026.07.14`; `первый VIN: KTM2020QA00000001`; `байки: 50 (available=19, repair=16, sold=15)`.  
 ℹ️ **Вне Playwright:** проверяется глазами по логу seed / CI `globalSetup` (итерация 10.6).
 
 ### TC-SEED-02: Якорный байк в таблице
@@ -364,6 +366,21 @@
 **Шаги:** `filter-repair`.  
 **Ожидание:** есть `bike-row-HON2015QA00000002`; в таблице статус «В ремонте» (BUG-01).  
 🤖 **Автотест:** `e2e/tests/seed.spec.ts` (итерация 10.6).
+
+### TC-SEED-05: Якорный Kayo в каталоге
+**Шаги:** после seed, лимит 50 → найти `bike-row-KAY2023QA00000009`; затем `filter-brand` = `Kayo`.  
+**Ожидание:** Kayo T2 300, 2023, статус «Доступен»; якорь KTM скрыт после фильтра марки.  
+🤖 **Автотест:** `e2e/tests/seed.spec.ts`.
+
+### TC-SEED-06: Якорный Regulmoto в ремонте
+**Шаги:** `filter-repair` → `bike-row-REG2022QA00000010`.  
+**Ожидание:** Regulmoto Athlete 300.  
+🤖 **Автотест:** `e2e/tests/seed.spec.ts`.
+
+### TC-SEED-07: Якорный Motoland продан
+**Шаги:** `filter-sold` → `bike-row-MOT2021QA00000011`.  
+**Ожидание:** Motoland XT 250 Enduro.  
+🤖 **Автотест:** `e2e/tests/seed.spec.ts`.
 
 ---
 

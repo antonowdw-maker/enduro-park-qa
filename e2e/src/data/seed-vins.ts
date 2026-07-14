@@ -9,6 +9,10 @@ export const SEED_VINS = {
   minYearBeta: 'BET1990QA00000004',
   maxMileageBmw: 'BMW2026QA00000005',
   vinEditHusq: 'HUS2024QA00000006',
+  /** Каталог modern (китайские эндуро) */
+  availableKayo: 'KAY2023QA00000009',
+  repairRegulmoto: 'REG2022QA00000010',
+  soldMotoland: 'MOT2021QA00000011',
 } as const;
 
 export const SEED_BIKE_COUNT = 50;

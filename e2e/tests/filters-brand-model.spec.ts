@@ -142,4 +142,19 @@ test.describe('Filters brand/model (TTD)', () => {
     await expect(mainPage.bikeRow(SEED_VINS.soldYamaha)).toBeVisible();
     await expect(mainPage.bikeRow(SEED_VINS.availableKtm)).toHaveCount(0);
   });
+
+  test('TC-FILTER-BRAND-05: каталог modern — марка Kayo', async ({ page }) => {
+    const mainPage = new MainPage(page);
+    await mainPage.brandFilter().fill('Kayo');
+    await expect(mainPage.bikeRow(SEED_VINS.availableKayo)).toBeVisible();
+    await expect(mainPage.bikeRow(SEED_VINS.repairRegulmoto)).toHaveCount(0);
+    await expect(mainPage.bikeRow(SEED_VINS.availableKtm)).toHaveCount(0);
+  });
+
+  test('TC-FILTER-MODEL-04: каталог modern — модель Athlete', async ({ page }) => {
+    const mainPage = new MainPage(page);
+    await mainPage.modelFilter().fill('Athlete');
+    await expect(mainPage.bikeRow(SEED_VINS.repairRegulmoto)).toBeVisible();
+    await expect(mainPage.bikeRow(SEED_VINS.availableKayo)).toHaveCount(0);
+  });
 });

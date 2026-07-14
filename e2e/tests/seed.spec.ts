@@ -48,6 +48,39 @@ test.describe('Seed anchors', () => {
     await expect(mainPage.statusCell(SEED_VINS.repairHonda)).toContainText('В ремонте');
   });
 
+  test('TC-SEED-05: якорный Kayo (каталог modern)', async ({ page }) => {
+    const mainPage = new MainPage(page);
+    const row = mainPage.bikeRow(SEED_VINS.availableKayo);
+    await expect(row).toBeVisible();
+    await expect(row).toContainText('Kayo');
+    await expect(row).toContainText('T2 300');
+    await expect(row).toContainText('2023');
+    await expect(row).toContainText('Доступен');
+
+    // После влития фильтра: марка отсекает чужие якоря
+    await mainPage.brandFilter().fill('Kayo');
+    await expect(row).toBeVisible();
+    await expect(mainPage.bikeRow(SEED_VINS.availableKtm)).toHaveCount(0);
+  });
+
+  test('TC-SEED-06: якорный Regulmoto в ремонте', async ({ page }) => {
+    const mainPage = new MainPage(page);
+    await mainPage.filterRepair().click();
+    const row = mainPage.bikeRow(SEED_VINS.repairRegulmoto);
+    await expect(row).toBeVisible();
+    await expect(row).toContainText('Regulmoto');
+    await expect(row).toContainText('Athlete 300');
+  });
+
+  test('TC-SEED-07: якорный Motoland продан', async ({ page }) => {
+    const mainPage = new MainPage(page);
+    await mainPage.filterSold().click();
+    const row = mainPage.bikeRow(SEED_VINS.soldMotoland);
+    await expect(row).toBeVisible();
+    await expect(row).toContainText('Motoland');
+    await expect(row).toContainText('XT 250');
+  });
+
   test('smoke: после seed в базе SEED_BIKE_COUNT байков', async ({ page }) => {
     const mainPage = new MainPage(page);
     await mainPage.filterAll().click();

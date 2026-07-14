@@ -88,4 +88,21 @@ test.describe('API filters brand/model (TTD)', () => {
     const body = (await res.json()) as BikeListBody;
     expect(body.bikes.some((b) => b.vin === SEED_VINS.availableKtm)).toBeTruthy();
   });
+
+  test('TC-API-BRAND-05: каталог modern — brand=Kayo', async ({ request }) => {
+    const res = await request.get(`${API}/api/bikes?limit=50&brand=Kayo`);
+    expect(res.status()).toBe(200);
+    const body = (await res.json()) as BikeListBody;
+    expect(body.total).toBeGreaterThan(0);
+    expect(body.bikes.every((b) => /kayo/i.test(b.brand))).toBeTruthy();
+    expect(body.bikes.some((b) => b.vin === SEED_VINS.availableKayo)).toBeTruthy();
+    expect(body.bikes.some((b) => b.vin === SEED_VINS.availableKtm)).toBeFalsy();
+  });
+
+  test('TC-API-MODEL-02: каталог modern — model=Athlete', async ({ request }) => {
+    const res = await request.get(`${API}/api/bikes?limit=50&model=Athlete`);
+    expect(res.status()).toBe(200);
+    const body = (await res.json()) as BikeListBody;
+    expect(body.bikes.some((b) => b.vin === SEED_VINS.repairRegulmoto)).toBeTruthy();
+  });
 });
