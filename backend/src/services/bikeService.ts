@@ -4,11 +4,19 @@ import { BikeRepository } from '../repositories/bikeRepository';
  * СЕРВИС БАЙКОВ (Версия: "Максимальная защита")
  */
 
-/** Проверка формата VIN */
+/** Проверка формата VIN (порядок сообщений = фронт `getVinValidationError`) */
 function validateVin(vin: string) {
-  const normalized = String(vin).toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '');
+  const normalized = String(vin).toUpperCase().replace(/[^A-Z0-9]/g, '');
 
-  if (!normalized || normalized.length !== 17) {
+  if (!normalized) {
+    throw new Error('VIN обязателен');
+  }
+
+  if (/[IOQ]/.test(normalized)) {
+    throw new Error('VIN: нельзя использовать буквы I, O, Q');
+  }
+
+  if (normalized.length !== 17) {
     throw new Error('VIN должен содержать ровно 17 символов');
   }
 
@@ -33,7 +41,8 @@ function validateYear(year: number) {
 
   const currentYear = new Date().getFullYear();
   if (year === currentYear + 1) {
-    throw new Error(`Год не может быть позже ${currentYear + 1}`);
+    // BUG-03: граница срабатывания current+1; в тексте — текущий год
+    throw new Error(`Год не может быть позже ${currentYear}`);
   }
 }
 

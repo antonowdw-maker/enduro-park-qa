@@ -67,6 +67,15 @@ test.describe('Validation matrix (NEG / LAST / VIN edit)', () => {
     await expect(form.error('vin')).toContainText('VIN должен содержать и буквы, и цифры');
   });
 
+  test('TC-BIKE-NEG-04b: VIN с буквой Q → error-vin про I/O/Q', async ({ page }) => {
+    const { form } = await openCreateAsAdmin(page);
+    // 17 символов, есть Q — раньше нормализация вырезала Q и показывала «ровно 17»
+    await fillValidBase(form, { vin: 'KTM2020QA0000001A' });
+    await form.submit();
+    await expect(form.error('vin')).toBeVisible();
+    await expect(form.error('vin')).toContainText('I, O, Q');
+  });
+
   test('TC-BIKE-NEG-05: отрицательный пробег → error-mileage', async ({ page }) => {
     const { form } = await openCreateAsAdmin(page);
     await fillValidBase(form, { mileage: '-1' });
@@ -76,12 +85,14 @@ test.describe('Validation matrix (NEG / LAST / VIN edit)', () => {
   });
 
   test('TC-BIKE-NEG-08: год текущий+1 → error-year (корректная граница)', async ({ page }) => {
-    const year = new Date().getFullYear() + 1;
+    const currentYear = new Date().getFullYear();
+    const year = currentYear + 1;
     const { form } = await openCreateAsAdmin(page);
     await fillValidBase(form, { year: String(year) });
     await form.submit();
     await expect(form.error('year')).toBeVisible();
-    await expect(form.error('year')).toContainText(`Год не может быть позже ${year}`);
+    // Текст ссылается на текущий год, не на введённый current+1
+    await expect(form.error('year')).toContainText(`Год не может быть позже ${currentYear}`);
   });
 
   test('TC-BIKE-NEG-11: дата ТО раньше 1990 → error-lastService', async ({ page }) => {

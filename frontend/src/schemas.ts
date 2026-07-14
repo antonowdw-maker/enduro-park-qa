@@ -5,16 +5,43 @@ export const currentYear = new Date().getFullYear();
 /** Допустимые символы VIN: 17 знаков, латиница и цифры без I, O, Q */
 export const VIN_REGEX = /^[A-HJ-NPR-Z0-9]{17}$/i;
 
-/** Нормализация ввода VIN: верхний регистр, только допустимые символы, макс. 17 */
+/**
+ * Нормализация ввода VIN: верхний регистр, только A–Z/0–9, макс. 17.
+ * Буквы I/O/Q **не** вырезаем — иначе длина падает и показывается «ровно 17» вместо запрещённых букв.
+ */
 export function normalizeVinInput(value: string): string {
-  return String(value).toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '').slice(0, 17);
+  return String(value).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 17);
+}
+
+/** Сообщение об ошибке VIN (порядок: обязателен → I/O/Q и прочие → длина → смесь буква+цифра) */
+export function getVinValidationError(value: string): string | null {
+  const vin = normalizeVinInput(value);
+  if (!vin) {
+    return 'VIN обязателен';
+  }
+
+  if (/[IOQ]/.test(vin)) {
+    return 'VIN: нельзя использовать буквы I, O, Q';
+  }
+
+  if (/[^A-HJ-NPR-Z0-9]/.test(vin)) {
+    return 'VIN: только A–Z и 0–9, без букв I, O, Q';
+  }
+
+  if (vin.length !== 17) {
+    return 'VIN должен содержать ровно 17 символов';
+  }
+
+  if (!/[A-HJ-NPR-Z]/.test(vin) || !/[0-9]/.test(vin)) {
+    return 'VIN должен содержать и буквы, и цифры';
+  }
+
+  return null;
 }
 
 /** Полная проверка VIN (длина, алфавит, смесь букв и цифр) */
 export function isValidVin(value: string): boolean {
-  const vin = normalizeVinInput(value);
-  if (!VIN_REGEX.test(vin)) return false;
-  return /[A-HJ-NPR-Z]/.test(vin) && /[0-9]/.test(vin);
+  return getVinValidationError(value) === null;
 }
 
 /** Подсказка формата VIN для поля ввода */
@@ -35,7 +62,8 @@ export function getYearValidationError(year: number): string | null {
   }
 
   if (year === currentYear + 1) {
-    return `Год не может быть позже ${currentYear + 1}`;
+    // BUG-03: срабатывание только на current+1; текст — про текущий год (иначе «позже 2027» при вводе 2027)
+    return `Год не может быть позже ${currentYear}`;
   }
 
   return null;
@@ -137,19 +165,12 @@ export const bikeSchema = z.object({
   brand: z.string().min(2, 'Минимум 2 символа для марки'),
   model: z.string().min(1, 'Модель обязательна'),
   year: yearField,
-  vin: z
-    .string()
-    .min(1, 'VIN обязателен')
-    .transform(normalizeVinInput)
-    .pipe(
-      z
-        .string()
-        .length(17, 'VIN должен содержать ровно 17 символов')
-        .regex(VIN_REGEX, 'VIN: только A–Z и 0–9, без букв I, O, Q')
-        .refine((value) => /[A-HJ-NPR-Z]/.test(value) && /[0-9]/.test(value), {
-          message: 'VIN должен содержать и буквы, и цифры',
-        }),
-    ),
+  vin: z.string().superRefine((value, ctx) => {
+    const error = getVinValidationError(value);
+    if (error) {
+      ctx.addIssue({ code: 'custom', message: error });
+    }
+  }),
   mileage: mileageField,
   status: z.enum(['available', 'repair', 'sold']),
   lastService: z.string().superRefine((value, ctx) => {

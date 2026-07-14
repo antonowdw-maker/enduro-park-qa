@@ -74,7 +74,7 @@
 - [x] **10.5 Матрица валидации / тест-дизайн:** `validation.spec.ts` — NEG-02…05/08/11…14, LAST-02/03, EDIT-VIN-01/02 (+ `noValidate` на форме, чтобы Zod показывал `error-lastService`).
 - [x] GitHub Actions: E2E на PR / перед merge (**гейт**); опционально nightly по расписанию (см. бэклог ниже).
 - [x] **После закрытия волн 10.1–10.5 — аудит покрытия (обязательно):** итерация **10.6** — матрица в `IMPLEMENTATION-NOTES`; gaps закрыты `auth-extra` / `auth-api` / `filters` / `seed`.  
-  Осталось P2: §8 sort/search без TC-*, nightly, product-бэклог (марка/модель, seed каталог), текст error-year.
+  Осталось P2: nightly, product-бэклог (марка/модель, seed каталог).
 
 Подробнее: [`e2e/README.md`](e2e/README.md), workflow [`.github/workflows/e2e.yml`](.github/workflows/e2e.yml).
 
