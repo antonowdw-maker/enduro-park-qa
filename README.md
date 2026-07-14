@@ -39,7 +39,8 @@
 | 7 | Валидация + `error-*` testid + BUG-03 | ✅ |
 | 8 | API: auth на GET /bikes, offset, фильтры год/пробег | ✅ |
 | 9 | Seed: детерминированные данные для тестов | ✅ |
-| 10 | Playwright + GitHub Actions CI | 🔄 10.5 валидация |
+| 10 | Playwright + GitHub Actions CI | 🔄 10.6 аудит |
+
 
 ## 📝 Бэклог улучшений (вне плана итераций)
 
@@ -70,7 +71,7 @@
 - [x] Каталог `e2e/` (Playwright + TS), globalSetup (`db push` + seed), Page Object login/main, auth smoke.
 - [x] Page Object: `bike-form.page.ts`; спеки `roles.spec.ts` / `filters.spec.ts` (итерация 10.2).
 - [x] CRUD + `known-bugs.spec.ts` (правильные ожидания + `test.fail` для BUG-01…03) + roles API (итерация 10.3).
-- [ ] **10.5 Матрица валидации / тест-дизайн:** create/edit happy+негатив (NEG-02…05, 08, 11…14), границы, эквивалентные классы, маски, редактирование VIN — дописать ручные ТК при отсутствии и закрыть автотестами.
+- [x] **10.5 Матрица валидации / тест-дизайн:** `validation.spec.ts` — NEG-02…05/08/11…14, LAST-02/03, EDIT-VIN-01/02 (+ `noValidate` на форме, чтобы Zod показывал `error-lastService`).
 - [x] GitHub Actions: E2E на PR / перед merge (**гейт**); опционально nightly по расписанию (см. бэклог ниже).
 - [ ] **После закрытия волн 10.1–10.5 — аудит покрытия (обязательно):**
   1. Пройти весь бэклог «на добавить» (product, фильтры, seed, CI…).

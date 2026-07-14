@@ -4,6 +4,9 @@ import { FRONTEND_DIR, BACKEND_DIR, getBaseUrl, loadBackendEnv } from './src/hel
 // Пароли и PORT подтянем до старта webServer
 loadBackendEnv();
 
+/** CI: IPv4; локально: localhost (reuseExistingServer и привычные дев-серверы) */
+const HOST = process.env.CI ? '127.0.0.1' : 'localhost';
+
 /**
  * Конфиг Playwright (итерация 10.1)
  * — UI: Vite :5173 (прокси /api → backend)
@@ -45,7 +48,7 @@ export default defineConfig({
         ? 'npx ts-node --transpile-only src/server.ts'
         : 'npm run dev',
       cwd: BACKEND_DIR,
-      url: 'http://127.0.0.1:5000/',
+      url: `http://${HOST}:5000/`,
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
       stdout: 'pipe',
@@ -56,7 +59,7 @@ export default defineConfig({
         ? 'npx vite --host 127.0.0.1 --port 5173'
         : 'npm run dev',
       cwd: FRONTEND_DIR,
-      url: 'http://127.0.0.1:5173/',
+      url: `http://${HOST}:5173/`,
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
       stdout: 'pipe',

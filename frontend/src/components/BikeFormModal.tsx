@@ -120,6 +120,7 @@ export default function BikeFormModal({
         )}
 
         <form
+          noValidate
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-4"
         >
