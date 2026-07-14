@@ -26,8 +26,19 @@ export class MainPage {
   readonly yearTo = () => this.page.getByTestId('filter-year-to');
   readonly mileageFrom = () => this.page.getByTestId('filter-mileage-from');
   readonly mileageTo = () => this.page.getByTestId('filter-mileage-to');
+  readonly yearFromClear = () => this.page.getByTestId('filter-year-from-clear');
+  readonly yearToClear = () => this.page.getByTestId('filter-year-to-clear');
 
   readonly paginationLimit = () => this.page.getByTestId('pagination-limit');
+
+  filterError(field: 'year-from' | 'year-to' | 'mileage-from' | 'mileage-to') {
+    return this.page.getByTestId(`error-filter-${field}`);
+  }
+
+  /** «Всего в базе: N» */
+  totalInDb() {
+    return this.page.getByText(/Всего в базе:\s*\d+/);
+  }
 
   /** Строка таблицы по VIN */
   bikeRow(vin: string) {

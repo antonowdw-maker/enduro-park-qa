@@ -39,7 +39,7 @@
 | 7 | Валидация + `error-*` testid + BUG-03 | ✅ |
 | 8 | API: auth на GET /bikes, offset, фильтры год/пробег | ✅ |
 | 9 | Seed: детерминированные данные для тестов | ✅ |
-| 10 | Playwright + GitHub Actions CI | 🔄 10.6 аудит |
+| 10 | Playwright + GitHub Actions CI | ✅ 10.1–10.6 |
 
 
 ## 📝 Бэклог улучшений (вне плана итераций)
@@ -73,12 +73,8 @@
 - [x] CRUD + `known-bugs.spec.ts` (правильные ожидания + `test.fail` для BUG-01…03) + roles API (итерация 10.3).
 - [x] **10.5 Матрица валидации / тест-дизайн:** `validation.spec.ts` — NEG-02…05/08/11…14, LAST-02/03, EDIT-VIN-01/02 (+ `noValidate` на форме, чтобы Zod показывал `error-lastService`).
 - [x] GitHub Actions: E2E на PR / перед merge (**гейт**); опционально nightly по расписанию (см. бэклог ниже).
-- [ ] **После закрытия волн 10.1–10.5 — аудит покрытия (обязательно):**
-  1. Пройти весь бэклог «на добавить» (product, фильтры, seed, CI…).
-  2. Сверить `MANUAL-TEST-CASES` ↔ автотесты (что без 🤖).
-  3. Пройти код (API routes, роли, формы, фильтры, пагинация, edge cases) и выписать **дыры** в E2E.
-  4. Цель: **максимальное покрытие** критичных сценариев + явный skip/test.fail только для известных багов.
-  5. Результат: чеклист gaps → план 10.6+ / отдельные спеки.
+- [x] **После закрытия волн 10.1–10.5 — аудит покрытия (обязательно):** итерация **10.6** — матрица в `IMPLEMENTATION-NOTES`; gaps закрыты `auth-extra` / `auth-api` / `filters` / `seed`.  
+  Осталось P2: §8 sort/search без TC-*, nightly, product-бэклог (марка/модель, seed каталог), текст error-year.
 
 Подробнее: [`e2e/README.md`](e2e/README.md), workflow [`.github/workflows/e2e.yml`](.github/workflows/e2e.yml).
 

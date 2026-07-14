@@ -4,7 +4,9 @@ import { SEED_VINS } from '../src/data/seed-vins';
 
 loadBackendEnv();
 
-const API = process.env.API_URL?.trim() || 'http://localhost:5000';
+const API =
+  process.env.API_URL?.trim() ||
+  (process.env.CI ? 'http://127.0.0.1:5000' : 'http://localhost:5000');
 
 /**
  * Роли на API (волна 10.3) — без UI, через request.
