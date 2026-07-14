@@ -39,7 +39,7 @@
 | 7 | Валидация + `error-*` testid + BUG-03 | ✅ |
 | 8 | API: auth на GET /bikes, offset, фильтры год/пробег | ✅ |
 | 9 | Seed: детерминированные данные для тестов | ✅ |
-| 10 | Playwright + GitHub Actions CI | 🔄 10.4 CI |
+| 10 | Playwright + GitHub Actions CI | 🔄 10.5 валидация |
 
 ## 📝 Бэклог улучшений (вне плана итераций)
 
