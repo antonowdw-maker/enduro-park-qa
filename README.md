@@ -74,19 +74,20 @@
 - [x] **10.5 Матрица валидации:** `validation.spec.ts` (+ `noValidate` на форме).
 - [x] GitHub Actions: E2E-гейт на PR/`push` (итерация 10.4).
 - [x] **10.6 Аудит покрытия** + sort/pagination + пере-seed перед счётчиками.  
-  Дальше не волны 10.x, а бэклог ниже (nightly, seed-каталог).  
-  Фильтр марка/модель: UI/API + smoke + **ТТД** (`filters-brand-model*.spec.ts`) — ветка `feature/filter-brand-model`.
+  Дальше не волны 10.x. Product/CI бэклог «на подумать» закрыт (фильтр, seed, nightly) — в `main`.
 
-Подробнее: [`e2e/README.md`](e2e/README.md), workflow [`.github/workflows/e2e.yml`](.github/workflows/e2e.yml).
+Подробнее: [`e2e/README.md`](e2e/README.md), workflows [`.github/workflows/e2e.yml`](.github/workflows/e2e.yml) (гейт) и [`.github/workflows/e2e-nightly.yml`](.github/workflows/e2e-nightly.yml) (cron).
 
-### CI / когда гонять автотесты (решения на следующие итерации)
-- [x] **Рекомендация:** pipeline на PR/`push` в `main` и `feature/*` (гейт перед merge) — ловит регрессии сразу. *(итерация 10.4)*
-- [ ] **Дополнительно:** nightly schedule (cron) — полный прогон / несколько браузеров, если PR-сьют станет долгим.
-- [ ] Не вместо: расписание без гейта на merge — слабо для учебного CI.
+### CI / когда гонять автотесты
+- [x] **Гейт:** pipeline на PR/`push` в `main` и `feature/*` — Chromium. *(итерация 10.4)*
+- [x] **Nightly:** schedule cron `0 3 * * *` UTC + `workflow_dispatch` — chromium/firefox/webkit. *(влито в `main`)*
+- [x] Nightly **дополняет** гейт, не заменяет его.
 
-### Product / данные (идеи «на подумать»)
-- [x] **Фильтр по марке и модели** — UI + API (`brand`/`model`), testid, ТК, smoke + ТТД (EP/BVA/DT + API). *(влито в `main`)*
-- [x] **Расширить каталог/seed современными эндуро:** CN (Kayo, Regulmoto, Motoland, GR, Kews) + EU (Fantic, Rieju, Triumph) — якоря SEED-05…07, счётчики 19/16/15 сохранены (`feature/seed-catalog-modern`).
+### Product / данные
+- [x] **Фильтр по марке и модели** — UI + API (`brand`/`model`), testid, ТК, smoke + ТТД. *(влито в `main`)*
+- [x] **Каталог/seed modern** — CN/EU эндуро, якоря SEED-05…07, счётчики 19/16/15. *(влито в `main`)*
+
+**Итог:** открытых пунктов в бэклоге «на подумать» нет (14.07.2026).
 
 ### Уже сделано (для истории)
 - [x] Единый `JWT_SECRET` в `config.ts` (было два разных секрета).

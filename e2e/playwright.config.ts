@@ -34,12 +34,23 @@ export default defineConfig({
       slowMo: Number(process.env.SLOW_MO || 0) || 0,
     },
   },
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-  ],
+  projects: (() => {
+    const all = [
+      { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+      { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+      { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+    ] as const;
+    // Локально и PR-гейт: только Chromium. Nightly: PLAYWRIGHT_BROWSER=firefox|webkit|chromium
+    const only = process.env.PLAYWRIGHT_BROWSER?.trim();
+    if (only) {
+      const matched = all.filter((project) => project.name === only);
+      if (matched.length === 0) {
+        throw new Error(`Unknown PLAYWRIGHT_BROWSER="${only}" (ожидается chromium|firefox|webkit)`);
+      }
+      return [...matched];
+    }
+    return [all[0]];
+  })(),
   // Поднимаем API и UI, если ещё не запущены (reuseExistingServer локально)
   webServer: [
     {

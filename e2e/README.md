@@ -23,18 +23,23 @@ npm run test:ui       # Playwright UI mode
 Перед прогоном `globalSetup` делает `prisma db push` + `npm run seed` в `backend/`.
 `webServer` поднимает backend (:5000) и frontend (:5173), если они ещё не запущены.
 
-## CI (GitHub Actions) — итерация 10.4
+## CI (GitHub Actions) — итерация 10.4 + nightly
 
-Воркфлоу: `.github/workflows/e2e.yml`
+Воркфлоу: `.github/workflows/e2e.yml` (гейт), `.github/workflows/e2e-nightly.yml` (cron)
 
 | Когда | Что |
 |-------|-----|
-| `push` в `main` / `feature/**` | Прогон E2E (если менялись backend/frontend/e2e/workflow) |
+| `push` в `main` / `feature/**` | Прогон E2E Chromium (если менялись backend/frontend/e2e/workflow) |
 | `pull_request` → `main` | То же — **гейт перед merge** |
+| `schedule` daily 03:00 UTC | Nightly: chromium + firefox + webkit (матрица) |
+| `workflow_dispatch` | Ручной запуск nightly |
+
+Локально по умолчанию только Chromium. Другой браузер:  
+`$env:PLAYWRIGHT_BROWSER='firefox'; npx playwright test` (нужен `npx playwright install firefox`).
 
 CI сам пишет эфемерный `backend/.env` (случайные JWT/пароли), поднимает API+UI через `webServer`, `globalSetup` делает seed.
 
-Локально CI не обязателен: `cd e2e && npm test` при наличии своего `.env`.
+**Заметка:** GitHub cron выполняется на **default branch** (`main`). После влития `e2e-nightly.yml` nightly активен; можно также запустить вручную (`Actions` → e2e-nightly → Run workflow).
 
 ## Практики
 

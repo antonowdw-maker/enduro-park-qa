@@ -1,31 +1,26 @@
-# E2E гейт (итерация 10.4): Playwright перед merge / на push
-name: e2e
+# Nightly E2E: полный прогон на нескольких браузерах (доп. к гейту e2e.yml)
+# Cron срабатывает только на ветке по умолчанию (main) после merge workflow.
+name: e2e-nightly
 
 on:
-  push:
-    branches: [main, 'feature/**']
-    paths:
-      - 'backend/**'
-      - 'frontend/**'
-      - 'e2e/**'
-      - '.github/workflows/**'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'backend/**'
-      - 'frontend/**'
-      - 'e2e/**'
-      - '.github/workflows/**'
+  schedule:
+    # 03:00 UTC ежедневно ≈ 06:00 МСК
+    - cron: '0 3 * * *'
+  workflow_dispatch:
 
 concurrency:
-  group: e2e-${{ github.workflow }}-${{ github.ref }}
+  group: e2e-nightly-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   playwright:
-    name: Playwright Chromium
+    name: Playwright ${{ matrix.browser }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
 
     steps:
       - name: Checkout
@@ -41,7 +36,6 @@ jobs:
             frontend/package-lock.json
             e2e/package-lock.json
 
-      # Эфемерные секреты CI (не в git и не в GitHub Secrets) — тесты читают backend/.env
       - name: Create backend/.env for CI
         run: |
           set -euo pipefail
@@ -58,7 +52,6 @@ jobs:
             echo "CORS_ORIGIN=http://127.0.0.1:5173"
             echo "ENABLE_LOGIN_RATE_LIMIT=false"
           } > backend/.env
-          # не печатаем секреты в лог
           echo "backend/.env создан (пароли эфемерные, только для этого job)"
 
       - name: Install backend deps
@@ -79,23 +72,23 @@ jobs:
         working-directory: e2e
         run: npm ci
 
-      - name: Install Playwright Chromium
+      - name: Install Playwright browser
         working-directory: e2e
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps ${{ matrix.browser }}
 
-      - name: Run Playwright tests
+      - name: Run Playwright (${{ matrix.browser }})
         working-directory: e2e
         env:
           CI: true
           BASE_URL: http://127.0.0.1:5173
-          PLAYWRIGHT_BROWSER: chromium
+          PLAYWRIGHT_BROWSER: ${{ matrix.browser }}
         run: npm test
 
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v5
         with:
-          name: playwright-report
+          name: playwright-report-nightly-${{ matrix.browser }}
           path: |
             e2e/playwright-report/
             e2e/test-results/
