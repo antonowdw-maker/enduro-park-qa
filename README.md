@@ -39,7 +39,7 @@
 | 7 | Валидация + `error-*` testid + BUG-03 | ✅ |
 | 8 | API: auth на GET /bikes, offset, фильтры год/пробег | ✅ |
 | 9 | Seed: детерминированные данные для тестов | ✅ |
-| 10 | Playwright + GitHub Actions CI | ✅ 10.1–10.6 |
+| 10 | Playwright + GitHub Actions CI | ✅ **в `main`** (волны 10.1–10.6) |
 
 
 ## 📝 Бэклог улучшений (вне плана итераций)
@@ -67,14 +67,14 @@
 ### Документация / тест-кейсы
 - [x] Обновить ручные ТК: ошибка поля «Марка» — «Минимум 2 символа для марки» (`error-brand`); правило min 2 символа оставить для автотестов. *(включено в v1.2)*
 
-### Автотесты (практики, дополняют итерацию 10)
+### Автотесты (практики, итерация 10 — **закрыта и влита в `main`**, 14.07.2026)
 - [x] Каталог `e2e/` (Playwright + TS), globalSetup (`db push` + seed), Page Object login/main, auth smoke.
 - [x] Page Object: `bike-form.page.ts`; спеки `roles.spec.ts` / `filters.spec.ts` (итерация 10.2).
 - [x] CRUD + `known-bugs.spec.ts` (правильные ожидания + `test.fail` для BUG-01…03) + roles API (итерация 10.3).
-- [x] **10.5 Матрица валидации / тест-дизайн:** `validation.spec.ts` — NEG-02…05/08/11…14, LAST-02/03, EDIT-VIN-01/02 (+ `noValidate` на форме, чтобы Zod показывал `error-lastService`).
-- [x] GitHub Actions: E2E на PR / перед merge (**гейт**); опционально nightly по расписанию (см. бэклог ниже).
-- [x] **После закрытия волн 10.1–10.5 — аудит покрытия (обязательно):** итерация **10.6** — матрица в `IMPLEMENTATION-NOTES`; gaps закрыты `auth-extra` / `auth-api` / `filters` / `seed`.  
-  Осталось P2: nightly, product-бэклог (марка/модель, seed каталог).
+- [x] **10.5 Матрица валидации:** `validation.spec.ts` (+ `noValidate` на форме).
+- [x] GitHub Actions: E2E-гейт на PR/`push` (итерация 10.4).
+- [x] **10.6 Аудит покрытия** + sort/pagination + пере-seed перед счётчиками.  
+  Дальше не волны 10.x, а бэклог ниже (nightly, марка/модель, seed-каталог).
 
 Подробнее: [`e2e/README.md`](e2e/README.md), workflow [`.github/workflows/e2e.yml`](.github/workflows/e2e.yml).
 
