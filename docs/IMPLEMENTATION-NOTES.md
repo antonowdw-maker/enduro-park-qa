@@ -44,6 +44,7 @@
 | BUG-03 | Год 1988/2028 проходят | Ошибка только на 1989 и current+1 | ✅ Намеренный баг | TC-BIKE-NEG-07/09 |
 | lastService | Не описано в v2.0 | ≥ 1990-01-01, ≤ сегодня; **текст + календарь**; маска `20100101`→`2010-01-01` | ✅ v2.2 + бэклог п.3 | TC-BIKE-NEG-11…14, TC-BIKE-LAST-* |
 | MainPage | Монолит | `BikeFilters` + `BikeTable` + типы в `types/bike.ts` | ✅ Бэклог п.4 | Поведение без изменений |
+| loadData / useEffect | Неполный deps | `useCallback` + deps `[loadData, hasFilterErrors]` | ✅ Бэклог п.5 | — |
 | BUG-02 | Нестандартная ошибка TEST/123 | Текст про guest в form-server-error | ✅ Намеренный баг | TC-BIKE-NEG-10 |
 
 ---
@@ -114,8 +115,8 @@
 
 | # | Задача | Статус |
 |---|--------|--------|
-| 4 | Вынести `BikeTable` / `BikeFilters` | 🔄 на QA |
-| 5 | `useCallback` для `loadData` | ⏳ |
+| 4 | Вынести `BikeTable` / `BikeFilters` | ✅ |
+| 5 | `useCallback` для `loadData` | 🔄 на QA |
 | 6 | `authService.ts` | ⏳ |
 | 7 | Корневой `package-lock.json` | ⏳ |
 
@@ -127,4 +128,4 @@ BUG-01, BUG-02, BUG-03 — см. требования §7 / ручные ТК.
 
 ---
 
-*Последнее обновление: 14.07.2026 — бэклог п.4 на проверке.*
+*Последнее обновление: 14.07.2026 — бэклог п.5 на проверке.*

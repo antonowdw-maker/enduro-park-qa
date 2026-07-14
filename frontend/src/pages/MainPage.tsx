@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { type BikeFormData } from '../schemas';
 import { getBikes, createBike, updateBike, deleteBike } from '../api';
@@ -72,7 +72,7 @@ export default function MainPage() {
   const hasActiveFilters = activeStatuses.length > 0 || yearFrom !== '' || yearTo !== '' || mileageFrom !== '' || mileageTo !== '';
 
   // Загрузка списка байков с бэкенда (фильтр, пагинация, сортировка) — доступна без авторизации
-  const loadData = () => {
+  const loadData = useCallback(() => {
     getBikes({
       statuses: activeStatuses,
       page,
@@ -92,12 +92,22 @@ export default function MainPage() {
         setBikes([]);
         setTotal(0);
       });
-  };
+  }, [
+    activeStatuses,
+    page,
+    limit,
+    sortBy,
+    sortOrder,
+    yearFrom,
+    yearTo,
+    mileageFrom,
+    mileageTo,
+  ]);
 
   useEffect(() => {
     if (hasFilterErrors) return;
     loadData();
-  }, [activeStatuses, yearFrom, yearTo, mileageFrom, mileageTo, page, limit, sortBy, sortOrder, hasFilterErrors]);
+  }, [loadData, hasFilterErrors]);
 
   const handleLogout = async () => {
     await logout();
