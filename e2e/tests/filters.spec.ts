@@ -1,12 +1,18 @@
 import { test, expect } from '@playwright/test';
 import { MainPage } from '../src/pages/main.page';
 import { SEED_VINS } from '../src/data/seed-vins';
+import { resetDatabaseSeed } from '../src/helpers/seed';
 
 /**
  * Фильтры по статусу (волна 10.2)
  * Используем якорные VIN из seed — не завязаны на UUID.
+ * beforeAll: пере-seed после CRUD-грязи в том же прогоне.
  */
 test.describe('Filters', () => {
+  test.beforeAll(() => {
+    resetDatabaseSeed();
+  });
+
   test.beforeEach(async ({ page }) => {
     const mainPage = new MainPage(page);
     await mainPage.open();

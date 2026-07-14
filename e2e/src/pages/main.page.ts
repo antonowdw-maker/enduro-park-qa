@@ -30,6 +30,23 @@ export class MainPage {
   readonly yearToClear = () => this.page.getByTestId('filter-year-to-clear');
 
   readonly paginationLimit = () => this.page.getByTestId('pagination-limit');
+  readonly paginationPrev = () => this.page.getByTestId('pagination-prev');
+  readonly paginationNext = () => this.page.getByTestId('pagination-next');
+
+  /** Заголовки сортировки (F-SORT) */
+  sortHeader(field: 'brand' | 'model' | 'year' | 'vin' | 'mileage' | 'status' | 'lastService') {
+    return this.page.getByTestId(`sort-${field}`);
+  }
+
+  /** Все видимые строки таблицы */
+  bikeRows() {
+    return this.page.getByTestId(/^bike-row-/);
+  }
+
+  /** Текст «СТРАНИЦА X ИЗ Y» */
+  pageIndicator() {
+    return this.page.getByText(/СТРАНИЦА\s+\d+\s+ИЗ\s+\d+/i);
+  }
 
   filterError(field: 'year-from' | 'year-to' | 'mileage-from' | 'mileage-to') {
     return this.page.getByTestId(`error-filter-${field}`);

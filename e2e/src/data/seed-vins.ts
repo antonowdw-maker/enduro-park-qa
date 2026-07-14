@@ -6,6 +6,8 @@ export const SEED_VINS = {
   availableKtm: 'KTM2020QA00000001',
   repairHonda: 'HON2015QA00000002',
   soldYamaha: 'YAM2018QA00000003',
+  minYearBeta: 'BET1990QA00000004',
+  maxMileageBmw: 'BMW2026QA00000005',
   vinEditHusq: 'HUS2024QA00000006',
 } as const;
 

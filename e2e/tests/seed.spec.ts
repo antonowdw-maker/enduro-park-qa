@@ -1,12 +1,19 @@
 import { test, expect } from '@playwright/test';
 import { MainPage } from '../src/pages/main.page';
 import { SEED_BIKE_COUNT, SEED_VINS } from '../src/data/seed-vins';
+import { resetDatabaseSeed } from '../src/helpers/seed';
 
 /**
  * Seed / счётчики (волна 10.6).
  * TC-SEED-01 (повторный seed) — вне Playwright: смотрим лог `npm run seed` / CI globalSetup.
+ *
+ * beforeAll: пере-seed — иначе CRUD/validation из более ранних файлов портят 19/50.
  */
 test.describe('Seed anchors', () => {
+  test.beforeAll(() => {
+    resetDatabaseSeed();
+  });
+
   test.beforeEach(async ({ page }) => {
     const mainPage = new MainPage(page);
     await mainPage.open();
