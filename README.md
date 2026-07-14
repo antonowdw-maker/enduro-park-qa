@@ -39,7 +39,7 @@
 | 7 | Валидация + `error-*` testid + BUG-03 | ✅ |
 | 8 | API: auth на GET /bikes, offset, фильтры год/пробег | ✅ |
 | 9 | Seed: детерминированные данные для тестов | ✅ |
-| 10 | Playwright + GitHub Actions CI | 🔄 10.1 инфра + auth smoke |
+| 10 | Playwright + GitHub Actions CI | 🔄 10.2 roles/filters |
 
 ## 📝 Бэклог улучшений (вне плана итераций)
 
@@ -68,7 +68,7 @@
 
 ### Автотесты (практики, дополняют итерацию 10)
 - [x] Каталог `e2e/` (Playwright + TS), globalSetup (`db push` + seed), Page Object login/main, auth smoke.
-- [ ] Page Object: `bike-form.page.ts`; спеки roles / filters / crud.
+- [x] Page Object: `bike-form.page.ts`; спеки `roles.spec.ts` / `filters.spec.ts` (итерация 10.2).
 - [ ] Отдельный файл `known-bugs.spec.ts` для BUG-01 / BUG-02 / BUG-03 (ожидаемое поведение, не регрессия).
 - [ ] GitHub Actions CI для `e2e/`.
 

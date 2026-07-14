@@ -20,7 +20,8 @@
 
 ### TC-AUTH-02: Вход под mechanic
 **Данные:** `mechanic` + `SEED_MECHANIC_PASSWORD` из `.env`.  
-**Ожидание:** как TC-AUTH-01, role=mechanic.
+**Ожидание:** как TC-AUTH-01, role=mechanic.  
+🤖 **Автотест:** `e2e/tests/roles.spec.ts` → «TC-ROLE-02 / TC-AUTH-02» (итерация 10.2).
 
 ### ~~TC-AUTH-03~~ — **УДАЛЁН** (роль guest снята)
 
@@ -42,7 +43,7 @@
 **Предусловия:** cookies очищены.  
 **Шаги:** `http://localhost:5173/`.  
 **Ожидание:** нет редиректа на login; таблица; `header-login-btn`; нет `add-bike-btn`.  
-🤖 **Автотест (частично):** `e2e/tests/auth.spec.ts` → «TC-AUTH-01» (таблица + `header-login-btn`; отсутствие `add-bike-btn` — добить в 10.2).
+🤖 **Автотест:** `e2e/tests/roles.spec.ts` → «TC-ROLE-01 / TC-AUTH-07» (итерация 10.2).
 
 ### TC-AUTH-08: GET /bikes без cookie
 **Шаги:** GET `/api/bikes` без cookie.  
@@ -66,13 +67,16 @@
 
 ### TC-ROLE-01: Аноним не видит CRUD
 **Шаги:** `/` без входа.  
-**Ожидание:** нет add/edit/delete; `actions-readonly-placeholder`.
+**Ожидание:** нет add/edit/delete; `actions-readonly-placeholder`.  
+🤖 **Автотест:** `e2e/tests/roles.spec.ts` (итерация 10.2).
 
 ### TC-ROLE-02: Mechanic — add + edit, без delete
-**Ожидание:** `add-bike-btn`, `edit-bike-*`; нет `delete-bike-*`.
+**Ожидание:** `add-bike-btn`, `edit-bike-*`; нет `delete-bike-*`.  
+🤖 **Автотест:** `e2e/tests/roles.spec.ts` (итерация 10.2).
 
 ### TC-ROLE-03: Admin — полный доступ
-**Ожидание:** add, edit, delete.
+**Ожидание:** add, edit, delete.  
+🤖 **Автотест:** `e2e/tests/roles.spec.ts` (итерация 10.2).
 
 ### TC-ROLE-04: Mechanic DELETE API → 403
 **Ожидание:** 403; байк в базе.
@@ -169,21 +173,25 @@
 
 ### TC-FILTER-MULTI-01: Два статуса одновременно
 **Шаги:** нажать `filter-available`, затем `filter-repair` (оба подсвечены).  
-**Ожидание:** в таблице только байки со статусом «Доступен» и «В ремонте»; «Продан» не показывается.
+**Ожидание:** в таблице только байки со статусом «Доступен» и «В ремонте»; «Продан» не показывается.  
+🤖 **Автотест:** `e2e/tests/filters.spec.ts` (итерация 10.2).
 
 ### TC-FILTER-MULTI-02: Снятие одного статуса
 **Предусловия:** активны «Доступен» + «Ремонт».  
 **Шаги:** повторный клик `filter-repair`.  
-**Ожидание:** остаются только «Доступен».
+**Ожидание:** остаются только «Доступен».  
+🤖 **Автотест:** `e2e/tests/filters.spec.ts` (итерация 10.2).
 
 ### TC-FILTER-MULTI-03: «Все» сбрасывает статусы
 **Предусловия:** выбран хотя бы один статус.  
 **Шаги:** `filter-all`.  
-**Ожидание:** полный список (50 байков после seed).
+**Ожидание:** полный список (50 байков после seed).  
+🤖 **Автотест:** `e2e/tests/filters.spec.ts` (итерация 10.2; проверка по якорным VIN).
 
 ### TC-FILTER-YEAR-01: Год от
 **Шаги:** `filter-year-from` = 2020.  
-**Ожидание:** в таблице только байки с годом ≥ 2020.
+**Ожидание:** в таблице только байки с годом ≥ 2020.  
+🤖 **Автотест:** `e2e/tests/filters.spec.ts` (итерация 10.2).
 
 ### TC-FILTER-YEAR-02: Год до
 **Шаги:** `filter-year-to` = 2015.  

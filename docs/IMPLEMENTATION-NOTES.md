@@ -56,13 +56,15 @@
 | TC | Кратко | Статус | Комментарий |
 |----|--------|--------|-------------|
 | TC-AUTH-01 | Вход admin | 🤖 Авто | `e2e/tests/auth.spec.ts` (10.1) |
-| TC-AUTH-02 | Вход mechanic | ✅ Ручной | → 10.2 roles |
+| TC-AUTH-02 | Вход mechanic | 🤖 Авто | `e2e/tests/roles.spec.ts` (10.2) |
 | TC-AUTH-03 | Вход guest | ⏭ Удалён | Роль guest снята |
 | TC-AUTH-04 | Неверный пароль | 🤖 Авто | `e2e/tests/auth.spec.ts` (10.1) |
 | TC-AUTH-05 | Несуществующий user | ✅ Ручной | |
 | TC-AUTH-06 | Logout | ✅ Ручной | |
-| TC-AUTH-07 | Главная без auth | 🤖 Частично | Покрыто в TC-AUTH-01 smoke; `add-bike` absent → 10.2 |
+| TC-AUTH-07 | Главная без auth | 🤖 Авто | `e2e/tests/roles.spec.ts` (10.2) |
 | TC-AUTH-08 | GET /bikes без cookie | ✅ Обновлён | 200, публичный список |
+| TC-ROLE-01…03 | Роли UI | 🤖 Авто | `e2e/tests/roles.spec.ts` (10.2) |
+| TC-FILTER-MULTI-* / YEAR-01 | Фильтры | 🤖 Авто | `e2e/tests/filters.spec.ts` (10.2) |
 | TC-ROLE-01 | Аноним без CRUD | ✅ Работает | Был guest |
 | TC-ROLE-02…03 | mechanic / admin | ✅ Работает | |
 | TC-ROLE-05 (старый) | guest POST | ⏭ Удалён | Заменён: POST без cookie → 401 |
@@ -134,11 +136,11 @@
 | Волна | Содержание | Статус |
 |-------|------------|--------|
 | 10.1 | `e2e/` + config + globalSetup + auth smoke | ✅ |
-| 10.2 | POM + roles/filters | ⏳ |
+| 10.2 | POM + roles/filters | ✅ |
 | 10.3 | CRUD + known-bugs | ⏳ |
 | 10.4 | GitHub Actions CI | ⏳ |
 
-**Автоматизировано (10.1):** TC-AUTH-01, TC-AUTH-04; частично TC-AUTH-07.
+**Автоматизировано (10.1–10.2):** TC-AUTH-01/02/04/07; TC-ROLE-01…03; TC-FILTER-MULTI-01…03; TC-FILTER-YEAR-01.
 
 ### Не чинить намеренно
 
@@ -146,4 +148,4 @@ BUG-01, BUG-02, BUG-03 — см. требования §7 / ручные ТК.
 
 ---
 
-*Последнее обновление: 14.07.2026 — трассировка ТК ↔ автотесты после 10.1.*
+*Последнее обновление: 14.07.2026 — итерация 10.2 (roles + filters).*

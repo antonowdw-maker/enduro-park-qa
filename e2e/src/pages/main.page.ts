@@ -1,16 +1,46 @@
 import { Page, expect } from '@playwright/test';
 
 /**
- * Page Object: главная / (таблица, шапка, фильтры — базовая поверхность для smoke)
+ * Page Object: главная / — шапка, фильтры, таблица, пагинация.
+ * Локаторы только через data-testid.
  */
 export class MainPage {
   constructor(private readonly page: Page) {}
 
+  // --- шапка ---
   readonly headerLogin = () => this.page.getByTestId('header-login-btn');
   readonly logout = () => this.page.getByTestId('logout-btn');
   readonly userUsername = () => this.page.getByTestId('user-username');
   readonly userRole = () => this.page.getByTestId('user-role');
   readonly addBike = () => this.page.getByTestId('add-bike-btn');
+
+  // --- фильтры статусов ---
+  readonly filterAll = () => this.page.getByTestId('filter-all');
+  readonly filterAvailable = () => this.page.getByTestId('filter-available');
+  readonly filterRepair = () => this.page.getByTestId('filter-repair');
+  readonly filterSold = () => this.page.getByTestId('filter-sold');
+  readonly filterClearAll = () => this.page.getByTestId('filter-clear-all');
+
+  // --- фильтры диапазонов ---
+  readonly yearFrom = () => this.page.getByTestId('filter-year-from');
+  readonly yearTo = () => this.page.getByTestId('filter-year-to');
+  readonly mileageFrom = () => this.page.getByTestId('filter-mileage-from');
+  readonly mileageTo = () => this.page.getByTestId('filter-mileage-to');
+
+  readonly paginationLimit = () => this.page.getByTestId('pagination-limit');
+
+  /** Строка таблицы по VIN */
+  bikeRow(vin: string) {
+    return this.page.getByTestId(`bike-row-${vin}`);
+  }
+
+  editBike(vin: string) {
+    return this.page.getByTestId(`edit-bike-${vin}`);
+  }
+
+  deleteBike(vin: string) {
+    return this.page.getByTestId(`delete-bike-${vin}`);
+  }
 
   /** Открыть главную (публичный список) */
   async open() {
@@ -19,7 +49,13 @@ export class MainPage {
 
   /** Дождаться, что таблица отрисовала хотя бы одну строку байка */
   async expectTableHasRows() {
-    await expect(this.page.locator('[data-testid^="bike-row-"]').first()).toBeVisible();
+    await expect(this.page.getByTestId(/^bike-row-/).first()).toBeVisible();
+  }
+
+  /** Показать максимум строк на странице (удобно для фильтров по якорным VIN) */
+  async setLimit50() {
+    await this.paginationLimit().selectOption('50');
+    await this.expectTableHasRows();
   }
 
   /** Проверка шапки после успешного входа */
@@ -27,5 +63,10 @@ export class MainPage {
     await expect(this.userUsername()).toHaveText(username);
     await expect(this.userRole()).toHaveText(role);
     await expect(this.logout()).toBeVisible();
+  }
+
+  /** Текст статуса в ячейке строки (BUG-01: repair → «В ремонте») */
+  statusCell(vin: string) {
+    return this.bikeRow(vin).locator('td').nth(5);
   }
 }
