@@ -47,8 +47,9 @@
 Сюда попадают идеи из ревью кода и обсуждений — то, что **не входит** в таблицу итераций выше, но стоит не забыть. При новых предложениях «сделать позже» — дополняем этот список.
 
 **Отклонения от PDF-требований и статус ручных ТК** — в [`docs/IMPLEMENTATION-NOTES.md`](docs/IMPLEMENTATION-NOTES.md).  
+**Roadmap следующих волн (A…J)** — [`docs/QA-STAND-ROADMAP.md`](docs/QA-STAND-ROADMAP.md).  
 **Безопасность и деплой** — [`docs/SECURITY.md`](docs/SECURITY.md).  
-**Актуальные требования v2.5 и ТК v1.6** — [`docs/SYSTEM-REQUIREMENTS-v2.1.md`](docs/SYSTEM-REQUIREMENTS-v2.1.md), [`docs/MANUAL-TEST-CASES-v1.2.md`](docs/MANUAL-TEST-CASES-v1.2.md).
+**Актуальные требования и ТК** — [`docs/SYSTEM-REQUIREMENTS-v2.1.md`](docs/SYSTEM-REQUIREMENTS-v2.1.md), [`docs/MANUAL-TEST-CASES-v1.2.md`](docs/MANUAL-TEST-CASES-v1.2.md).
 
 ### UX / интерфейс
 - [x] Перенести `pagination-limit` из блока фильтров к пагинации под таблицей.
@@ -88,6 +89,20 @@
 - [x] **Каталог/seed modern** — CN/EU эндуро, якоря SEED-05…07, счётчики 19/16/15. *(влито в `main`)*
 
 **Итог:** открытых пунктов в бэклоге «на подумать» нет (14.07.2026).
+
+### Следующий план (волны A…J)
+Подробно: [`docs/QA-STAND-ROADMAP.md`](docs/QA-STAND-ROADMAP.md).
+
+- [ ] **A** — остатки TC→авто (SEED-01, httpOnly)
+- [ ] **B** — flake-hunt E2E
+- [ ] **C** — API query ТТД / контракт
+- [ ] **D** — CRUD/Auth API глубина
+- [ ] **E** — UI search + ошибка списка
+- [ ] **F** — a11y / mobile
+- [ ] **G** — security hardening
+- [ ] **H** — known-bugs учебный контракт
+- [ ] **I** — матрица покрытия + CI gates
+- [ ] **J** — эпик прокат/аренда
 
 ### Уже сделано (для истории)
 - [x] Единый `JWT_SECRET` в `config.ts` (было два разных секрета).
