@@ -322,6 +322,23 @@
 **Ожидание:** поле пустое; якорь KTM снова виден.  
 🤖 **Автотест:** `e2e/tests/filters.spec.ts`.
 
+### Матрица ТТД: марка / модель (позитив / негатив / границы / комбинации)
+
+| TC | Техника | Суть | Автотест |
+|----|---------|------|----------|
+| TC-FILTER-BRAND-03 | EP подстрока | `ond` → Honda | `filters-brand-model.spec.ts` |
+| TC-FILTER-BRAND-04 | EP регистр | `ktm` → якорь KTM | UI + API |
+| TC-FILTER-MODEL-02 | EP подстрока | `YZ250` → Yamaha | UI |
+| TC-FILTER-MODEL-03 | очистка | `filter-model-clear` | UI |
+| TC-FILTER-BRAND-NEG-01 | EP негатив | нет марки → total 0 | UI + API |
+| TC-FILTER-MODEL-NEG-01 | EP негатив | нет модели → total 0 | UI |
+| TC-FILTER-BRAND-MODEL-NEG-01 | decision / AND | KTM+CRF → 0 | UI + API |
+| TC-FILTER-BRAND-NEG-02 | EP пусто | пробелы → без фильтра | UI + API |
+| TC-FILTER-MODEL-NEG-02 | decision | Honda+EXC → 0 | UI |
+| TC-FILTER-BRAND-BVA-01 | BVA | maxLength 40 | UI |
+| TC-FILTER-BRAND-DT-01…04 | decision table | марка×статус/год, модель×sold | UI |
+| TC-API-BRAND-* / MODEL-* | API-контракт | query `brand`/`model` | `filters-brand-model-api.spec.ts` |
+
 ---
 
 ## 7. Детерминированный seed (итерация 9)

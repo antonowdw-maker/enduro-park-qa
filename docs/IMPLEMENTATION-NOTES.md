@@ -76,7 +76,8 @@
 | TC-AUTH-10 | — | ✅ Обновлён | Невалидный cookie на /bikes → 200, clear |
 | TC-AUTH-11 | — | ✅ Новый | Невалидный cookie на /me → 401 |
 | TC-FILTER-VALID-* / CLEAR-* | — | ✅ Новые в v1.5 | Валидация и очистка фильтров |
-| TC-FILTER-BRAND-* / MODEL-* | Марка/модель | 🤖 Авто | `e2e/tests/filters.spec.ts` (v1.7) |
+| TC-FILTER-BRAND-* / MODEL-* | Марка/модель smoke | 🤖 Авто | `e2e/tests/filters.spec.ts` (v1.7) |
+| TC-FILTER-BRAND-NEG/DT/BVA + API | ТТД марка/модель | 🤖 Авто | `filters-brand-model*.spec.ts` |
 | TC-FILTER-MULTI-* | — | ✅ Новые в v1.2 | Мультивыбор статусов (бэклог п.2) |
 | TC-BIKE-LAST-* | — | ✅ Обновлены | Текст + календарь + маска (бэклог п.3) |
 | TC-SEED-* | — | ✅ Новые в v1.6 | Детерминированный seed |
