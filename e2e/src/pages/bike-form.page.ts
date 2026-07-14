@@ -1,5 +1,17 @@
 import { Page, expect } from '@playwright/test';
 
+/** Данные для валидной формы байка */
+export type BikeFormFill = {
+  brand: string;
+  model: string;
+  year: number | string;
+  mileage: number | string;
+  vin: string;
+  status?: 'available' | 'repair' | 'sold';
+  lastService?: string;
+  notes?: string;
+};
+
 /**
  * Page Object: модалка добавления / редактирования байка.
  * Локаторы — data-testid из BikeFormModal.
@@ -27,5 +39,32 @@ export class BikeFormPage {
   /** Модалка открыта (есть кнопка сохранить) */
   async expectOpen() {
     await expect(this.save()).toBeVisible();
+  }
+
+  /** Модалка закрыта */
+  async expectClosed() {
+    await expect(this.save()).toHaveCount(0);
+  }
+
+  /** Заполнить форму валидными значениями (create/edit) */
+  async fill(data: BikeFormFill) {
+    await this.brand().fill(data.brand);
+    await this.model().fill(data.model);
+    await this.year().fill(String(data.year));
+    await this.mileage().fill(String(data.mileage));
+    await this.vin().fill(data.vin);
+    if (data.status) {
+      await this.status().selectOption(data.status);
+    }
+    if (data.lastService !== undefined) {
+      await this.lastService().fill(data.lastService);
+    }
+    if (data.notes !== undefined) {
+      await this.notes().fill(data.notes);
+    }
+  }
+
+  async submit() {
+    await this.save().click();
   }
 }

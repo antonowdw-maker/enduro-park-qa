@@ -58,6 +58,24 @@ export class MainPage {
     await this.expectTableHasRows();
   }
 
+  /**
+   * Найти строку байка с учётом пагинации (новые записи могут быть не на 1-й странице).
+   */
+  async ensureBikeVisible(vin: string) {
+    await this.setLimit50();
+    for (let pageIndex = 0; pageIndex < 10; pageIndex += 1) {
+      if (await this.bikeRow(vin).count()) {
+        await expect(this.bikeRow(vin)).toBeVisible();
+        return;
+      }
+      const next = this.page.getByTestId('pagination-next');
+      if (await next.isDisabled()) break;
+      await next.click();
+      await this.expectTableHasRows();
+    }
+    await expect(this.bikeRow(vin)).toBeVisible();
+  }
+
   /** Проверка шапки после успешного входа */
   async expectLoggedInAs(username: string, role: string) {
     await expect(this.userUsername()).toHaveText(username);
