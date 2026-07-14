@@ -74,7 +74,8 @@
 - [x] **10.5 Матрица валидации:** `validation.spec.ts` (+ `noValidate` на форме).
 - [x] GitHub Actions: E2E-гейт на PR/`push` (итерация 10.4).
 - [x] **10.6 Аудит покрытия** + sort/pagination + пере-seed перед счётчиками.  
-  Дальше не волны 10.x, а бэклог ниже (nightly, марка/модель, seed-каталог).
+  Дальше не волны 10.x, а бэклог ниже (nightly, seed-каталог).  
+  Фильтр марка/модель: UI/API + smoke + **ТТД** (`filters-brand-model*.spec.ts`) — ветка `feature/filter-brand-model`.
 
 Подробнее: [`e2e/README.md`](e2e/README.md), workflow [`.github/workflows/e2e.yml`](.github/workflows/e2e.yml).
 
@@ -84,7 +85,7 @@
 - [ ] Не вместо: расписание без гейта на merge — слабо для учебного CI.
 
 ### Product / данные (идеи «на подумать»)
-- [x] **Фильтр по марке и модели** — UI + API (`brand`/`model`), testid, ТК и автотесты (`feature/filter-brand-model`).
+- [x] **Фильтр по марке и модели** — UI + API (`brand`/`model`), testid, ТК, smoke + ТТД (EP/BVA/DT + API).
 - [ ] **Расширить каталог/seed современными эндуро:** китайские бренды (Kayo, Regulmoto, Motoland, GR, Kews и др.) + актуальные европейские и прочие внедорожные марки/модели — для реалистичности стенда и будущего «проката».
 
 ### Уже сделано (для истории)
