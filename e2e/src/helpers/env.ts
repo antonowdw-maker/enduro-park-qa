@@ -30,9 +30,11 @@ export function requireEnv(name: string): string {
   return value.trim();
 }
 
-/** Базовый URL UI (Vite). Переопределяется BASE_URL в CI. */
+/** Базовый URL UI (Vite). В CI — 127.0.0.1 (IPv4; localhost на ubuntu часто ломает ready-check). */
 export function getBaseUrl(): string {
-  return process.env.BASE_URL?.trim() || 'http://localhost:5173';
+  if (process.env.BASE_URL?.trim()) return process.env.BASE_URL.trim();
+  if (process.env.CI) return 'http://127.0.0.1:5173';
+  return 'http://localhost:5173';
 }
 
 /** Учётки seed для E2E */

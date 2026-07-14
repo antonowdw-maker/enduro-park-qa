@@ -40,18 +40,27 @@ export default defineConfig({
   // Поднимаем API и UI, если ещё не запущены (reuseExistingServer локально)
   webServer: [
     {
-      command: 'npm run dev',
+      // CI: без --respawn (стабильнее на ubuntu); ready = / без Prisma (не /api/bikes)
+      command: process.env.CI
+        ? 'npx ts-node --transpile-only src/server.ts'
+        : 'npm run dev',
       cwd: BACKEND_DIR,
-      url: 'http://localhost:5000/api/bikes?limit=1',
+      url: 'http://127.0.0.1:5000/',
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
+      stdout: 'pipe',
+      stderr: 'pipe',
     },
     {
-      command: 'npm run dev',
+      command: process.env.CI
+        ? 'npx vite --host 127.0.0.1 --port 5173'
+        : 'npm run dev',
       cwd: FRONTEND_DIR,
-      url: 'http://localhost:5173',
+      url: 'http://127.0.0.1:5173/',
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
+      stdout: 'pipe',
+      stderr: 'pipe',
     },
   ],
 });
