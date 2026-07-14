@@ -46,6 +46,7 @@
 | MainPage | Монолит | `BikeFilters` + `BikeTable` + типы в `types/bike.ts` | ✅ Бэклог п.4 | Поведение без изменений |
 | loadData / useEffect | Неполный deps | `useCallback` + deps `[loadData, hasFilterErrors]` | ✅ Бэклог п.5 | — |
 | authService | Только JWT | `AuthService.login` + `UserRepository`; контроллер — HTTP/cookie | ✅ Бэклог п.6 | Слои как у bikes |
+| Корневой package-lock | Случайный пустой lock | Удалён локально; в `.gitignore` `/package-lock.json` | ✅ Бэклог п.7 | Playwright — в корне позже при ит. 10 |
 | BUG-02 | Нестандартная ошибка TEST/123 | Текст про guest в form-server-error | ✅ Намеренный баг | TC-BIKE-NEG-10 |
 
 ---
@@ -118,10 +119,10 @@
 |---|--------|--------|
 | 4 | Вынести `BikeTable` / `BikeFilters` | ✅ |
 | 5 | `useCallback` для `loadData` | ✅ |
-| 6 | `authService.ts` | 🔄 на QA |
-| 7 | Корневой `package-lock.json` | ⏳ |
+| 6 | `authService.ts` | ✅ |
+| 7 | Корневой `package-lock.json` | 🔄 на QA |
 
-После п.7 — merge в `main`, затем **итерация 10** (Playwright).
+Бэклог UX/рефакторинг/инфра **закрыт**. Дальше: merge `feature/backlog-improvements` → `main`, затем **итерация 10** (Playwright).
 
 ### Не чинить намеренно
 
@@ -129,4 +130,4 @@ BUG-01, BUG-02, BUG-03 — см. требования §7 / ручные ТК.
 
 ---
 
-*Последнее обновление: 14.07.2026 — бэклог п.6 на проверке.*
+*Последнее обновление: 14.07.2026 — бэклог п.7 на проверке; эпик бэклога готов к merge.*
