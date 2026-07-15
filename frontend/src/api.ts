@@ -108,13 +108,13 @@ export const getBikes = async ({
 };
 
 /** POST /bikes — создать новый байк (требуется роль mechanic или admin) */
-export const createBike = async (bikeData: any) => {
+export const createBike = async (bikeData: object) => {
   const response = await api.post('/bikes', bikeData);
   return response.data;
 };
 
 /** PUT /bikes/:id — обновить байк (mechanic или admin) */
-export const updateBike = async (id: string, bikeData: any) => {
+export const updateBike = async (id: string, bikeData: object) => {
   const response = await api.put(`/bikes/${id}`, bikeData);
   return response.data;
 };

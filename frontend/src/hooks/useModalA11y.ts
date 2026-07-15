@@ -14,7 +14,10 @@ export function useModalA11y(
   options?: { escapeDisabled?: boolean; initialFocusSelector?: string },
 ) {
   const onEscapeRef = useRef(onEscape);
-  onEscapeRef.current = onEscape;
+
+  useEffect(() => {
+    onEscapeRef.current = onEscape;
+  }, [onEscape]);
 
   useEffect(() => {
     if (!open) return;

@@ -5,10 +5,11 @@ import { getBikes, createBike, updateBike, deleteBike } from '../api';
 import { useAuth } from '../contexts/AuthContext';
 import BikeFormModal, { type BikeModalMode } from '../components/BikeFormModal';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
-import BikeFilters, {
+import BikeFilters from '../components/BikeFilters';
+import {
   sanitizeYearFilterInput,
   validateRangeFilters,
-} from '../components/BikeFilters';
+} from '../utils/filterValidation';
 import BikeTable from '../components/BikeTable';
 import type { BikeRow, SortField } from '../types/bike';
 import { Bike, LogOut, LogIn } from 'lucide-react';
@@ -107,10 +108,10 @@ export default function MainPage() {
       limit,
       sortBy,
       order: sortOrder,
-      yearFrom,
-      yearTo,
-      mileageFrom,
-      mileageTo,
+      yearFrom: yearFrom === '' ? '' : Number(yearFrom),
+      yearTo: yearTo === '' ? '' : Number(yearTo),
+      mileageFrom: mileageFrom === '' ? '' : Number(mileageFrom),
+      mileageTo: mileageTo === '' ? '' : Number(mileageTo),
     })
       .then((res) => {
         if (seq !== loadSeqRef.current) return;
@@ -265,8 +266,9 @@ export default function MainPage() {
       }
       closeModal();
       loadData();
-    } catch (err: any) {
-      setFormServerError(err.response?.data?.error || 'Запрос отклонен');
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: string } } };
+      setFormServerError(axiosErr.response?.data?.error || 'Запрос отклонен');
     }
   };
 
@@ -290,8 +292,9 @@ export default function MainPage() {
       await deleteBike(deleteTarget.id);
       setDeleteTarget(null);
       loadData();
-    } catch (err: any) {
-      setDeleteError(err.response?.data?.error || 'Не удалось удалить');
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: string } } };
+      setDeleteError(axiosErr.response?.data?.error || 'Не удалось удалить');
     } finally {
       setIsDeleting(false);
     }

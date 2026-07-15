@@ -68,6 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 /** Хук для доступа к AuthContext из любого компонента */
+// eslint-disable-next-line react-refresh/only-export-components -- paired hook for AuthProvider
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
