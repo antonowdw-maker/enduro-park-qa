@@ -2,7 +2,7 @@
 
 **Версия:** 1.9  
 **Дата:** 15.07.2026  
-**Изменения от v1.8:** волны C–D — API query ТТД, CRUD/Auth API, lifecycle; TL-hotfix (целая пагинация, fingerprint).  
+**Изменения от v1.8:** волны C–D — API query/CRUD; волна E — UI `search` (OR) + `list-empty`/`list-error`/`list-retry`; search **не заменяет** brand/model (AND).  
 **Изменения от v1.7:** seed-каталог modern — TC-SEED-05…07 (Kayo, Regulmoto, Motoland).  
 **Изменения от v1.6:** фильтр марка/модель — TC-FILTER-BRAND-*, TC-FILTER-MODEL-*, TC-FILTER-BRAND-MODEL-01.  
 **14.07.2026 (+волна A):** TC-SEED-01 и TC-AUTH-01 httpOnly закрыты автотестами.  
@@ -378,6 +378,17 @@
 | TC-AUTH-API-LIFECYCLE-01 | login→me→logout→me | 200→200→200→401 | `auth-api.spec.ts` |
 | TC-AUTH-API-LOGIN-NEG-01 | неверный пароль | 401 | то же |
 | TC-AUTH-RATE-LIMIT-01 | 11-я попытка (opt-in) | 429 | `auth-rate-limit-api.spec.ts` |
+
+### UI search + ошибка списка (волна E)
+
+`filter-search` — быстрый поиск (**OR** марка/модель). Поля марка/модель остаются (**AND**). Оба нужны.
+
+| TC | Суть | Ожидание | Автотест |
+|----|------|----------|----------|
+| TC-SEARCH-01…05 | search KTM/EXC/регистр/clear/debounce | якоря / clear | `search.spec.ts` |
+| TC-SEARCH-NEG-01 | нет совпадений | `list-empty` | то же |
+| TC-LIST-ERROR-01 | GET 500 | `list-error` + retry | то же |
+| TC-API-SEARCH-* | API search EP/WS | 200 + total | `bikes-query-api.spec.ts` |
 
 ---
 

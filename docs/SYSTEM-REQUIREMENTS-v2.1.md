@@ -2,7 +2,7 @@
 
 **Версия:** 2.8  
 **Дата:** 15.07.2026  
-**Изменения от v2.7:** API-контракт GET query (нормализация целых, LIKE); формы ошибок; Auth lifecycle (logout clear cookie, JWT replay); CRUD статусы API; волны C–D + TL-ревью.
+**Изменения от v2.7:** API-контракт GET query (целые, LIKE); Auth/CRUD глубина; UI search (OR) + list empty/error (волна E); search сосуществует с brand/model (AND).
 
 **История:** v2.8 — API/Auth контракт глубины (волны C–D); v2.7 — каталог seed modern; v2.6 — фильтр марка/модель (F-FILTER-11…15) + ТТД E2E; v2.5 — текст `error-year` (текущий год) + приоритет сообщения VIN про I/O/Q; v2.4 — валидация фильтров; v2.3 — offset, фильтры год/пробег; v2.2 — валидация, BUG-03, дата ТО; v2.1 — публичная главная, без guest, VIN редактируем; v2.0 — исходный PDF.
 
@@ -145,6 +145,9 @@
 | F-FILTER-13 | Марка и модель вместе (AND) | public | оба query-параметра одновременно |
 | F-FILTER-14 | Пустое / только пробелы — фильтр не применяется | public | API без `brand`/`model` после trim |
 | F-FILTER-15 | Марка/модель в UI — не более 40 символов | public | `filter-brand`, `filter-model`; `maxLength=40` |
+| F-FILTER-16 | Поиск по марке **или** модели (`search`), debounce 300 ms | public | `filter-search`, `filter-search-clear` |
+| F-LIST-01 | Пустой успешный результат | public | `list-empty` |
+| F-LIST-02 | Ошибка загрузки списка + retry | public | `list-error`, `list-retry` |
 
 ---
 
@@ -158,7 +161,9 @@
 | Нет прав на действия | `actions-readonly-placeholder` |
 | Фильтры год/пробег | `filter-year-from`, `filter-year-to`, `filter-mileage-from`, `filter-mileage-to` |
 | Фильтры марка/модель | `filter-brand`, `filter-model` |
-| Очистка фильтров | `filter-clear-all`, `filter-brand-clear`, `filter-model-clear`, `filter-year-from-clear`, `filter-year-to-clear`, `filter-mileage-from-clear`, `filter-mileage-to-clear` |
+| Поиск | `filter-search`, `filter-search-clear` |
+| Состояния списка | `list-empty`, `list-error`, `list-retry` |
+| Очистка фильтров | `filter-clear-all`, `filter-brand-clear`, `filter-model-clear`, `filter-search-clear`, `filter-year-from-clear`, `filter-year-to-clear`, `filter-mileage-from-clear`, `filter-mileage-to-clear` |
 | Ошибки фильтров | `error-filter-year-from`, `error-filter-year-to`, `error-filter-mileage-from`, `error-filter-mileage-to` |
 | Ошибки полей | `error-brand`, `error-model`, `error-year`, `error-vin`, `error-mileage`, `error-status`, `error-lastService`, `error-notes` |
 | Дата последнего ТО | `input-lastService` (текст), `input-lastService-calendar` (календарь) |
@@ -173,7 +178,7 @@
 | Параметр | Описание |
 |----------|----------|
 | `status` | Один или несколько через запятую: `available`, `repair`, `sold` (пусто — все) |
-| `search` | Поиск по марке/модели (общий; UI основной список его не использует) |
+| `search` | Поиск по марке/модели (OR); UI: `filter-search`, debounce 300 ms (волна E) |
 | `brand` | Подстрока по марке (`LIKE %value%`) |
 | `model` | Подстрока по модели (`LIKE %value%`) |
 | `yearFrom`, `yearTo` | Диапазон года выпуска (включительно) |

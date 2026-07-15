@@ -88,7 +88,7 @@
 - [x] **Фильтр по марке и модели** — UI + API (`brand`/`model`), testid, ТК, smoke + ТТД. *(влито в `main`)*
 - [x] **Каталог/seed modern** — CN/EU эндуро, якоря SEED-05…07, счётчики 19/16/15. *(влито в `main`)*
 
-**Итог:** открытых пунктов в бэклоге «на подумать» нет (14.07.2026). Волны roadmap **A–D** + TL-hotfix в `main` (15.07.2026); далее — **E**.
+**Итог:** открытых пунктов в бэклоге «на подумать» нет (14.07.2026). Волны **A–D** + TL-hotfix в `main`; **E** — на `feature/qa-wave-e-search-ui` (до merge).
 
 ### Следующий план (волны A…J)
 Подробно: [`docs/QA-STAND-ROADMAP.md`](docs/QA-STAND-ROADMAP.md).  
@@ -99,7 +99,7 @@
 - [x] **C** — API query ТТД / контракт — `feature/qa-wave-c-api-query` (`bikes-query-api.spec.ts`)
 - [x] **D** — CRUD/Auth API глубина — `feature/qa-wave-d-crud-auth-api` (`bikes-crud-api`, lifecycle, rate-limit opt-in)
 - [x] **TL-ревью A–D** — целая пагинация, fingerprint, waits — `fix/tl-review-waves-a-d` (`7c7478c`)
-- [ ] **E** — UI search + ошибка списка (+ retry)
+- [x] **E** — UI search + ошибка списка (+ retry) — `feature/qa-wave-e-search-ui`
 - [ ] **F** — a11y / mobile
 - [ ] **G** — security hardening
 - [ ] **H** — known-bugs учебный контракт

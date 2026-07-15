@@ -86,13 +86,13 @@
 ---
 
 ### E — UI `search` + состояния списка  
-**Статус:** ⏳ не начата  
+**Статус:** ✅ сделано (`feature/qa-wave-e-search-ui`)  
 **Роли:** BA, Dev, QA  
 **Объём:** S–M  
 
-- поле поиска (API `search` уже есть): debounce, clear, empty  
-- видимая ошибка загрузки списка (сейчас silent empty) + retry  
-- E2E / API на search (классы эквивалентности)  
+- ✅ поле поиска (API `search`): debounce 300 ms, clear, empty  
+- ✅ видимая ошибка загрузки списка + retry (`list-error` / `list-retry`)  
+- ✅ E2E / API на search (классы эквивалентности)  
 
 ---
 
@@ -176,7 +176,7 @@
 - [x] B — flake-hunt  
 - [x] C — API query ТТД  
 - [x] D — CRUD/Auth API  
-- [ ] E — search UI + list errors  
+- [x] E — search UI + list errors  
 - [ ] F — a11y / mobile  
 - [ ] G — security  
 - [ ] H — known-bugs contract  
