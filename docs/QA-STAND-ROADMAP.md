@@ -1,11 +1,14 @@
-# Roadmap QA-стенда Enduro Park (после закрытия бэклога «на подумать»)
+# Roadmap QA-стенда Enduro Park
 
-**Дата:** 14.07.2026  
-**Статус:** волны A–D + TL-hotfix в `main`; E…J — план.  
-**Процесс:** ветка от `main` → реализация → **двойное ревью** (fullstack TL + QA TL) → синхрон docs (README!) → коммит/пуш/merge **только по явному апруву**.  
-**Коммиты — вариант B:** `type(scope): …` (например `test(e2e):`, `feat(frontend):`) — `.cursor/rules/git-branch-commit.mdc`.
+**Дата обновления:** 15.07.2026  
+**Статус:** волны **A–H** в `main`; дальше **I** (матрица + CI gates), затем **J** (прокат).  
+**Витрина проекта:** корневой [`README.md`](../README.md).  
+**История итераций 1–10 / закрытый бэклог:** [`PROJECT-HISTORY.md`](PROJECT-HISTORY.md).  
 
-Источник аудита: трассировка TC→E2E, ТТД/flake, роли BA/СА/QA/Dev/PM (чат 14.07.2026).
+**Процесс:** ветка от `main` → реализация → **двойное ревью** (fullstack TL + QA TL) → синхрон docs → коммит/пуш/merge **только по явному апруву**.  
+**Коммиты — вариант B:** `type(scope): …` — `.cursor/rules/git-branch-commit.mdc`.
+
+Источник аудита плана A…J: трассировка TC→E2E (чат 14.07.2026). Ниже — снимок **на старт** плана (частично устарел: A закрыла SEED-01/httpOnly).
 
 ---
 
@@ -179,9 +182,9 @@
 - [x] D — CRUD/Auth API  
 - [x] E — search UI + list errors  
 - [x] F — a11y / mobile  
-- [ ] G — security  
-- [x] H — known-bugs contract → `main` (15.07.2026)
+- [x] G — security → `main`  
+- [x] H — known-bugs contract → `main` (15.07.2026)  
 - [ ] I — coverage matrix + CI gates  
 - [ ] J — rental epic  
 
-После завершения волны: отметить `[x]` здесь **и в корневом README**; статус «✅»; запись ревью в `IMPLEMENTATION-NOTES.md`.
+После завершения волны: отметить `[x]` здесь **и в корневом README** (секция «Дальше» / статус); статус «✅» в теле волны; запись ревью в `IMPLEMENTATION-NOTES.md`. Историю чеклистов не копировать в README — см. `PROJECT-HISTORY.md`.
