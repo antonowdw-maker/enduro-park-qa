@@ -25,7 +25,7 @@ test.describe('Roles UI', () => {
     // TC-ROLE-01: нет действий, есть readonly-placeholder
     await expect(mainPage.editBike(SEED_VINS.availableKtm)).toHaveCount(0);
     await expect(mainPage.deleteBike(SEED_VINS.availableKtm)).toHaveCount(0);
-    await expect(page.getByTestId('actions-readonly-placeholder').first()).toBeVisible();
+    await expect(mainPage.actionsReadonlyPlaceholder().first()).toBeVisible();
   });
 
   test('TC-ROLE-02 / TC-AUTH-02: mechanic — add+edit, без delete', async ({ page }) => {

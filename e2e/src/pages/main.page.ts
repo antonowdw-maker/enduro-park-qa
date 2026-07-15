@@ -96,6 +96,11 @@ export class MainPage {
     return this.page.getByTestId(`delete-bike-${vin}`).filter({ visible: true });
   }
 
+  /** Readonly «—» в действиях (аноним); filter visible — cards+table dual DOM */
+  actionsReadonlyPlaceholder() {
+    return this.page.getByTestId('actions-readonly-placeholder').filter({ visible: true });
+  }
+
   /**
    * UI-действие, которое должно вызвать GET /api/bikes, + опциональный assert query.
    * Волна B: не ассертим строки по устаревшему DOM.
