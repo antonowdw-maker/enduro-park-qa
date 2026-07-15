@@ -188,6 +188,7 @@ function FilterTextInput({
 
 export type BikeFiltersProps = {
   activeStatuses: string[];
+  search: string;
   brand: string;
   model: string;
   yearFrom: string;
@@ -197,12 +198,14 @@ export type BikeFiltersProps = {
   filterErrors: Partial<Record<FilterFieldKey, string>>;
   hasActiveFilters: boolean;
   onStatusFilter: (status: string) => void;
+  onSearchChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onBrandChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onModelChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onYearFromChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onYearToChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onMileageFromChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onMileageToChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onClearSearch: () => void;
   onClearBrand: () => void;
   onClearModel: () => void;
   onClearYearFrom: () => void;
@@ -213,11 +216,12 @@ export type BikeFiltersProps = {
 };
 
 /**
- * ФИЛЬТРЫ СПИСКА (F-FILTER-01…11)
- * Статусы + марка/модель + диапазоны год/пробег.
+ * ФИЛЬТРЫ СПИСКА (F-FILTER-01…11 + search волна E)
+ * Статусы + поиск + марка/модель + диапазоны год/пробег.
  */
 export default function BikeFilters({
   activeStatuses,
+  search,
   brand,
   model,
   yearFrom,
@@ -227,12 +231,14 @@ export default function BikeFilters({
   filterErrors,
   hasActiveFilters,
   onStatusFilter,
+  onSearchChange,
   onBrandChange,
   onModelChange,
   onYearFromChange,
   onYearToChange,
   onMileageFromChange,
   onMileageToChange,
+  onClearSearch,
   onClearBrand,
   onClearModel,
   onClearYearFrom,
@@ -277,6 +283,19 @@ export default function BikeFilters({
             <Tag size={14} /> Продан
           </button>
         </div>
+      </div>
+
+      <div className="flex flex-wrap items-start gap-4 border-t border-slate-100 bg-slate-50/50 px-4 py-3">
+        <span className="pt-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Поиск</span>
+        <FilterTextInput
+          label="Марка или модель"
+          testId="filter-search"
+          clearTestId="filter-search-clear"
+          value={search}
+          placeholder="KTM / EXC"
+          onChange={onSearchChange}
+          onClear={onClearSearch}
+        />
       </div>
 
       <div className="flex flex-wrap items-start gap-4 border-t border-slate-100 bg-slate-50/50 px-4 py-3">

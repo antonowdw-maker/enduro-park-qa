@@ -80,6 +80,9 @@ export type BikeTableProps = {
   onLimitChange: (limit: number) => void;
   onPrevPage: () => void;
   onNextPage: () => void;
+  /** Ошибка загрузки списка (волна E); null — нет ошибки */
+  listError?: string | null;
+  onRetry?: () => void;
 };
 
 /**
@@ -103,6 +106,8 @@ export default function BikeTable({
   onLimitChange,
   onPrevPage,
   onNextPage,
+  listError = null,
+  onRetry,
 }: BikeTableProps) {
   return (
     <section>
@@ -123,23 +128,51 @@ export default function BikeTable({
           )}
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[1100px] border-collapse text-left text-sm">
-            <thead className="bg-slate-50">
-              <tr>
-                <SortableHeader testId="sort-brand" field="brand" label="Марка" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} />
-                <SortableHeader testId="sort-model" field="model" label="Модель" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} />
-                <SortableHeader testId="sort-year" field="year" label="Год" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} align="center" />
-                <SortableHeader testId="sort-vin" field="vin" label="VIN" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} />
-                <SortableHeader testId="sort-mileage" field="mileage" label="Пробег" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} align="right" />
-                <SortableHeader testId="sort-status" field="status" label="Статус" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} align="center" />
-                <SortableHeader testId="sort-lastService" field="lastService" label="Последнее ТО" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} align="center" />
-                <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Заметки</th>
-                <th className="px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-slate-400">Действия</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {bikes.map((bike) => (
+        {listError ? (
+          <div
+            data-testid="list-error"
+            className="flex flex-col items-center gap-3 px-4 py-10 text-center"
+            role="alert"
+          >
+            <p className="text-sm font-bold text-rose-600">{listError}</p>
+            {onRetry && (
+              <button
+                type="button"
+                data-testid="list-retry"
+                onClick={onRetry}
+                className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-black uppercase tracking-widest text-rose-700 transition-all hover:bg-rose-100"
+              >
+                Повторить
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[1100px] border-collapse text-left text-sm">
+              <thead className="bg-slate-50">
+                <tr>
+                  <SortableHeader testId="sort-brand" field="brand" label="Марка" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} />
+                  <SortableHeader testId="sort-model" field="model" label="Модель" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} />
+                  <SortableHeader testId="sort-year" field="year" label="Год" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} align="center" />
+                  <SortableHeader testId="sort-vin" field="vin" label="VIN" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} />
+                  <SortableHeader testId="sort-mileage" field="mileage" label="Пробег" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} align="right" />
+                  <SortableHeader testId="sort-status" field="status" label="Статус" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} align="center" />
+                  <SortableHeader testId="sort-lastService" field="lastService" label="Последнее ТО" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} align="center" />
+                  <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Заметки</th>
+                  <th className="px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-slate-400">Действия</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {bikes.length === 0 ? (
+                  <tr>
+                    <td colSpan={9} className="px-4 py-10 text-center">
+                      <span data-testid="list-empty" className="text-sm font-bold text-slate-400">
+                        Ничего не найдено
+                      </span>
+                    </td>
+                  </tr>
+                ) : (
+                  bikes.map((bike) => (
                 <tr key={bike.id} data-testid={`bike-row-${bike.vin}`} className="transition-colors hover:bg-slate-50/50">
                   <td className="px-4 py-3 font-black uppercase tracking-tighter text-blue-600">{bike.brand}</td>
                   <td className="px-4 py-3 text-xs font-bold uppercase italic tracking-widest text-slate-500">{bike.model}</td>
@@ -195,10 +228,12 @@ export default function BikeTable({
                     </div>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         <div className="flex flex-wrap items-center gap-4 border-t border-slate-100 bg-slate-50/50 p-4">
           <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">

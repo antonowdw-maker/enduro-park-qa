@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { type BikeFormData } from '../schemas';
 import { getBikes, createBike, updateBike, deleteBike } from '../api';
@@ -38,7 +38,10 @@ export default function MainPage() {
   // --- СОСТОЯНИЯ ДАННЫХ ---
   const [bikes, setBikes] = useState<BikeRow[]>([]);
   const [total, setTotal] = useState(0);
+  const [listError, setListError] = useState<string | null>(null);
   const [activeStatuses, setActiveStatuses] = useState<string[]>([]);
+  const [searchFilter, setSearchFilter] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [brandFilter, setBrandFilter] = useState('');
   const [modelFilter, setModelFilter] = useState('');
   const [yearFrom, setYearFrom] = useState('');
@@ -49,6 +52,7 @@ export default function MainPage() {
   const [limit, setLimit] = useState(10);
   const [sortBy, setSortBy] = useState<SortField>('brand');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const loadSeqRef = useRef(0);
 
   // --- МОДАЛЬНОЕ ОКНО ФОРМЫ (F-BIKE-CREATE / F-BIKE-EDIT) ---
   const [modalOpen, setModalOpen] = useState(false);
@@ -73,6 +77,7 @@ export default function MainPage() {
   const hasFilterErrors = Object.keys(filterErrors).length > 0;
   const hasActiveFilters =
     activeStatuses.length > 0 ||
+    searchFilter !== '' ||
     brandFilter !== '' ||
     modelFilter !== '' ||
     yearFrom !== '' ||
@@ -80,10 +85,22 @@ export default function MainPage() {
     mileageFrom !== '' ||
     mileageTo !== '';
 
+  // Debounce поиска 300 ms (волна E) — в API уходит debouncedSearch
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedSearch(searchFilter);
+      setPage(1);
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [searchFilter]);
+
   // Загрузка списка байков с бэкенда (фильтр, пагинация, сортировка) — доступна без авторизации
   const loadData = useCallback(() => {
+    const seq = ++loadSeqRef.current;
+    setListError(null);
     getBikes({
       statuses: activeStatuses,
+      search: debouncedSearch,
       brand: brandFilter,
       model: modelFilter,
       page,
@@ -96,15 +113,20 @@ export default function MainPage() {
       mileageTo,
     })
       .then((res) => {
+        if (seq !== loadSeqRef.current) return;
         setBikes(res.bikes);
         setTotal(res.total);
+        setListError(null);
       })
-      .catch(() => {
+      .catch((err: { response?: { data?: { error?: string } } }) => {
+        if (seq !== loadSeqRef.current) return;
         setBikes([]);
         setTotal(0);
+        setListError(err.response?.data?.error || 'Не удалось загрузить список');
       });
   }, [
     activeStatuses,
+    debouncedSearch,
     brandFilter,
     modelFilter,
     page,
@@ -190,6 +212,8 @@ export default function MainPage() {
 
   const handleClearAllFilters = () => {
     setActiveStatuses([]);
+    setSearchFilter('');
+    setDebouncedSearch('');
     setBrandFilter('');
     setModelFilter('');
     setYearFrom('');
@@ -324,6 +348,7 @@ export default function MainPage() {
 
         <BikeFilters
           activeStatuses={activeStatuses}
+          search={searchFilter}
           brand={brandFilter}
           model={modelFilter}
           yearFrom={yearFrom}
@@ -333,12 +358,18 @@ export default function MainPage() {
           filterErrors={filterErrors}
           hasActiveFilters={hasActiveFilters}
           onStatusFilter={handleStatusFilter}
+          onSearchChange={handleTextFilterChange(setSearchFilter)}
           onBrandChange={handleTextFilterChange(setBrandFilter)}
           onModelChange={handleTextFilterChange(setModelFilter)}
           onYearFromChange={handleYearFilterChange(setYearFrom)}
           onYearToChange={handleYearFilterChange(setYearTo)}
           onMileageFromChange={handleMileageFilterChange(setMileageFrom)}
           onMileageToChange={handleMileageFilterChange(setMileageTo)}
+          onClearSearch={() => {
+            setSearchFilter('');
+            setDebouncedSearch('');
+            setPage(1);
+          }}
           onClearBrand={clearFilterField(setBrandFilter)}
           onClearModel={clearFilterField(setModelFilter)}
           onClearYearFrom={clearFilterField(setYearFrom)}
@@ -369,6 +400,8 @@ export default function MainPage() {
           }}
           onPrevPage={handlePrevPage}
           onNextPage={handleNextPage}
+          listError={listError}
+          onRetry={loadData}
         />
       </div>
 
