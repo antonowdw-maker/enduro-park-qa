@@ -10,12 +10,13 @@ const RUN = process.env.RUN_RATE_LIMIT_E2E === '1' || process.env.RUN_RATE_LIMIT
 /**
  * Opt-in + изолированный прогон (иначе IP-бакет 15 мин пересекается с другими login-тестами).
  *
- *   # только этот файл, backend с ENABLE_LOGIN_RATE_LIMIT=true
- *   $env:ENABLE_LOGIN_RATE_LIMIT='true'; npm run dev   # backend
+ * Rate-limit по умолчанию ВКЛ (волна G). Для этого файла нужен backend БЕЗ DISABLE_LOGIN_RATE_LIMIT
+ * (и без legacy ENABLE_LOGIN_RATE_LIMIT=false).
+ *
  *   $env:RUN_RATE_LIMIT_E2E='1'; npx playwright test tests/auth-rate-limit-api.spec.ts
  */
-test.describe('Auth login rate-limit (opt-in wave D)', () => {
-  test.skip(!RUN, 'нужны RUN_RATE_LIMIT_E2E=1 и backend с ENABLE_LOGIN_RATE_LIMIT=true (изолированный прогон)');
+test.describe('Auth login rate-limit (opt-in isolated)', () => {
+  test.skip(!RUN, 'нужны RUN_RATE_LIMIT_E2E=1 и backend с включённым login rate-limit (изолированный прогон)');
 
   const { admin } = getSeedCredentials();
 
