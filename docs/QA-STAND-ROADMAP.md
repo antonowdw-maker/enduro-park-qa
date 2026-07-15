@@ -113,11 +113,11 @@
 **Роли:** СА, Dev, QA, PM  
 **Объём:** M–L  
 
-- CSRF для cookie-мутаций  
+- ~~CSRF для cookie-мутаций~~ → **сделано (slice2 + UI TC-SEC-CSRF-UI-*)**  
 - ~~security headers, body size limit, health / ready~~ → **сделано (slice1)**  
 - ~~rate-limit defaults~~ → **сделано (default on + DISABLE…)**  
 - ~~XSS regression на notes~~ → **сделано (TC-SEC-XSS-01)**  
-- Zod / DTO на границе API — **ещё в бэклоге G**  
+- ~~Zod / DTO на границе API~~ → **сделано (slice2)**  
 
 ---
 

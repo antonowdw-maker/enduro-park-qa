@@ -22,6 +22,7 @@
 | Пароли работодателю — **в личку**, не в README | Не светить в открытом доступе |
 | Перед демо: `npm run seed` | Сброс вандализма в БД |
 | **Не** задавать `DISABLE_LOGIN_RATE_LIMIT` на публичном URL | Rate-limit login 10 / 15 мин (волна G — по умолчанию вкл.) |
+| **Не** задавать `DISABLE_CSRF` на публичном URL | Double-submit CSRF на cookie-мутациях |
 | Сменить `JWT_SECRET` если старый светился в git | Старые сессии недействительны |
 
 ## GitHub Actions (E2E)
@@ -29,7 +30,7 @@
 Воркфлоу `.github/workflows/e2e.yml` **сам генерирует** `JWT_SECRET` и пароли seed на каждый job (в `backend/.env`) и пишет `DISABLE_LOGIN_RATE_LIMIT=true`.  
 Отдельные GitHub Secrets для локальных паролей **не обязательны**. Не коммитьте `.env`.
 
-## Что сделано в коде (волна G — perimeter)
+## Что сделано в коде (волна G)
 
 - `.env` в `.gitignore`, в репо только `.env.example`
 - Старт сервера и seed **падают** без валидного `JWT_SECRET` и паролей seed
@@ -38,13 +39,11 @@
 - Явный лимит JSON-тела **100kb** → **413**
 - `GET /health` (liveness), `GET /ready` (БД)
 - Rate limit на login — **включён по умолчанию**; отключение: `DISABLE_LOGIN_RATE_LIMIT=true` (CI / Playwright). Legacy: `ENABLE_LOGIN_RATE_LIMIT=false`
+- **CSRF (double-submit):** `GET /api/auth/csrf` → cookie `csrf` (не httpOnly) + `{ csrfToken }`; мутации требуют заголовок `X-CSRF-Token`. Пропуск: login. Bypass: `DISABLE_CSRF=true`
+- **Zod/DTO** на login и create/update bike (`.strip()` — mass-assignment); BUG-03 по году сохранён
 - Пароли в БД — bcrypt; в логах seed пароли не выводятся
-
-## Ещё в бэклоге волны G
-
-- CSRF для cookie-мутаций
-- Zod/DTO на границе API
-- (частично) XSS regression E2E на `notes`
+- XSS regression E2E на `notes` (TC-SEC-XSS-01)
+- UI CSRF: logout/create проверяют заголовок `X-CSRF-Token` (`security-csrf-ui.spec.ts`)
 
 ## Если репозиторий уже был публичным со старыми секретами
 

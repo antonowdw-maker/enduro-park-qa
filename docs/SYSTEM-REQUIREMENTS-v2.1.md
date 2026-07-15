@@ -1,10 +1,10 @@
 # Системные требования к проекту Enduro Park Manager
 
-**Версия:** 2.11  
+**Версия:** 2.12  
 **Дата:** 15.07.2026  
-**Изменения от v2.10:** волна G (slice1) — Helmet, JSON 100kb→413, `/health`/`/ready`, login rate-limit по умолчанию вкл. (`DISABLE_LOGIN_RATE_LIMIT` для CI).
+**Изменения от v2.11:** волна G (slice2) — CSRF double-submit (`GET /api/auth/csrf`, `X-CSRF-Token`); Zod/DTO на login + bike POST/PUT (`.strip()`); UI E2E logout/create с проверкой заголовка.
 
-**История:** v2.11 — security perimeter; v2.10 — compact filter + header adaptive; v2.9 — a11y/mobile (волна F); v2.8 — API/Auth контракт глубины (волны C–D); v2.7 — каталог seed modern; v2.6 — фильтр марка/модель (F-FILTER-11…15) + ТТД E2E; v2.5 — текст `error-year` (текущий год) + приоритет сообщения VIN про I/O/Q; v2.4 — валидация фильтров; v2.3 — offset, фильтры год/пробег; v2.2 — валидация, BUG-03, дата ТО; v2.1 — публичная главная, без guest, VIN редактируем; v2.0 — исходный PDF.
+**История:** v2.12 — CSRF + Zod; v2.11 — security perimeter; v2.10 — compact filter + header adaptive; v2.9 — a11y/mobile (волна F); v2.8 — API/Auth контракт глубины (волны C–D); v2.7 — каталог seed modern; v2.6 — фильтр марка/модель (F-FILTER-11…15) + ТТД E2E; v2.5 — текст `error-year` (текущий год) + приоритет сообщения VIN про I/O/Q; v2.4 — валидация фильтров; v2.3 — offset, фильтры год/пробег; v2.2 — валидация, BUG-03, дата ТО; v2.1 — публичная главная, без guest, VIN редактируем; v2.0 — исходный PDF.
 
 ---
 
@@ -34,6 +34,8 @@
 | F-AUTH-06 | Главная `/` публична | public | TC-AUTH-07 |
 | F-AUTH-07 | Кнопка «Войти» на главной | public | `header-login-btn` |
 | F-AUTH-08 | Возврат с login на главную | public | `back-to-home-btn` |
+| F-AUTH-09 | CSRF: `GET /api/auth/csrf` + header на мутациях | public / session | cookie `csrf`, `X-CSRF-Token`; API 403 без token; UI: TC-SEC-CSRF-UI-* |
+| F-AUTH-10 | Login без CSRF; Zod на теле login | public | пустое тело → **400** |
 
 ---
 
@@ -263,9 +265,12 @@
 |-------|-------|------------|
 | POST /auth/login | **200** + `{ id, username, role }` + `Set-Cookie: token` | Cookie: `HttpOnly`, `SameSite=Lax`, `Max-Age`; `Secure` только production |
 | GET /auth/me | **200** user | Без / битый cookie → **401** |
-| POST /auth/logout | **200** `{ message: 'Logged out' }` + clear cookie | Клиентский jar очищается; **JWT не ревоцируется** — replay старого `token=` всё ещё **200** на `/me` (факт стенда) |
+| POST /auth/logout | **200** `{ message: 'Logged out' }` + clear cookie | Нужен **CSRF**; JWT **не ревоцируется** — replay `token=` → **200** на `/me` (факт стенда) |
+| GET /auth/csrf | **200** `{ csrfToken }` + `Set-Cookie: csrf` | Cookie **не** HttpOnly (double-submit); Axios: `xsrfCookieName: csrf` |
 | Login rate-limit | **429** | По умолчанию **вкл.** (10 / 15 мин). CI/локальный Playwright: `DISABLE_LOGIN_RATE_LIMIT=true`. Legacy: `ENABLE_LOGIN_RATE_LIMIT=false` |
 | JSON body | **413** | Лимит `100kb` (`express.json`) |
+| CSRF на мутациях | **403** | Нет / неверный `X-CSRF-Token`; bypass `DISABLE_CSRF=true` |
+| Zod login / bike | **400** `{ error }` | `.strip()` лишних полей; notes ≤ 500; BUG-03 year |
 | Liveness | **200** `{ status: "ok" }` | `GET /health` |
 | Readiness | **200** `{ status: "ready" }` / **503** | `GET /ready` (Prisma) |
 | Security headers | Helmet | напр. `X-Content-Type-Options: nosniff` (CSP для API выкл.) |
