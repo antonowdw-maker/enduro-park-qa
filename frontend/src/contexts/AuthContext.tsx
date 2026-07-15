@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
-import { getMe, loginRequest, logoutRequest } from '../api';
+import { ensureCsrf, getMe, loginRequest, logoutRequest } from '../api';
 
 /**
  * КОНТЕКСТ АВТОРИЗАЦИИ (AuthContext)
@@ -40,7 +40,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    restoreSession();
+    // CSRF cookie до любых мутаций (logout и т.д.)
+    ensureCsrf()
+      .catch(() => undefined)
+      .finally(() => {
+        restoreSession();
+      });
   }, [restoreSession]);
 
   // Вход: отправляем логин/пароль на бэкенд, сохраняем пользователя в state

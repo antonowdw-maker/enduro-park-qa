@@ -4,9 +4,10 @@ import axios from 'axios';
  * НАСТРОЙКА API-КЛИЕНТА
  * withCredentials: true — КРИТИЧЕСКИ ВАЖНО ДЛЯ QA!
  * Без этого параметра браузер не будет сохранять и отправлять cookie (JWT-токен).
+ *
+ * Волна G: double-submit CSRF — Axios читает cookie `csrf` и шлёт X-CSRF-Token.
  */
 
-// Тип пользователя, который возвращает бэкенд после логина или /me
 export type AuthUser = {
   id: string;
   username: string;
@@ -16,6 +17,33 @@ export type AuthUser = {
 const api = axios.create({
   baseURL: '/api',
   withCredentials: true,
+  xsrfCookieName: 'csrf',
+  xsrfHeaderName: 'X-CSRF-Token',
+});
+
+let csrfReady: Promise<void> | null = null;
+
+/** GET /auth/csrf — выставить cookie `csrf` (не httpOnly) */
+export async function ensureCsrf(): Promise<void> {
+  if (!csrfReady) {
+    csrfReady = api.get('/auth/csrf').then(() => undefined).catch((err) => {
+      csrfReady = null;
+      throw err;
+    });
+  }
+  await csrfReady;
+}
+
+api.interceptors.request.use(async (config) => {
+  const method = (config.method || 'get').toLowerCase();
+  if (['post', 'put', 'patch', 'delete'].includes(method)) {
+    const url = String(config.url || '');
+    // login сам без CSRF; csrf endpoint — GET
+    if (!url.includes('/auth/login') && !url.includes('/auth/csrf')) {
+      await ensureCsrf();
+    }
+  }
+  return config;
 });
 
 /** GET /auth/me — проверить, есть ли активная сессия (cookie) */
