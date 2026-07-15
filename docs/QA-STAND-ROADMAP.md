@@ -97,13 +97,13 @@
 ---
 
 ### F — a11y + мобильная таблица  
-**Статус:** ⏳ не начата  
+**Статус:** ✅ на ветке `feature/qa-wave-f-a11y-mobile`  
 **Роли:** BA, Dev, QA  
 **Объём:** M  
 
-- focus trap модалок, Escape / Enter, accessible names edit/delete  
-- `aria-sort`, узкий viewport / альтернатива горизонтальному `min-w-[1100px]`  
-- тесты keyboard + viewport  
+- ✅ focus trap модалок (`useModalA11y`), Escape / Enter, accessible names edit/delete  
+- ✅ `aria-sort` на sortable `<th>`; узкий viewport → карточки + `mobile-sort`; wrap статусов; сетка фильтра; модалка `100dvh`  
+- ✅ тесты keyboard + viewport: `e2e/tests/a11y-mobile.spec.ts` (TC-A11Y-* + TC-MOBILE-01…04)  
 
 ---
 
@@ -177,7 +177,7 @@
 - [x] C — API query ТТД  
 - [x] D — CRUD/Auth API  
 - [x] E — search UI + list errors  
-- [ ] F — a11y / mobile  
+- [x] F — a11y / mobile  
 - [ ] G — security  
 - [ ] H — known-bugs contract  
 - [ ] I — coverage matrix + CI gates  

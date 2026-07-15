@@ -1,10 +1,10 @@
 # Системные требования к проекту Enduro Park Manager
 
-**Версия:** 2.8  
+**Версия:** 2.9  
 **Дата:** 15.07.2026  
-**Изменения от v2.7:** API-контракт GET query (целые, LIKE); Auth/CRUD глубина; UI search (OR) + list empty/error (волна E); search сосуществует с brand/model (AND).
+**Изменения от v2.8:** волна F — a11y (focus trap, Escape/Enter, aria-sort, accessible names) + mobile cards (`bike-card-*`).
 
-**История:** v2.8 — API/Auth контракт глубины (волны C–D); v2.7 — каталог seed modern; v2.6 — фильтр марка/модель (F-FILTER-11…15) + ТТД E2E; v2.5 — текст `error-year` (текущий год) + приоритет сообщения VIN про I/O/Q; v2.4 — валидация фильтров; v2.3 — offset, фильтры год/пробег; v2.2 — валидация, BUG-03, дата ТО; v2.1 — публичная главная, без guest, VIN редактируем; v2.0 — исходный PDF.
+**История:** v2.9 — a11y/mobile (волна F); v2.8 — API/Auth контракт глубины (волны C–D); v2.7 — каталог seed modern; v2.6 — фильтр марка/модель (F-FILTER-11…15) + ТТД E2E; v2.5 — текст `error-year` (текущий год) + приоритет сообщения VIN про I/O/Q; v2.4 — валидация фильтров; v2.3 — offset, фильтры год/пробег; v2.2 — валидация, BUG-03, дата ТО; v2.1 — публичная главная, без guest, VIN редактируем; v2.0 — исходный PDF.
 
 ---
 
@@ -148,8 +148,15 @@
 | F-FILTER-16 | Поиск по марке **или** модели (`search`), debounce 300 ms | public | `filter-search`, `filter-search-clear` |
 | F-LIST-01 | Пустой успешный результат | public | `list-empty` |
 | F-LIST-02 | Ошибка загрузки списка + retry | public | `list-error`, `list-retry` |
+| F-A11Y-01 | Focus trap + Escape в модалках; Enter в confirm delete | mechanic/admin | `bike-form-modal`, `delete-confirm-modal` |
+| F-A11Y-02 | Accessible names edit/delete; `aria-sort` на `<th>` | public / roles | `edit-bike-{vin}`, `delete-bike-{vin}`, `sort-*` |
+| F-MOBILE-01 | Узкий viewport: карточки + mobile sort вместо wide-таблицы | public | `bike-cards`, `bike-card-{vin}`, `mobile-sort`, `mobile-sort-field`, `mobile-sort-order` |
+| F-MOBILE-02 | Статусы фильтра без обрезки; поля фильтра по сетке | public | `filter-status-row`, `filter-sold` visible |
+| F-MOBILE-03 | Модалка create/edit вписывается в viewport (scroll внутри) | mechanic/admin | `bike-form-modal` |
 
 **Search vs марка/модель (волна E — оба оставляем):** `brand`/`model` — узкие фильтры (вместе = **AND**). `search` — одно поле быстрого поиска (**OR** по марке/модели). Не дубль UI: разная семантика.
+
+**A11y / mobile (волна F):** на `< md` реестр — карточки + `mobile-sort` (select поля + toggle order); на `md+` — таблица с `aria-sort` в `<th>`. Статусы фильтра — `flex-wrap`. Модалки: `max-h`/`100dvh`, скролл внутри панели; Tab trap; Escape; Enter на delete.
 
 ---
 
@@ -165,6 +172,9 @@
 | Фильтры марка/модель | `filter-brand`, `filter-model` |
 | Поиск | `filter-search`, `filter-search-clear` |
 | Состояния списка | `list-empty`, `list-error`, `list-retry` |
+| Мобильные карточки / sort | `bike-cards`, `bike-card-{vin}`, `mobile-sort`, `mobile-sort-field`, `mobile-sort-order` |
+| Строка статусов фильтра | `filter-status-row` |
+| Модалка формы | `bike-form-modal` |
 | Очистка фильтров | `filter-clear-all`, `filter-brand-clear`, `filter-model-clear`, `filter-search-clear`, `filter-year-from-clear`, `filter-year-to-clear`, `filter-mileage-from-clear`, `filter-mileage-to-clear` |
 | Ошибки фильтров | `error-filter-year-from`, `error-filter-year-to`, `error-filter-mileage-from`, `error-filter-mileage-to` |
 | Ошибки полей | `error-brand`, `error-model`, `error-year`, `error-vin`, `error-mileage`, `error-status`, `error-lastService`, `error-notes` |

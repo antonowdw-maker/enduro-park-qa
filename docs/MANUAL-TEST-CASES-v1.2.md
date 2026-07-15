@@ -1,14 +1,15 @@
 # Ручные тест-кейсы Enduro Park Manager (QA-Stand)
 
-**Версия:** 1.9  
+**Версия:** 1.10  
 **Дата:** 15.07.2026  
+**Изменения от v1.9:** волна F — a11y (Escape/Tab/Enter, aria-sort, accessible names) + mobile cards (`bike-card-*`).  
 **Изменения от v1.8:** волны C–D — API query/CRUD; волна E — UI `search` (OR) + `list-empty`/`list-error`/`list-retry`; search **не заменяет** brand/model (AND).  
 **Изменения от v1.7:** seed-каталог modern — TC-SEED-05…07 (Kayo, Regulmoto, Motoland).  
 **Изменения от v1.6:** фильтр марка/модель — TC-FILTER-BRAND-*, TC-FILTER-MODEL-*, TC-FILTER-BRAND-MODEL-01.  
 **14.07.2026 (+волна A):** TC-SEED-01 и TC-AUTH-01 httpOnly закрыты автотестами.  
 **14.07.2026:** текст NEG-08 / `error-year` — «позже {текущий год}»; VIN I/O/Q → отдельное сообщение (не «17 символов»); TC-SORT/PAGINATION; пере-seed в E2E.
 
-**История:** v1.9 — API волны C–D; v1.8 — каталог seed modern; v1.7 — фильтр марка/модель (+ТТД UI/API); v1.5 — валидация фильтров; v1.4 — offset, фильтры год/пробег; v1.3 — негативная валидация, BUG-03, дата ТО; v1.2 — публичная главная, без guest, VIN edit; v1.1 — исходный PDF.
+**История:** v1.10 — a11y/mobile волна F; v1.9 — API волны C–D; v1.8 — каталог seed modern; v1.7 — фильтр марка/модель (+ТТД UI/API); v1.5 — валидация фильтров; v1.4 — offset, фильтры год/пробег; v1.3 — негативная валидация, BUG-03, дата ТО; v1.2 — публичная главная, без guest, VIN edit; v1.1 — исходный PDF.
 
 **Трассировка автотестов:** после каждой волны Playwright помечаем ТК ниже строкой `🤖 Автотест:` (файл + итерация). Ручной прогон таких ТК — по желанию / регрессия UI.
 
@@ -389,6 +390,20 @@
 | TC-SEARCH-NEG-01 | нет совпадений | `list-empty` | то же |
 | TC-LIST-ERROR-01 | GET 500 | `list-error` + retry | то же |
 | TC-API-SEARCH-* | API search EP/WS | 200 + total | `bikes-query-api.spec.ts` |
+
+### A11y + mobile (волна F)
+
+| TC | Суть | Ожидание | Автотест |
+|----|------|----------|----------|
+| TC-A11Y-01 | Escape на форме байка | модалка закрыта | `a11y-mobile.spec.ts` |
+| TC-A11Y-02 | Tab cycle в модалке | focus остаётся внутри | то же |
+| TC-A11Y-03 | Escape / Enter на delete confirm | отмена / удаление | то же |
+| TC-A11Y-04 | `aria-sort` + Enter на sort header | asc→desc / смена поля | то же |
+| TC-A11Y-05 | accessible name edit/delete | `getByRole` по VIN | то же |
+| TC-MOBILE-01 | viewport 390×844 | `bike-cards` / `bike-card-*` visible, table row hidden, без h-scroll | то же |
+| TC-MOBILE-02 | статусы фильтра на узком | `filter-sold` fully visible (wrap) | то же |
+| TC-MOBILE-03 | mobile sort field/order | GET с sortBy/order | то же |
+| TC-MOBILE-04 | модалка create в viewport | panel внутри окна, scrollable | то же |
 
 ---
 
