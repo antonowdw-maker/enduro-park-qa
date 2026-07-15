@@ -59,7 +59,7 @@ export function validateRangeFilters(
   return errors;
 }
 
-/** Поле числового фильтра с кнопкой очистки (×) */
+/** Поле числового фильтра с кнопкой очистки (×) — ширина из сетки родителя */
 function FilterNumberInput({
   label,
   testId,
@@ -86,7 +86,7 @@ function FilterNumberInput({
   const isYear = kind === 'year';
 
   return (
-    <div className="w-32">
+    <div className="min-w-0 w-full">
       <label
         htmlFor={testId}
         className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400"
@@ -132,7 +132,7 @@ function FilterNumberInput({
   );
 }
 
-/** Поле текстового фильтра с кнопкой очистки (×) */
+/** Поле текстового фильтра с кнопкой очистки (×) — ширина из сетки родителя */
 function FilterTextInput({
   label,
   testId,
@@ -151,7 +151,7 @@ function FilterTextInput({
   onClear: () => void;
 }) {
   return (
-    <div className="w-36">
+    <div className="min-w-0 w-full">
       <label
         htmlFor={testId}
         className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400"
@@ -186,6 +186,26 @@ function FilterTextInput({
   );
 }
 
+/** Строка фильтра: подпись слева + сетка полей (волна F hotfix) */
+function FilterRow({
+  title,
+  children,
+  columnsClass = 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
+}: {
+  title: string;
+  children: React.ReactNode;
+  columnsClass?: string;
+}) {
+  return (
+    <div className="grid grid-cols-1 gap-3 border-t border-slate-100 bg-slate-50/50 px-4 py-3 sm:grid-cols-[8.5rem_minmax(0,1fr)] sm:items-start sm:gap-4">
+      <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 sm:pt-6">
+        {title}
+      </span>
+      <div className={`grid min-w-0 gap-3 ${columnsClass}`}>{children}</div>
+    </div>
+  );
+}
+
 export type BikeFiltersProps = {
   activeStatuses: string[];
   search: string;
@@ -216,8 +236,8 @@ export type BikeFiltersProps = {
 };
 
 /**
- * ФИЛЬТРЫ СПИСКА (F-FILTER-01…11 + search волна E)
- * Статусы + поиск + марка/модель + диапазоны год/пробег.
+ * ФИЛЬТРЫ СПИСКА (F-FILTER-01…11 + search волна E + adaptive F hotfix)
+ * Статусы (wrap) + поиск + марка/модель + диапазоны — единая сетка.
  */
 export default function BikeFilters({
   activeStatuses,
@@ -251,42 +271,43 @@ export default function BikeFilters({
 
   return (
     <div className="mb-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <div className="flex items-center p-4">
-        <div className="flex items-center gap-3">
-          <Filter size={18} className="ml-2 text-slate-400" />
-          <button
-            data-testid="filter-all"
-            onClick={() => onStatusFilter('')}
-            className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold transition-all ${activeStatuses.length === 0 ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-100 text-slate-600'}`}
-          >
-            <RefreshCcw size={14} /> Все
-          </button>
-          <button
-            data-testid="filter-available"
-            onClick={() => onStatusFilter('available')}
-            className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold transition-all ${isStatusFilterActive('available') ? 'bg-emerald-600 text-white shadow-md' : 'bg-emerald-100 text-emerald-700'}`}
-          >
-            <Check size={14} /> Доступен
-          </button>
-          <button
-            data-testid="filter-repair"
-            onClick={() => onStatusFilter('repair')}
-            className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold transition-all ${isStatusFilterActive('repair') ? 'bg-amber-600 text-white shadow-md' : 'bg-amber-100 text-amber-700'}`}
-          >
-            <Wrench size={14} /> Ремонт
-          </button>
-          <button
-            data-testid="filter-sold"
-            onClick={() => onStatusFilter('sold')}
-            className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold transition-all ${isStatusFilterActive('sold') ? 'bg-rose-600 text-white shadow-md' : 'bg-rose-100 text-rose-700'}`}
-          >
-            <Tag size={14} /> Продан
-          </button>
-        </div>
+      {/* Статусы: перенос / без обрезки «Продан» на узком экране */}
+      <div
+        data-testid="filter-status-row"
+        className="flex flex-wrap items-center gap-2 p-4"
+      >
+        <Filter size={18} className="shrink-0 text-slate-400" aria-hidden />
+        <button
+          data-testid="filter-all"
+          onClick={() => onStatusFilter('')}
+          className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-bold transition-all sm:px-4 ${activeStatuses.length === 0 ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-100 text-slate-600'}`}
+        >
+          <RefreshCcw size={14} aria-hidden /> Все
+        </button>
+        <button
+          data-testid="filter-available"
+          onClick={() => onStatusFilter('available')}
+          className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-bold transition-all sm:px-4 ${isStatusFilterActive('available') ? 'bg-emerald-600 text-white shadow-md' : 'bg-emerald-100 text-emerald-700'}`}
+        >
+          <Check size={14} aria-hidden /> Доступен
+        </button>
+        <button
+          data-testid="filter-repair"
+          onClick={() => onStatusFilter('repair')}
+          className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-bold transition-all sm:px-4 ${isStatusFilterActive('repair') ? 'bg-amber-600 text-white shadow-md' : 'bg-amber-100 text-amber-700'}`}
+        >
+          <Wrench size={14} aria-hidden /> Ремонт
+        </button>
+        <button
+          data-testid="filter-sold"
+          onClick={() => onStatusFilter('sold')}
+          className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-bold transition-all sm:px-4 ${isStatusFilterActive('sold') ? 'bg-rose-600 text-white shadow-md' : 'bg-rose-100 text-rose-700'}`}
+        >
+          <Tag size={14} aria-hidden /> Продан
+        </button>
       </div>
 
-      <div className="flex flex-wrap items-start gap-4 border-t border-slate-100 bg-slate-50/50 px-4 py-3">
-        <span className="pt-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Поиск</span>
+      <FilterRow title="Поиск" columnsClass="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <FilterTextInput
           label="Марка или модель"
           testId="filter-search"
@@ -296,10 +317,9 @@ export default function BikeFilters({
           onChange={onSearchChange}
           onClear={onClearSearch}
         />
-      </div>
+      </FilterRow>
 
-      <div className="flex flex-wrap items-start gap-4 border-t border-slate-100 bg-slate-50/50 px-4 py-3">
-        <span className="pt-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Марка / модель</span>
+      <FilterRow title="Марка / модель" columnsClass="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <FilterTextInput
           label="Марка"
           testId="filter-brand"
@@ -318,10 +338,9 @@ export default function BikeFilters({
           onChange={onModelChange}
           onClear={onClearModel}
         />
-      </div>
+      </FilterRow>
 
-      <div className="flex flex-wrap items-start gap-4 border-t border-slate-100 bg-slate-50/50 px-4 py-3">
-        <span className="pt-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Диапазоны</span>
+      <FilterRow title="Диапазоны" columnsClass="grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
         <FilterNumberInput
           label="Год от"
           testId="filter-year-from"
@@ -370,14 +389,17 @@ export default function BikeFilters({
           onChange={onMileageToChange}
           onClear={onClearMileageTo}
         />
+      </FilterRow>
+
+      <div className="flex justify-end border-t border-slate-100 bg-slate-50/50 px-4 py-3">
         <button
           type="button"
           data-testid="filter-clear-all"
           onClick={onClearAll}
           disabled={!hasActiveFilters}
-          className="mt-6 inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-500 transition-all hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-500 transition-all hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          <X size={14} /> Сбросить всё
+          <X size={14} aria-hidden /> Сбросить всё
         </button>
       </div>
     </div>

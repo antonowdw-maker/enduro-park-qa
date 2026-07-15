@@ -1,4 +1,6 @@
+import { useRef } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 type ConfirmDeleteModalProps = {
   open: boolean;
@@ -24,17 +26,35 @@ export default function ConfirmDeleteModal({
   onConfirm,
   onCancel,
 }: ConfirmDeleteModalProps) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  useModalA11y(open, panelRef, onCancel, {
+    escapeDisabled: isDeleting,
+    initialFocusSelector: '[data-testid="delete-confirm-btn"]',
+  });
+
   if (!open) return null;
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 p-4"
+      className="fixed inset-0 z-[60] flex items-end justify-center bg-slate-900/50 sm:items-center sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="delete-confirm-title"
       data-testid="delete-confirm-modal"
+      onKeyDown={(event) => {
+        // Enter на диалоге — подтверждение (кроме фокуса на «Отмена»)
+        if (event.key !== 'Enter' || isDeleting) return;
+        const target = event.target as HTMLElement;
+        if (target.closest('[data-testid="delete-cancel-btn"]')) return;
+        if (target.closest('[data-testid="delete-confirm-btn"]')) return;
+        event.preventDefault();
+        onConfirm();
+      }}
     >
-      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
+      <div
+        ref={panelRef}
+        className="flex max-h-[100dvh] w-full max-w-md flex-col overflow-y-auto overscroll-contain rounded-t-2xl border border-slate-200 bg-white p-6 shadow-xl sm:max-h-[min(90vh,100dvh)] sm:rounded-2xl"
+      >
         <div className="mb-4 flex items-start justify-between gap-3">
           <div className="flex items-start gap-3">
             <div className="rounded-full bg-rose-100 p-2 text-rose-600">

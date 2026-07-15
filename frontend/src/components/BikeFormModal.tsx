@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { X } from 'lucide-react';
@@ -11,6 +11,7 @@ import {
   formatLastServiceMask,
   toCompleteLastServiceIso,
 } from '../schemas';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 /** Режим модального окна: создание или редактирование */
 export type BikeModalMode = 'create' | 'edit';
@@ -68,6 +69,12 @@ export default function BikeFormModal({
   const todayIso = new Date().toISOString().slice(0, 10);
   const calendarValue = toCompleteLastServiceIso(lastServiceValue ?? '');
   const lastServiceField = register('lastService');
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useModalA11y(open, panelRef, onClose, {
+    escapeDisabled: isSubmitting,
+    initialFocusSelector: '[data-testid="input-brand"]',
+  });
 
   // При открытии — подставляем данные (создание или редактирование)
   useEffect(() => {
@@ -90,13 +97,17 @@ export default function BikeFormModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/50 sm:items-center sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="bike-modal-title"
+      data-testid="bike-form-modal"
     >
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
-        <div className="mb-6 flex items-center justify-between">
+      <div
+        ref={panelRef}
+        className="flex max-h-[100dvh] w-full max-w-lg flex-col overflow-hidden rounded-t-2xl border border-slate-200 bg-white shadow-xl sm:max-h-[min(90vh,100dvh)] sm:rounded-2xl"
+      >
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 py-4 sm:px-6">
           <h2 id="bike-modal-title" className="text-lg font-bold uppercase tracking-tight text-slate-800">
             {title}
           </h2>
@@ -110,24 +121,26 @@ export default function BikeFormModal({
           </button>
         </div>
 
-        {serverError && (
-          <p
-            data-testid="form-server-error"
-            className="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700"
-          >
-            {serverError}
-          </p>
-        )}
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6">
+          {serverError && (
+            <p
+              data-testid="form-server-error"
+              className="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700"
+            >
+              {serverError}
+            </p>
+          )}
 
-        <form
-          noValidate
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-4"
-        >
+          <form
+            noValidate
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+          >
           <div>
-            <label className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400">Марка</label>
+            <label htmlFor="bike-field-brand" className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400">Марка</label>
             <input
               {...register('brand')}
+              id="bike-field-brand"
               data-testid="input-brand"
               className={`w-full rounded-lg border p-2.5 font-semibold outline-none transition-all focus:ring-2 focus:ring-blue-500 ${errors.brand ? 'border-rose-500 bg-rose-50' : 'border-slate-200'}`}
               placeholder="Напр. KTM"
@@ -140,9 +153,10 @@ export default function BikeFormModal({
           </div>
 
           <div>
-            <label className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400">Модель</label>
+            <label htmlFor="bike-field-model" className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400">Модель</label>
             <input
               {...register('model')}
+              id="bike-field-model"
               data-testid="input-model"
               className={`w-full rounded-lg border p-2.5 font-semibold outline-none transition-all focus:ring-2 focus:ring-blue-500 ${errors.model ? 'border-rose-500 bg-rose-50' : 'border-slate-200'}`}
               placeholder="Напр. 300 EXC"
@@ -156,10 +170,11 @@ export default function BikeFormModal({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400">Год</label>
+              <label htmlFor="bike-field-year" className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400">Год</label>
               <input
                 type="number"
                 {...register('year', { valueAsNumber: true })}
+                id="bike-field-year"
                 data-testid="input-year"
                 className={`w-full rounded-lg border p-2.5 font-semibold outline-none transition-all focus:ring-2 focus:ring-blue-500 ${errors.year ? 'border-rose-500 bg-rose-50' : 'border-slate-200'}`}
               />
@@ -170,10 +185,11 @@ export default function BikeFormModal({
               )}
             </div>
             <div>
-              <label className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400">Пробег</label>
+              <label htmlFor="bike-field-mileage" className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400">Пробег</label>
               <input
                 type="number"
                 {...register('mileage', { valueAsNumber: true })}
+                id="bike-field-mileage"
                 data-testid="input-mileage"
                 className={`w-full rounded-lg border p-2.5 font-semibold outline-none transition-all focus:ring-2 focus:ring-blue-500 ${errors.mileage ? 'border-rose-500 bg-rose-50' : 'border-slate-200'}`}
               />
@@ -186,11 +202,12 @@ export default function BikeFormModal({
           </div>
 
           <div>
-            <label className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400">VIN (17 знаков)</label>
+            <label htmlFor="bike-field-vin" className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400">VIN (17 знаков)</label>
             <input
               {...register('vin', {
                 setValueAs: normalizeVinInput,
               })}
+              id="bike-field-vin"
               data-testid="input-vin"
               maxLength={17}
               autoComplete="off"
@@ -207,9 +224,10 @@ export default function BikeFormModal({
           </div>
 
           <div>
-            <label className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400">Статус в парке</label>
+            <label htmlFor="bike-field-status" className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400">Статус в парке</label>
             <select
               {...register('status')}
+              id="bike-field-status"
               data-testid="select-status"
               className="w-full cursor-pointer rounded-lg border border-slate-200 bg-white p-2.5 font-bold text-slate-700 outline-none"
             >
@@ -225,10 +243,11 @@ export default function BikeFormModal({
           </div>
 
           <div>
-            <label className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400">Последнее ТО</label>
-            <div className="flex gap-2">
+            <label htmlFor="bike-field-lastService" className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400">Последнее ТО</label>
+            <div className="flex flex-col gap-2 sm:flex-row">
               <input
                 type="text"
+                id="bike-field-lastService"
                 name={lastServiceField.name}
                 ref={lastServiceField.ref}
                 onBlur={lastServiceField.onBlur}
@@ -259,7 +278,7 @@ export default function BikeFormModal({
                   });
                 }}
                 aria-label="Выбрать дату последнего ТО в календаре"
-                className={`w-[9.5rem] shrink-0 rounded-lg border p-2.5 outline-none transition-all focus:ring-2 focus:ring-blue-500 ${errors.lastService ? 'border-rose-500 bg-rose-50' : 'border-slate-200'}`}
+                className={`w-full shrink-0 rounded-lg border p-2.5 outline-none transition-all focus:ring-2 focus:ring-blue-500 sm:w-[9.5rem] ${errors.lastService ? 'border-rose-500 bg-rose-50' : 'border-slate-200'}`}
               />
             </div>
             <p className="mt-1 text-[10px] leading-snug text-slate-400">{LAST_SERVICE_FORMAT_HINT}</p>
@@ -271,9 +290,10 @@ export default function BikeFormModal({
           </div>
 
           <div>
-            <label className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400">Заметки</label>
+            <label htmlFor="bike-field-notes" className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400">Заметки</label>
             <textarea
               {...register('notes')}
+              id="bike-field-notes"
               data-testid="input-notes"
               rows={3}
               className={`w-full resize-none rounded-lg border p-2.5 text-sm outline-none transition-all focus:ring-2 focus:ring-blue-500 ${errors.notes ? 'border-rose-500 bg-rose-50' : 'border-slate-200'}`}
@@ -304,7 +324,8 @@ export default function BikeFormModal({
               {mode === 'create' ? 'Добавить' : 'Сохранить'}
             </button>
           </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );
