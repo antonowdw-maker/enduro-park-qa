@@ -88,7 +88,7 @@
 - [x] **Фильтр по марке и модели** — UI + API (`brand`/`model`), testid, ТК, smoke + ТТД. *(влито в `main`)*
 - [x] **Каталог/seed modern** — CN/EU эндуро, якоря SEED-05…07, счётчики 19/16/15. *(влито в `main`)*
 
-**Итог:** открытых пунктов в бэклоге «на подумать» нет (14.07.2026). Волны roadmap **A–F** в `main`; **G** (security) — ветка `feature/qa-wave-g-security` (CSRF+Zod+UI).
+**Итог:** открытых пунктов в бэклоге «на подумать» нет (14.07.2026). Волны roadmap **A–G** в `main` (15.07.2026); далее — **H** (known-bugs contract).
 
 ### Следующий план (волны A…J)
 Подробно: [`docs/QA-STAND-ROADMAP.md`](docs/QA-STAND-ROADMAP.md).  
@@ -101,7 +101,7 @@
 - [x] **TL-ревью A–D** — целая пагинация, fingerprint, waits — `fix/tl-review-waves-a-d` (`7c7478c`)
 - [x] **E** — UI search + ошибка списка (+ retry) — `feature/qa-wave-e-search-ui` → `main`
 - [x] **F** — a11y / mobile + компактный фильтр — `feature/qa-wave-f-a11y-mobile` → `main` (`a9cae96`)
-- [ ] **G** — security hardening (perimeter + CSRF + Zod + UI CSRF) — `feature/qa-wave-g-security`
+- [x] **G** — security hardening (perimeter + CSRF + Zod + UI CSRF) — `feature/qa-wave-g-security` → `main`
 - [ ] **H** — known-bugs учебный контракт
 - [ ] **I** — матрица покрытия + CI gates
 - [ ] **J** — эпик прокат/аренда

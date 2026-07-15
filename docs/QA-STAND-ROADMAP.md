@@ -109,7 +109,7 @@
 ---
 
 ### G — security hardening стенда  
-**Статус:** 🔄 ветка `feature/qa-wave-g-security`  
+**Статус:** ✅ влита в `main` (15.07.2026)  
 **Роли:** СА, Dev, QA, PM  
 **Объём:** M–L  
 
