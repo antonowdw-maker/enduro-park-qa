@@ -1,7 +1,7 @@
 # Roadmap QA-стенда Enduro Park (после закрытия бэклога «на подумать»)
 
 **Дата:** 14.07.2026  
-**Статус:** волны A–C в коде; D…J — план.  
+**Статус:** волны A–D в коде; E…J — план.  
 **Процесс:** каждая волна — отдельная ветка от актуального `main` → реализация → QA (часто headed + `SLOW_MO`) → коммит/пуш/merge **только по явному апруву**.
 
 Источник аудита: трассировка TC→E2E, ТТД/flake, роли BA/СА/QA/Dev/PM (чат 14.07.2026).
@@ -73,16 +73,14 @@
 ---
 
 ### D — CRUD / Auth API глубина (не UI)  
-**Статус:** ⏳ не начата  
+**Статус:** ✅ сделано (`feature/qa-wave-d-crud-auth-api`)  
 **Роли:** QA, Dev  
 **Объём:** M  
 
-- POST/PUT happy path + mechanic / admin / anonymous  
-- unknown id, duplicate VIN на API, invalid body / mass-assignment  
-- login → `/me` → logout → `/me`; cookie flags  
-- опц.: rate-limit при включённом флаге  
-
-*Можно объединять с C в одну волну «API глубина».*
+- ✅ POST/PUT happy path + mechanic / admin / anonymous  
+- ✅ unknown id, duplicate VIN на API, invalid body / mass-assignment  
+- ✅ login → `/me` → logout → `/me`; cookie flags (+ Max-Age)  
+- ✅ опц.: rate-limit — `auth-rate-limit-api.spec.ts` (RUN_RATE_LIMIT_E2E=1)  
 
 ---
 
@@ -176,7 +174,7 @@
 - [x] A — TC leftovers  
 - [x] B — flake-hunt  
 - [x] C — API query ТТД  
-- [ ] D — CRUD/Auth API  
+- [x] D — CRUD/Auth API  
 - [ ] E — search UI + list errors  
 - [ ] F — a11y / mobile  
 - [ ] G — security  

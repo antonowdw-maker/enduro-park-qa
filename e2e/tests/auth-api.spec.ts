@@ -1,29 +1,71 @@
 import { test, expect } from '@playwright/test';
 import { getSeedCredentials, loadBackendEnv } from '../src/helpers/env';
+import { getApiBaseUrl } from '../src/helpers/api';
 
 loadBackendEnv();
 
-const API =
-  process.env.API_URL?.trim() ||
-  (process.env.CI ? 'http://127.0.0.1:5000' : 'http://localhost:5000');
+const API = getApiBaseUrl();
 
 /**
- * Cookie / offset gaps (волна 10.6 + A: httpOnly на login).
+ * Cookie / offset / session lifecycle (волна 10.6 + A + D).
  */
 test.describe('Auth & pagination API', () => {
   const { admin } = getSeedCredentials();
 
-  test('TC-AUTH-01 (API): login → Set-Cookie HttpOnly', async ({ request }) => {
+  test('TC-AUTH-01 (API): login → Set-Cookie HttpOnly + SameSite + Max-Age', async ({ request }) => {
     const res = await request.post(`${API}/api/auth/login`, {
       data: { username: admin.username, password: admin.password },
     });
     expect(res.status()).toBe(200);
 
     const setCookie = res.headersArray().filter((h) => h.name.toLowerCase() === 'set-cookie');
-    const tokenHeader = setCookie.find((h) => /^token=/i.test(h.value));
+    const tokenHeader = setCookie.find((h) => h.value.toLowerCase().startsWith('token='));
     expect(tokenHeader, 'ожидался Set-Cookie: token=…').toBeTruthy();
-    expect(tokenHeader!.value.toLowerCase()).toContain('httponly');
-    expect(tokenHeader!.value.toLowerCase()).toMatch(/samesite=lax/);
+    const cookie = tokenHeader!.value.toLowerCase();
+    expect(cookie).toContain('httponly');
+    expect(cookie).toMatch(/samesite=lax/);
+    expect(cookie).toMatch(/max-age=/);
+  });
+
+  test('TC-AUTH-API-LOGIN-NEG-01: неверный пароль → 401 { error }', async ({ request }) => {
+    const res = await request.post(`${API}/api/auth/login`, {
+      data: { username: admin.username, password: 'definitely-wrong-password' },
+    });
+    expect(res.status()).toBe(401);
+    const body = await res.json();
+    expect(body).toEqual({ error: 'Неверные учётные данные' });
+  });
+
+  test('TC-AUTH-API-LIFECYCLE-01: login → /me → logout → /me', async ({ request }) => {
+    const login = await request.post(`${API}/api/auth/login`, {
+      data: { username: admin.username, password: admin.password },
+    });
+    expect(login.status()).toBe(200);
+    const user = await login.json();
+    const setCookie = login.headersArray().find((h) => h.name.toLowerCase() === 'set-cookie')?.value;
+    expect(setCookie).toBeTruthy();
+    const cookie = setCookie!.split(';')[0];
+
+    const me = await request.get(`${API}/api/auth/me`, { headers: { Cookie: cookie } });
+    expect(me.status()).toBe(200);
+    const meBody = await me.json();
+    expect(meBody.username).toBe(user.username);
+    expect(meBody.role).toBe(user.role);
+
+    const logout = await request.post(`${API}/api/auth/logout`, { headers: { Cookie: cookie } });
+    expect(logout.status()).toBe(200);
+    expect(await logout.json()).toEqual({ message: 'Logged out' });
+    const logoutCookies = logout.headersArray().filter((h) => h.name.toLowerCase() === 'set-cookie');
+    const cleared = logoutCookies.some(
+      (h) =>
+        /token=/i.test(h.value) &&
+        (/Max-Age=0/i.test(h.value) || /Expires=/i.test(h.value) || /token=;/i.test(h.value)),
+    );
+    expect(cleared, 'logout должен слать clear Set-Cookie для token').toBeTruthy();
+
+    // Контракт: после logout клиент не шлёт cookie; /me без cookie → 401
+    const meAnon = await request.get(`${API}/api/auth/me`);
+    expect(meAnon.status()).toBe(401);
   });
 
   test('TC-AUTH-08: GET /bikes без cookie → 200', async ({ request }) => {

@@ -359,6 +359,20 @@
 | TC-API-BRAND-* / MODEL-* | API-контракт | query `brand`/`model` (+ Kayo/Athlete) | `filters-brand-model-api.spec.ts` |
 | TC-API-LIMIT-* / OFFSET-* / PAGE-* / SORT-* / STATUS-* / LEN-* / LIKE-* | API query ТТД | нормализация + LIKE | `bikes-query-api.spec.ts` |
 
+### API CRUD / Auth глубина (волна D)
+
+| TC | Суть | Ожидание | Автотест |
+|----|------|----------|----------|
+| TC-API-BIKE-POST-ADMIN/MECHANIC/ANON | create по ролям | 201 / 201 / 401 | `bikes-crud-api.spec.ts` |
+| TC-API-BIKE-PUT-* | update + anon + unknown | 200 / 401 / 404 | то же |
+| TC-API-BIKE-DELETE-UNKNOWN-01 | DELETE unknown | 404 | то же |
+| TC-API-BIKE-DUP-VIN-POST/PUT | duplicate VIN | 400 | то же |
+| TC-API-BIKE-INVALID-* | VIN / mileage | 400 `{ error }` | то же |
+| TC-API-BIKE-MASS-01 | лишние поля тела | игнор, свой id | то же |
+| TC-AUTH-API-LIFECYCLE-01 | login→me→logout→me | 200→200→200→401 | `auth-api.spec.ts` |
+| TC-AUTH-API-LOGIN-NEG-01 | неверный пароль | 401 | то же |
+| TC-AUTH-RATE-LIMIT-01 | 11-я попытка (opt-in) | 429 | `auth-rate-limit-api.spec.ts` |
+
 ---
 
 ## 7. Детерминированный seed (итерация 9)
