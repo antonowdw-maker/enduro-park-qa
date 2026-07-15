@@ -1,7 +1,7 @@
 # Roadmap QA-стенда Enduro Park
 
 **Дата обновления:** 15.07.2026  
-**Статус:** волны **A–H** в `main`; дальше **I** (матрица + CI gates), затем **J** (прокат).  
+**Статус:** волны **A–I** в `main` — EPM **завершён**. **J** (прокат) — отдельный репозиторий `willim-rental`, не в этом стенде.  
 **Витрина проекта:** корневой [`README.md`](../README.md).  
 **История итераций 1–10 / закрытый бэклог:** [`PROJECT-HISTORY.md`](PROJECT-HISTORY.md).  
 
@@ -146,17 +146,9 @@
 
 ---
 
-### J — домен «прокат / аренда» (крупный product-эпик)  
-**Статус:** ⏳ не начата  
-**Роли:** BA, СА, Dev, QA, PM  
-**Объём:** L  
-
-- сущности аренда / клиент, статусы, запрет double-book / repair / sold  
-- audit trail мутаций  
-- политика delete vs archive  
-- полный набор требований + ТК + E2E  
-
-**Не смешивать** с волнами A–I в одном PR / одной ветке.
+### J — домен «прокат / аренда»  
+**Статус:** ⏸ **не в этом стенде** — отдельный продукт/репозиторий `willim-rental`.  
+Enduro Park Manager (A–I) завершён. Прокат «Виллим на чилле» туда не входит.
 
 ---
 
@@ -164,11 +156,11 @@
 
 | Роль | Фокус в плане |
 |------|----------------|
-| **BA** | E (search), F (mobile UX), J (прокат), политика удаления |
-| **СА** | C/D (контракты), G (security/headers/health), модель аренды в J |
+| **BA** | E (search), F (mobile UX), политика удаления; прокат → `willim-rental` |
+| **СА** | C/D (контракты), G (security/headers/health) |
 | **QA** | A, B, C, D, TTD, flake, матрица I, known-bugs H |
-| **Dev** | B waits, E/F UI, G hardening, J реализация |
-| **PM** | порядок волн, scope J, teaching-mode багов, не раздувать PR |
+| **Dev** | B waits, E/F UI, G hardening |
+| **PM** | порядок волн A–I, teaching-mode багов; прокат вне EPM |
 
 Сознательно **не** в приоритете без отдельного запроса: i18n, dark mode.
 
@@ -184,7 +176,7 @@
 - [x] F — a11y / mobile  
 - [x] G — security → `main`  
 - [x] H — known-bugs contract → `main` (15.07.2026)  
-- [x] I — coverage matrix + CI gates → `main` (15.07.2026)
-- [ ] J — rental epic  
+- [x] I — coverage matrix + CI gates → `main` (15.07.2026)  
+- [~] J — rental epic → **⏸** не в EPM; репо `willim-rental`
 
 После завершения волны: отметить `[x]` здесь **и в корневом README** (секция «Дальше» / статус); статус «✅» в теле волны; запись ревью в `IMPLEMENTATION-NOTES.md`. Историю чеклистов не копировать в README — см. `PROJECT-HISTORY.md`.

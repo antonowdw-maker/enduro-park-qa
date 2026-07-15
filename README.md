@@ -3,7 +3,7 @@
 Учебно-демонстрационный **QA product-стенд**: приложение учёта эндуро-байков + зрелый набор автотестов, контрактов API и процессов ревью.
 
 > **Как начинали:** отработка автотестов (Recording + LLM + Playwright) на простом CRUD.  
-> **Где сейчас:** ~180+ Playwright-тестов, CI quality+E2E + nightly, волны A–I.  
+> **Где сейчас:** ~180+ Playwright-тестов, CI quality+E2E + nightly; волны A–I **закрыты**. Прокат — отдельный репо `willim-rental` (не этот стенд).  
 > Подробная летопись: [`docs/PROJECT-HISTORY.md`](docs/PROJECT-HISTORY.md). Ранний snapshot: [`RELEASE_NOTES.md`](RELEASE_NOTES.md).
 
 Это **не** production-система проката. Намеренные дефекты (BUG-01…03) — учебный контракт, см. [`docs/KNOWN-BUGS.md`](docs/KNOWN-BUGS.md).
@@ -52,7 +52,7 @@
 
 | Документ | Зачем открывать |
 |----------|-----------------|
-| [`docs/QA-STAND-ROADMAP.md`](docs/QA-STAND-ROADMAP.md) | Что дальше (I, J…) и статус волн |
+| [`docs/QA-STAND-ROADMAP.md`](docs/QA-STAND-ROADMAP.md) | Roadmap EPM A–I (завершён) |
 | [`docs/SYSTEM-REQUIREMENTS-v2.1.md`](docs/SYSTEM-REQUIREMENTS-v2.1.md) | Поведение продукта (F-*, API) |
 | [`docs/MANUAL-TEST-CASES-v1.2.md`](docs/MANUAL-TEST-CASES-v1.2.md) | Ручные ТК + трассировка 🤖 автотестов |
 | [`docs/COVERAGE-MATRIX.md`](docs/COVERAGE-MATRIX.md) | F-\* ↔ TC-\* ↔ spec + gaps |
@@ -68,14 +68,15 @@
 ## Статус и план
 
 **Закрыто в `main`:** итерации 1–10, бэклог «на подумать», волны **A–I**.  
+Проект **Enduro Park Manager (QA-Stand) считаем завершённым** на текущем объёме.
 
-**Дальше** (детали в roadmap):
+**Отдельно:** коммерческий сайт проката «Виллим на чилле» — репозиторий `willim-rental` (не развивается внутри EPM).
 
-| Волна | Фокус | Статус |
-|-------|--------|--------|
-| **J** | Эпик «прокат / аренда» | ⏳ |
+| Волна EPM | Фокус | Статус |
+|-----------|--------|--------|
+| **J** (прокат в roadmap EPM) | Не реализуется здесь | ⏸ отдельный продукт `willim-rental` |
 
-Ветки после мержа обычно удаляем; для ориентира: `main` + последние feature (F–I по желанию).
+Ветки после мержа обычно удаляем; для ориентира: `main` + последние feature по желанию.
 
 ---
 
