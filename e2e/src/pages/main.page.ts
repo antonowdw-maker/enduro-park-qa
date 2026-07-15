@@ -100,12 +100,16 @@ export class MainPage {
 
   /** Показать максимум строк на странице (удобно для фильтров по якорным VIN) */
   async setLimit50() {
-    await this.runAndWaitForBikes(
-      async () => {
-        await this.paginationLimit().selectOption('50');
-      },
-      { limit: '50' },
-    );
+    // Уже 50 → selectOption не шлёт GET; не вешаем waitForResponse (см. CI: crud / VIN edit)
+    const current = await this.paginationLimit().inputValue();
+    if (current !== '50') {
+      await this.runAndWaitForBikes(
+        async () => {
+          await this.paginationLimit().selectOption('50');
+        },
+        { limit: '50' },
+      );
+    }
     await this.expectTableHasRows();
   }
 
