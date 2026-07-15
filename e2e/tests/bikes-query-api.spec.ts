@@ -16,7 +16,14 @@ type BikeListBody = {
   page: number;
   sortBy: string;
   order: string;
-  bikes: Array<{ id: string; brand: string; model: string; status: string; year: number }>;
+  bikes: Array<{
+    id: string;
+    brand: string;
+    model: string;
+    status: string;
+    year: number;
+    vin: string;
+  }>;
 };
 
 /**

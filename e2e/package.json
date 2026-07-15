@@ -8,6 +8,7 @@
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
     "test:smoke": "playwright test tests/auth.spec.ts",
+    "typecheck": "tsc --noEmit --pretty false",
     "report": "playwright show-report",
     "install:browsers": "playwright install chromium"
   },

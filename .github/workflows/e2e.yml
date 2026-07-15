@@ -1,4 +1,4 @@
-# E2E гейт (итерация 10.4): Playwright перед merge / на push
+# E2E гейт + quality (волна I): typecheck/lint + Playwright
 name: e2e
 
 on:
@@ -8,6 +8,7 @@ on:
       - 'backend/**'
       - 'frontend/**'
       - 'e2e/**'
+      - 'docs/**'
       - '.github/workflows/**'
   pull_request:
     branches: [main]
@@ -15,6 +16,7 @@ on:
       - 'backend/**'
       - 'frontend/**'
       - 'e2e/**'
+      - 'docs/**'
       - '.github/workflows/**'
 
 concurrency:
@@ -22,8 +24,60 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  quality:
+    name: Typecheck / lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+            e2e/package-lock.json
+
+      - name: Install backend deps
+        working-directory: backend
+        run: npm ci
+
+      - name: Prisma generate
+        working-directory: backend
+        run: npx prisma generate
+
+      - name: Backend typecheck
+        working-directory: backend
+        run: npm run typecheck
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Frontend typecheck
+        working-directory: frontend
+        run: npm run typecheck
+
+      - name: Frontend lint
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Install e2e deps
+        working-directory: e2e
+        run: npm ci
+
+      - name: E2E typecheck
+        working-directory: e2e
+        run: npm run typecheck
+
   playwright:
     name: Playwright Chromium
+    needs: quality
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -95,7 +149,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v5
         with:
-          name: playwright-report
+          name: playwright-report-chromium
           path: |
             e2e/playwright-report/
             e2e/test-results/
