@@ -31,6 +31,7 @@ export class BikeFormPage {
   readonly save = () => this.page.getByTestId('form-save-btn');
   readonly cancel = () => this.page.getByTestId('form-cancel-btn');
   readonly serverError = () => this.page.getByTestId('form-server-error');
+  readonly modal = () => this.page.getByTestId('bike-form-modal');
 
   error(field: string) {
     return this.page.getByTestId(`error-${field}`);
@@ -38,12 +39,13 @@ export class BikeFormPage {
 
   /** Модалка открыта (есть кнопка сохранить) */
   async expectOpen() {
+    await expect(this.modal()).toBeVisible();
     await expect(this.save()).toBeVisible();
   }
 
   /** Модалка закрыта */
   async expectClosed() {
-    await expect(this.save()).toHaveCount(0);
+    await expect(this.modal()).toHaveCount(0);
   }
 
   /** Заполнить форму валидными значениями (create/edit) */

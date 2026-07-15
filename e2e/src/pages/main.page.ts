@@ -72,12 +72,18 @@ export class MainPage {
     return this.page.getByTestId(`bike-row-${vin}`);
   }
 
+  /** Карточка байка (mobile, волна F) */
+  bikeCard(vin: string) {
+    return this.page.getByTestId(`bike-card-${vin}`);
+  }
+
   editBike(vin: string) {
-    return this.page.getByTestId(`edit-bike-${vin}`);
+    // Desktop table + mobile card оба в DOM; кликаем только видимую кнопку
+    return this.page.getByTestId(`edit-bike-${vin}`).filter({ visible: true });
   }
 
   deleteBike(vin: string) {
-    return this.page.getByTestId(`delete-bike-${vin}`);
+    return this.page.getByTestId(`delete-bike-${vin}`).filter({ visible: true });
   }
 
   /**
@@ -99,9 +105,16 @@ export class MainPage {
     });
   }
 
-  /** Дождаться, что таблица отрисовала хотя бы одну строку байка */
+  /** Дождаться, что список отрисовал хотя бы один байк (table или card) */
   async expectTableHasRows() {
-    await expect(this.page.getByTestId(/^bike-row-/).first()).toBeVisible();
+    // DOM: cards раньше table; без filter(visible) .first() цепляет скрытую карточку на desktop
+    await expect(
+      this.page
+        .getByTestId(/^bike-row-/)
+        .or(this.page.getByTestId(/^bike-card-[A-Z0-9]/))
+        .filter({ visible: true })
+        .first(),
+    ).toBeVisible();
   }
 
   /** Показать максимум строк на странице (удобно для фильтров по якорным VIN) */
@@ -125,8 +138,9 @@ export class MainPage {
   async ensureBikeVisible(vin: string) {
     await this.setLimit50();
     for (let pageIndex = 0; pageIndex < 10; pageIndex += 1) {
-      if (await this.bikeRow(vin).count()) {
-        await expect(this.bikeRow(vin)).toBeVisible();
+      const visible = this.bikeRow(vin).or(this.bikeCard(vin)).filter({ visible: true });
+      if ((await visible.count()) > 0) {
+        await expect(visible.first()).toBeVisible();
         return;
       }
       const next = this.paginationNext();
@@ -136,7 +150,7 @@ export class MainPage {
       });
       await this.expectTableHasRows();
     }
-    await expect(this.bikeRow(vin)).toBeVisible();
+    await expect(this.bikeRow(vin).or(this.bikeCard(vin)).filter({ visible: true }).first()).toBeVisible();
   }
 
   /** Проверка шапки после успешного входа */
