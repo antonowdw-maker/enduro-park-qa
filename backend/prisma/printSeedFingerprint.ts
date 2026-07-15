@@ -17,6 +17,8 @@ async function main() {
         year: true,
         mileage: true,
         status: true,
+        lastService: true,
+        notes: true,
       },
     });
 
@@ -35,10 +37,11 @@ async function main() {
       total: bikes.length,
       byStatus,
       firstVin,
-      rows: bikes.map(
-        (bike) =>
-          `${bike.vin}|${bike.brand}|${bike.model}|${bike.year}|${bike.mileage}|${bike.status}`,
-      ),
+      rows: bikes.map((bike) => {
+        const lastService = bike.lastService.toISOString().slice(0, 10);
+        const notes = bike.notes ?? '';
+        return `${bike.vin}|${bike.brand}|${bike.model}|${bike.year}|${bike.mileage}|${bike.status}|${lastService}|${notes}`;
+      }),
     };
 
     // Одна JSON-строка — парсим в e2e без шума Prisma

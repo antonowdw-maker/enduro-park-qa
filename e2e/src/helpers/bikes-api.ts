@@ -1,11 +1,17 @@
 import type { Page, Response } from '@playwright/test';
 
-function isBikesListGet(response: Response): boolean {
+export type WaitForBikesOptions = {
+  /** false — ждать и ошибочные ответы (для UI list-error / wave E). По умолчанию только ok. */
+  requireOk?: boolean;
+};
+
+function isBikesListGet(response: Response, requireOk: boolean): boolean {
   if (response.request().method() !== 'GET') return false;
-  if (!response.ok()) return false;
+  if (requireOk && !response.ok()) return false;
   try {
     const url = new URL(response.url());
-    return url.pathname.includes('/api/bikes');
+    // Точный путь списка (не /api/bikes/:id)
+    return url.pathname === '/api/bikes' || url.pathname === '/bikes';
   } catch {
     return false;
   }
@@ -32,9 +38,12 @@ export async function waitForBikesApi(
   page: Page,
   action: () => Promise<unknown>,
   expectedQuery?: Record<string, string | RegExp>,
+  options?: WaitForBikesOptions,
 ): Promise<Response> {
+  const requireOk = options?.requireOk !== false;
   const responsePromise = page.waitForResponse(
-    (response) => isBikesListGet(response) && matchesQuery(response, expectedQuery),
+    (response) =>
+      isBikesListGet(response, requireOk) && matchesQuery(response, expectedQuery),
   );
   await action();
   return responsePromise;

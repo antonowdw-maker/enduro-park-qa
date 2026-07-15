@@ -22,20 +22,30 @@ function parseOptionalInt(value: unknown): number | undefined {
   return Number.isNaN(num) ? undefined : num;
 }
 
+/** Целое число из query; иначе fallback (дробные / NaN → не уходят в SQLite LIMIT/OFFSET) */
+function parseQueryInt(value: string | number | undefined, fallback: number): number {
+  if (value === undefined || value === '') return fallback;
+  const num = Number(value);
+  if (!Number.isFinite(num) || !Number.isInteger(num)) return fallback;
+  return num;
+}
+
 /** limit/offset для пагинации (поддержка page для обратной совместимости) */
 function resolvePagination(query: {
   page?: string | number;
   limit?: string | number;
   offset?: string | number;
 }) {
-  const limit = Math.min(50, Math.max(1, Number(query.limit) || 10));
+  // 0 / мусор → default 10; отрицательное → clamp 1; >50 → 50 (волна C + TL-ревью)
+  const rawLimit = parseQueryInt(query.limit, 10);
+  const limit = Math.min(50, Math.max(1, rawLimit === 0 ? 10 : rawLimit));
 
   let offset: number;
   if (query.offset !== undefined && query.offset !== '') {
-    offset = Math.max(0, Number(query.offset) || 0);
+    offset = Math.max(0, parseQueryInt(query.offset, 0));
   } else {
-    const page = Math.max(1, Number(query.page) || 1);
-    offset = (page - 1) * limit;
+    const pageNum = Math.max(1, parseQueryInt(query.page, 1));
+    offset = (pageNum - 1) * limit;
   }
 
   const page = Math.floor(offset / limit) + 1;

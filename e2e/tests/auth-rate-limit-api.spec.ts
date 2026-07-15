@@ -8,29 +8,30 @@ const API = getApiBaseUrl();
 const RUN = process.env.RUN_RATE_LIMIT_E2E === '1' || process.env.RUN_RATE_LIMIT_E2E === 'true';
 
 /**
- * Opt-in: backend должен быть запущен с ENABLE_LOGIN_RATE_LIMIT=true.
- * Обычный CI/webServer флаг не включает — иначе засорит лимит для остальных login-тестов.
+ * Opt-in + изолированный прогон (иначе IP-бакет 15 мин пересекается с другими login-тестами).
  *
- * Локально:
- *   $env:ENABLE_LOGIN_RATE_LIMIT='true'; npm run dev   # в backend
+ *   # только этот файл, backend с ENABLE_LOGIN_RATE_LIMIT=true
+ *   $env:ENABLE_LOGIN_RATE_LIMIT='true'; npm run dev   # backend
  *   $env:RUN_RATE_LIMIT_E2E='1'; npx playwright test tests/auth-rate-limit-api.spec.ts
  */
 test.describe('Auth login rate-limit (opt-in wave D)', () => {
-  test.skip(!RUN, 'нужны RUN_RATE_LIMIT_E2E=1 и backend с ENABLE_LOGIN_RATE_LIMIT=true');
+  test.skip(!RUN, 'нужны RUN_RATE_LIMIT_E2E=1 и backend с ENABLE_LOGIN_RATE_LIMIT=true (изолированный прогон)');
 
   const { admin } = getSeedCredentials();
 
-  test('TC-AUTH-RATE-LIMIT-01: 11-я попытка login → 429', async ({ request }) => {
-    let lastStatus = 0;
-    let lastBody: { error?: string } = {};
-    for (let i = 0; i < 11; i += 1) {
+  test('TC-AUTH-RATE-LIMIT-01: 1…10 → 401, 11-я → 429', async ({ request }) => {
+    for (let i = 1; i <= 10; i += 1) {
       const res = await request.post(`${API}/api/auth/login`, {
         data: { username: admin.username, password: 'wrong-password-for-rate-limit' },
       });
-      lastStatus = res.status();
-      lastBody = await res.json();
+      expect(res.status(), `попытка ${i}`).toBe(401);
     }
-    expect(lastStatus).toBe(429);
-    expect(lastBody.error).toMatch(/Слишком много попыток/i);
+
+    const limited = await request.post(`${API}/api/auth/login`, {
+      data: { username: admin.username, password: 'wrong-password-for-rate-limit' },
+    });
+    expect(limited.status()).toBe(429);
+    const body = await limited.json();
+    expect(body.error).toMatch(/Слишком много попыток/i);
   });
 });

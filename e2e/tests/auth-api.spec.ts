@@ -36,7 +36,10 @@ test.describe('Auth & pagination API', () => {
     expect(body).toEqual({ error: 'Неверные учётные данные' });
   });
 
-  test('TC-AUTH-API-LIFECYCLE-01: login → /me → logout → /me', async ({ request }) => {
+  test('TC-AUTH-API-LIFECYCLE-01: login → /me → logout → /me (+ JWT replay)', async ({
+    request,
+  }) => {
+    // Cookie jar Playwright: Set-Cookie с login попадает в контекст request
     const login = await request.post(`${API}/api/auth/login`, {
       data: { username: admin.username, password: admin.password },
     });
@@ -44,15 +47,15 @@ test.describe('Auth & pagination API', () => {
     const user = await login.json();
     const setCookie = login.headersArray().find((h) => h.name.toLowerCase() === 'set-cookie')?.value;
     expect(setCookie).toBeTruthy();
-    const cookie = setCookie!.split(';')[0];
+    const cookiePair = setCookie!.split(';')[0];
 
-    const me = await request.get(`${API}/api/auth/me`, { headers: { Cookie: cookie } });
+    const me = await request.get(`${API}/api/auth/me`);
     expect(me.status()).toBe(200);
     const meBody = await me.json();
     expect(meBody.username).toBe(user.username);
     expect(meBody.role).toBe(user.role);
 
-    const logout = await request.post(`${API}/api/auth/logout`, { headers: { Cookie: cookie } });
+    const logout = await request.post(`${API}/api/auth/logout`);
     expect(logout.status()).toBe(200);
     expect(await logout.json()).toEqual({ message: 'Logged out' });
     const logoutCookies = logout.headersArray().filter((h) => h.name.toLowerCase() === 'set-cookie');
@@ -63,9 +66,15 @@ test.describe('Auth & pagination API', () => {
     );
     expect(cleared, 'logout должен слать clear Set-Cookie для token').toBeTruthy();
 
-    // Контракт: после logout клиент не шлёт cookie; /me без cookie → 401
+    // Клиент после clearCookie не шлёт token → 401
     const meAnon = await request.get(`${API}/api/auth/me`);
     expect(meAnon.status()).toBe(401);
+
+    // Стенд: logout не ревокит JWT — ручной replay старого token всё ещё 200 (факт контракта)
+    const meReplay = await request.get(`${API}/api/auth/me`, {
+      headers: { Cookie: cookiePair },
+    });
+    expect(meReplay.status()).toBe(200);
   });
 
   test('TC-AUTH-08: GET /bikes без cookie → 200', async ({ request }) => {

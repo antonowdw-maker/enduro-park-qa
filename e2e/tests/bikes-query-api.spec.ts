@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { loadBackendEnv } from '../src/helpers/env';
-import { SEED_BIKE_COUNT } from '../src/data/seed-vins';
+import { SEED_BIKE_COUNT, SEED_STATUS_COUNTS } from '../src/data/seed-vins';
 import { resetDatabaseSeed } from '../src/helpers/seed';
 
 loadBackendEnv();
@@ -16,7 +16,7 @@ type BikeListBody = {
   page: number;
   sortBy: string;
   order: string;
-  bikes: Array<{ id: string; brand: string; model: string; status: string }>;
+  bikes: Array<{ id: string; brand: string; model: string; status: string; year: number }>;
 };
 
 /**
@@ -58,7 +58,21 @@ test.describe('API GET /bikes query contract (TTD)', () => {
     expect(res.status()).toBe(200);
     const body = (await res.json()) as BikeListBody;
     expect(body.limit).toBe(50);
-    expect(body.bikes.length).toBeLessThanOrEqual(50);
+    expect(body.bikes).toHaveLength(50);
+  });
+
+  test('TC-API-LIMIT-05: limit=1.5 (дробное) → default 10', async ({ request }) => {
+    const res = await request.get(`${API}/api/bikes?limit=1.5`);
+    expect(res.status()).toBe(200);
+    const body = (await res.json()) as BikeListBody;
+    expect(body.limit).toBe(10);
+  });
+
+  test('TC-API-OFFSET-05: offset=1.5 → 0 (не 500)', async ({ request }) => {
+    const res = await request.get(`${API}/api/bikes?limit=10&offset=1.5`);
+    expect(res.status()).toBe(200);
+    const body = (await res.json()) as BikeListBody;
+    expect(body.offset).toBe(0);
   });
 
   test('TC-API-OFFSET-02: offset=-10 → 0', async ({ request }) => {
@@ -127,12 +141,15 @@ test.describe('API GET /bikes query contract (TTD)', () => {
     expect(body.order).toBe('asc');
   });
 
-  test('TC-API-SORT-01: order=desc применяется', async ({ request }) => {
+  test('TC-API-SORT-01: order=desc применяется к данным year', async ({ request }) => {
     const res = await request.get(`${API}/api/bikes?limit=5&sortBy=year&order=desc`);
     expect(res.status()).toBe(200);
     const body = (await res.json()) as BikeListBody;
     expect(body.sortBy).toBe('year');
     expect(body.order).toBe('desc');
+    const years = body.bikes.map((b) => b.year);
+    const sorted = [...years].sort((a, b) => b - a);
+    expect(years).toEqual(sorted);
   });
 
   // --- status ---
@@ -151,12 +168,11 @@ test.describe('API GET /bikes query contract (TTD)', () => {
     expect(body.total).toBe(SEED_BIKE_COUNT);
   });
 
-  test('TC-API-STATUS-01: status=available,bogus — только available', async ({ request }) => {
+  test('TC-API-STATUS-01: status=available,bogus — только available (19)', async ({ request }) => {
     const res = await request.get(`${API}/api/bikes?limit=50&status=available,bogus`);
     expect(res.status()).toBe(200);
     const body = (await res.json()) as BikeListBody;
-    expect(body.total).toBeGreaterThan(0);
-    expect(body.total).toBeLessThan(SEED_BIKE_COUNT);
+    expect(body.total).toBe(SEED_STATUS_COUNTS.available);
     expect(body.bikes.every((b) => b.status === 'available')).toBeTruthy();
   });
 

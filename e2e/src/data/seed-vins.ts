@@ -16,3 +16,4 @@ export const SEED_VINS = {
 } as const;
 
 export const SEED_BIKE_COUNT = 50;
+export const SEED_STATUS_COUNTS = { available: 19, repair: 16, sold: 15 } as const;
