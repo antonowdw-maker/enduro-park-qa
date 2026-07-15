@@ -17,6 +17,7 @@ test.describe('Filters', () => {
     await mainPage.open();
     await mainPage.expectTableHasRows();
     await mainPage.setLimit50();
+    await mainPage.expandAdvancedFilters();
   });
 
   test('TC-FILTER-MULTI-01: Доступен + Ремонт скрывает Продан', async ({ page }) => {

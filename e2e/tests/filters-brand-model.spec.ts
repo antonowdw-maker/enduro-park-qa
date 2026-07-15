@@ -20,6 +20,7 @@ test.describe('Filters brand/model (TTD)', () => {
     await mainPage.open();
     await mainPage.expectTableHasRows();
     await mainPage.setLimit50();
+    await mainPage.expandAdvancedFilters();
   });
 
   // --- Позитив: классы эквивалентности / подстрока ---

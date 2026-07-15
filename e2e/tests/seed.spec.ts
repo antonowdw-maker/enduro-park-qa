@@ -77,6 +77,7 @@ test.describe('Seed anchors', () => {
     await expect(row).toContainText('Доступен');
 
     // После влития фильтра: марка отсекает чужие якоря
+    await mainPage.expandAdvancedFilters();
     await mainPage.runAndWaitForBikes(() => mainPage.brandFilter().fill('Kayo'), {
       brand: 'Kayo',
     });

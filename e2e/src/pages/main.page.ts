@@ -38,6 +38,16 @@ export class MainPage {
   readonly listRetry = () => this.page.getByTestId('list-retry');
   readonly yearFromClear = () => this.page.getByTestId('filter-year-from-clear');
   readonly yearToClear = () => this.page.getByTestId('filter-year-to-clear');
+  readonly filterAdvancedToggle = () => this.page.getByTestId('filter-advanced-toggle');
+
+  /**
+   * Марка / модель / диапазоны спрятаны в «Ещё» — открыть перед заполнением.
+   */
+  async expandAdvancedFilters() {
+    if (await this.brandFilter().isVisible()) return;
+    await this.filterAdvancedToggle().click();
+    await expect(this.brandFilter()).toBeVisible();
+  }
 
   readonly paginationLimit = () => this.page.getByTestId('pagination-limit');
   readonly paginationPrev = () => this.page.getByTestId('pagination-prev');

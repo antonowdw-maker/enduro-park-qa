@@ -197,4 +197,24 @@ test.describe('A11y + mobile (wave F)', () => {
     await expect(form.brand()).toBeVisible();
     await expect(form.save()).toBeVisible();
   });
+
+  test('TC-MOBILE-05: шапка — user/logout не обрезаны; «Ещё» сворачивает advanced', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const mainPage = new MainPage(page);
+    await loginAs(page, admin);
+
+    const logoutBox = await mainPage.logout().boundingBox();
+    expect(logoutBox).toBeTruthy();
+    expect(logoutBox!.x + logoutBox!.width).toBeLessThanOrEqual(390 + 1);
+
+    await expect(mainPage.searchFilter()).toBeVisible();
+    await expect(mainPage.brandFilter()).toHaveCount(0);
+
+    await mainPage.expandAdvancedFilters();
+    await expect(mainPage.brandFilter()).toBeVisible();
+    await page.getByTestId('filter-advanced-toggle').click();
+    await expect(mainPage.brandFilter()).toHaveCount(0);
+  });
 });
