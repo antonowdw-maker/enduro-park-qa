@@ -1,14 +1,29 @@
 import { test, expect } from '@playwright/test';
 import { MainPage } from '../src/pages/main.page';
 import { SEED_BIKE_COUNT, SEED_VINS } from '../src/data/seed-vins';
-import { resetDatabaseSeed } from '../src/helpers/seed';
+import {
+  resetDatabaseSeed,
+  seedAndCaptureFingerprint,
+} from '../src/helpers/seed';
 
 /**
- * Seed / счётчики (волна 10.6).
- * TC-SEED-01 (повторный seed) — вне Playwright: смотрим лог `npm run seed` / CI globalSetup.
- *
+ * Seed / счётчики (волна 10.6 + A: TC-SEED-01).
  * beforeAll: пере-seed — иначе CRUD/validation из более ранних файлов портят 19/50.
  */
+test.describe('Seed determinism', () => {
+  test('TC-SEED-01: повторный seed даёт тот же набор', () => {
+    const first = seedAndCaptureFingerprint();
+    const second = seedAndCaptureFingerprint();
+
+    expect(second).toEqual(first);
+    expect(first.total).toBe(SEED_BIKE_COUNT);
+    expect(first.firstVin).toBe(SEED_VINS.availableKtm);
+    expect(first.byStatus).toEqual({ available: 19, repair: 16, sold: 15 });
+    expect(first.version).toBe('2026.07.14');
+    expect(first.rows).toHaveLength(SEED_BIKE_COUNT);
+  });
+});
+
 test.describe('Seed anchors', () => {
   test.beforeAll(() => {
     resetDatabaseSeed();

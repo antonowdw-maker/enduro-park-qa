@@ -4,7 +4,7 @@
 **Дата:** 14.07.2026  
 **Изменения от v1.7:** seed-каталог modern — TC-SEED-05…07 (Kayo, Regulmoto, Motoland).  
 **Изменения от v1.6:** фильтр марка/модель — TC-FILTER-BRAND-*, TC-FILTER-MODEL-*, TC-FILTER-BRAND-MODEL-01.  
-**14.07.2026 (+ТТД):** матрица EP/BVA/decision table + API — `filters-brand-model*.spec.ts`.  
+**14.07.2026 (+волна A):** TC-SEED-01 и TC-AUTH-01 httpOnly закрыты автотестами.  
 **14.07.2026:** текст NEG-08 / `error-year` — «позже {текущий год}»; VIN I/O/Q → отдельное сообщение (не «17 символов»); TC-SORT/PAGINATION; пере-seed в E2E.
 
 **История:** v1.8 — каталог seed modern; v1.7 — фильтр марка/модель (+ТТД UI/API); v1.5 — валидация фильтров; v1.4 — offset, фильтры год/пробег; v1.3 — негативная валидация, BUG-03, дата ТО; v1.2 — публичная главная, без guest, VIN edit; v1.1 — исходный PDF.
@@ -19,7 +19,7 @@
 **Предусловия:** seed; в `.env` задан `SEED_ADMIN_PASSWORD`.  
 **Шаги:** `/login` → `admin` + пароль из `.env` → «Войти».  
 **Ожидание:** `/`; `user-username`=admin; `user-role`=admin; `logout-btn`; httpOnly cookie.  
-🤖 **Автотест:** `e2e/tests/auth.spec.ts` → «TC-AUTH-01» (итерация 10.1; UI-путь; httpOnly cookie в E2E не ассертится).
+🤖 **Автотест:** `e2e/tests/auth.spec.ts` (UI + cookie.httpOnly) и `e2e/tests/auth-api.spec.ts` (Set-Cookie HttpOnly) — волна A.
 
 ### TC-AUTH-02: Вход под mechanic
 **Данные:** `mechanic` + `SEED_MECHANIC_PASSWORD` из `.env`.  
@@ -349,7 +349,7 @@
 ### TC-SEED-01: Повторный seed даёт тот же набор
 **Шаги:** `npm run seed` дважды подряд в `backend`.  
 **Ожидание:** в логе `версия: 2026.07.14`; `первый VIN: KTM2020QA00000001`; `байки: 50 (available=19, repair=16, sold=15)`.  
-ℹ️ **Вне Playwright:** проверяется глазами по логу seed / CI `globalSetup` (итерация 10.6).
+🤖 **Автотест:** `e2e/tests/seed.spec.ts` → «TC-SEED-01» (два seed + fingerprint rows; волна A).
 
 ### TC-SEED-02: Якорный байк в таблице
 **Шаги:** после seed открыть `/`, найти строку `bike-row-KTM2020QA00000001`.  

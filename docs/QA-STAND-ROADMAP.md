@@ -39,13 +39,13 @@
 ## Итерации
 
 ### A — остатки трассировки TC → авто  
-**Статус:** ⏳ не начата  
+**Статус:** ✅ сделано (`feature/qa-wave-a-tc-leftovers`)  
 **Роли:** QA  
 **Объём:** S  
 
-- авто для **TC-SEED-01** (два seed / сравнение summary или хэша набора)  
-- **TC-AUTH-01:** assert `HttpOnly` на Set-Cookie при login (API / headers)  
-- дописать в MANUAL пометки `🤖`, где ещё частично  
+- ✅ авто для **TC-SEED-01** (два seed / fingerprint)  
+- ✅ **TC-AUTH-01:** `HttpOnly` + `SameSite=lax` (UI cookie + API Set-Cookie)  
+- ✅ пометки `🤖` в MANUAL  
 
 ---
 
@@ -174,7 +174,7 @@
 
 ## Чеклист прогресса
 
-- [ ] A — TC leftovers  
+- [x] A — TC leftovers  
 - [ ] B — flake-hunt  
 - [ ] C — API query ТТД  
 - [ ] D — CRUD/Auth API  

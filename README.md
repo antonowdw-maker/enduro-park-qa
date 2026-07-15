@@ -93,7 +93,7 @@
 ### Следующий план (волны A…J)
 Подробно: [`docs/QA-STAND-ROADMAP.md`](docs/QA-STAND-ROADMAP.md).
 
-- [ ] **A** — остатки TC→авто (SEED-01, httpOnly)
+- [x] **A** — остатки TC→авто (SEED-01, httpOnly) — `feature/qa-wave-a-tc-leftovers`
 - [ ] **B** — flake-hunt E2E
 - [ ] **C** — API query ТТД / контракт
 - [ ] **D** — CRUD/Auth API глубина

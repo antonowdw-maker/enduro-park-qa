@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loadBackendEnv } from '../src/helpers/env';
+import { getSeedCredentials, loadBackendEnv } from '../src/helpers/env';
 
 loadBackendEnv();
 
@@ -8,9 +8,24 @@ const API =
   (process.env.CI ? 'http://127.0.0.1:5000' : 'http://localhost:5000');
 
 /**
- * Cookie / offset gaps (волна 10.6): AUTH-08/10/11, API-OFFSET-01.
+ * Cookie / offset gaps (волна 10.6 + A: httpOnly на login).
  */
 test.describe('Auth & pagination API', () => {
+  const { admin } = getSeedCredentials();
+
+  test('TC-AUTH-01 (API): login → Set-Cookie HttpOnly', async ({ request }) => {
+    const res = await request.post(`${API}/api/auth/login`, {
+      data: { username: admin.username, password: admin.password },
+    });
+    expect(res.status()).toBe(200);
+
+    const setCookie = res.headersArray().filter((h) => h.name.toLowerCase() === 'set-cookie');
+    const tokenHeader = setCookie.find((h) => /^token=/i.test(h.value));
+    expect(tokenHeader, 'ожидался Set-Cookie: token=…').toBeTruthy();
+    expect(tokenHeader!.value.toLowerCase()).toContain('httponly');
+    expect(tokenHeader!.value.toLowerCase()).toMatch(/samesite=lax/);
+  });
+
   test('TC-AUTH-08: GET /bikes без cookie → 200', async ({ request }) => {
     const res = await request.get(`${API}/api/bikes?limit=1`);
     expect(res.status()).toBe(200);

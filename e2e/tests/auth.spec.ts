@@ -28,6 +28,13 @@ test.describe('Auth smoke', () => {
     await expect(page).toHaveURL(/\/$/);
     await mainPage.expectLoggedInAs('admin', 'admin');
     await expect(mainPage.addBike()).toBeVisible();
+
+    // F-AUTH-02 / TC-AUTH-01: JWT в httpOnly cookie (волна A)
+    const cookies = await page.context().cookies();
+    const tokenCookie = cookies.find((cookie) => cookie.name === 'token');
+    expect(tokenCookie, 'ожидалась cookie token после логина').toBeTruthy();
+    expect(tokenCookie!.httpOnly).toBe(true);
+    expect(tokenCookie!.sameSite?.toLowerCase()).toBe('lax');
   });
 
   test('TC-AUTH-04: неверный пароль показывает ошибку', async ({ page }) => {
