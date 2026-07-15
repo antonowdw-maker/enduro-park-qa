@@ -1,0 +1,64 @@
+---
+description: Именование веток, коммитов (вариант B) и merge
+alwaysApply: true
+---
+
+# Git: ветки, коммиты, merge
+
+## Договорённость по коммитам (чат, итерация 3) — **вариант B**
+
+Формат Conventional Commits **со scope в скобках** (не `[backend] …` вариант A):
+
+```
+feat(frontend): pagination data-testid для limit/prev/next
+fix(backend): ...
+chore(backend): ...
+test(e2e): ...
+docs: ...
+docs(e2e): ...
+ci(e2e): ...
+refactor(frontend): ...
+```
+
+| Type | Когда |
+|------|--------|
+| `feat(scope)` | новая возможность |
+| `fix(scope)` | баг / flake / контракт |
+| `test(e2e)` | Playwright / API-автотесты |
+| `docs` / `docs(e2e)` | README, ТЗ, ТК, roadmap, NOTES |
+| `ci` / `ci(e2e)` | GitHub Actions |
+| `chore(scope)` | tooling, tsconfig, lockfile hygiene |
+| `refactor(scope)` | без смены поведения |
+
+**Scopes:** `frontend` · `backend` · `e2e` · `seed` · `ci` · при необходимости узкий (`auth`).  
+**Нельзя (кроме осознанного legacy):** голые `feat:` / `fix:` **без** `(scope)` — это нарушение варианта B (пример отклонения: `fix: TL-ревью…`).
+
+Subject на русском OK; body — зачем. Старые коммиты не переписываем.
+
+## Ветки (от актуального `main`)
+
+| Тип | Шаблон |
+|-----|--------|
+| Волна roadmap | `feature/qa-wave-{letter}-{slug}` |
+| Product | `feature/{slug}` |
+| Hotfix | `fix/{slug}` |
+| Только доки | `docs/{slug}` |
+
+Перед новой feature: предыдущая волна уже в `main`.
+
+## Push / merge
+
+- Только по явным «коммит» / «пуш» / «мерж».
+- Merge в `main`: fast-forward предпочтителен.
+- После merge волны — обновить README чеклист A…J + roadmap/NOTES/ТЗ/ТК по чеклисту ниже.
+
+## Синхрон docs перед merge
+
+1. `README.md`  
+2. `docs/QA-STAND-ROADMAP.md`  
+3. `docs/SYSTEM-REQUIREMENTS-*.md`  
+4. `docs/MANUAL-TEST-CASES-*.md`  
+5. `docs/IMPLEMENTATION-NOTES.md`  
+6. `e2e/README.md` при новых спеках  
+
+Не коммитить: `node_modules`, `dev.db`, `.env`.

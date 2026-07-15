@@ -88,21 +88,27 @@
 - [x] **Фильтр по марке и модели** — UI + API (`brand`/`model`), testid, ТК, smoke + ТТД. *(влито в `main`)*
 - [x] **Каталог/seed modern** — CN/EU эндуро, якоря SEED-05…07, счётчики 19/16/15. *(влито в `main`)*
 
-**Итог:** открытых пунктов в бэклоге «на подумать» нет (14.07.2026).
+**Итог:** открытых пунктов в бэклоге «на подумать» нет (14.07.2026). Волны roadmap **A–D** + TL-hotfix в `main` (15.07.2026); далее — **E**.
 
 ### Следующий план (волны A…J)
-Подробно: [`docs/QA-STAND-ROADMAP.md`](docs/QA-STAND-ROADMAP.md).
+Подробно: [`docs/QA-STAND-ROADMAP.md`](docs/QA-STAND-ROADMAP.md).  
+Автотесты: [`e2e/README.md`](e2e/README.md). Ревью / коммиты: [`.cursor/rules/`](.cursor/rules/).
 
-- [x] **A** — остатки TC→авто (SEED-01, httpOnly) — `feature/qa-wave-a-tc-leftovers`
-- [x] **B** — flake-hunt E2E — `feature/qa-wave-b-flake-hunt`
-- [ ] **C** — API query ТТД / контракт
-- [ ] **D** — CRUD/Auth API глубина
-- [ ] **E** — UI search + ошибка списка
+- [x] **A** — остатки TC→авто (SEED-01, httpOnly) — `feature/qa-wave-a-tc-leftovers` → `main`
+- [x] **B** — flake-hunt E2E (`runAndWaitForBikes`, setLimit50) — `feature/qa-wave-b-flake-hunt` + `fix/setLimit50-noop-wait`
+- [x] **C** — API query ТТД / контракт — `feature/qa-wave-c-api-query` (`bikes-query-api.spec.ts`)
+- [x] **D** — CRUD/Auth API глубина — `feature/qa-wave-d-crud-auth-api` (`bikes-crud-api`, lifecycle, rate-limit opt-in)
+- [x] **TL-ревью A–D** — целая пагинация, fingerprint, waits — `fix/tl-review-waves-a-d` (`7c7478c`)
+- [ ] **E** — UI search + ошибка списка (+ retry)
 - [ ] **F** — a11y / mobile
 - [ ] **G** — security hardening
 - [ ] **H** — known-bugs учебный контракт
 - [ ] **I** — матрица покрытия + CI gates
 - [ ] **J** — эпик прокат/аренда
+
+**Перед каждой волной / merge:** синхрон `README` ↔ roadmap ↔ SYSTEM-REQUIREMENTS ↔ MANUAL ↔ IMPLEMENTATION-NOTES.  
+**Коммит / пуш / merge** — только по явному апруву.  
+**Формат коммитов (договорились — вариант B):** `feat(frontend): …`, `fix(backend): …`, `test(e2e): …`, `docs: …`, `ci(e2e): …` — см. [`.cursor/rules/git-branch-commit.mdc`](.cursor/rules/git-branch-commit.mdc). Без голого `feat:`/`fix:` без scope.
 
 ### Уже сделано (для истории)
 - [x] Единый `JWT_SECRET` в `config.ts` (было два разных секрета).

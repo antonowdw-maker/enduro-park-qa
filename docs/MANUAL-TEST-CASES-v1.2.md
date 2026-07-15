@@ -1,13 +1,14 @@
 # Ручные тест-кейсы Enduro Park Manager (QA-Stand)
 
-**Версия:** 1.8  
-**Дата:** 14.07.2026  
+**Версия:** 1.9  
+**Дата:** 15.07.2026  
+**Изменения от v1.8:** волны C–D — API query ТТД, CRUD/Auth API, lifecycle; TL-hotfix (целая пагинация, fingerprint).  
 **Изменения от v1.7:** seed-каталог modern — TC-SEED-05…07 (Kayo, Regulmoto, Motoland).  
 **Изменения от v1.6:** фильтр марка/модель — TC-FILTER-BRAND-*, TC-FILTER-MODEL-*, TC-FILTER-BRAND-MODEL-01.  
 **14.07.2026 (+волна A):** TC-SEED-01 и TC-AUTH-01 httpOnly закрыты автотестами.  
 **14.07.2026:** текст NEG-08 / `error-year` — «позже {текущий год}»; VIN I/O/Q → отдельное сообщение (не «17 символов»); TC-SORT/PAGINATION; пере-seed в E2E.
 
-**История:** v1.8 — каталог seed modern; v1.7 — фильтр марка/модель (+ТТД UI/API); v1.5 — валидация фильтров; v1.4 — offset, фильтры год/пробег; v1.3 — негативная валидация, BUG-03, дата ТО; v1.2 — публичная главная, без guest, VIN edit; v1.1 — исходный PDF.
+**История:** v1.9 — API волны C–D; v1.8 — каталог seed modern; v1.7 — фильтр марка/модель (+ТТД UI/API); v1.5 — валидация фильтров; v1.4 — offset, фильтры год/пробег; v1.3 — негативная валидация, BUG-03, дата ТО; v1.2 — публичная главная, без guest, VIN edit; v1.1 — исходный PDF.
 
 **Трассировка автотестов:** после каждой волны Playwright помечаем ТК ниже строкой `🤖 Автотест:` (файл + итерация). Ручной прогон таких ТК — по желанию / регрессия UI.
 
@@ -42,7 +43,12 @@
 **Предусловия:** залогинен.  
 **Шаги:** `logout-btn`.  
 **Ожидание:** cookie очищена; `/`; `header-login-btn`.  
-🤖 **Автотест:** `e2e/tests/auth-extra.spec.ts` (итерация 10.6).
+🤖 **Автотест:** `e2e/tests/auth-extra.spec.ts` (UI, 10.6); API lifecycle — `auth-api.spec.ts` → TC-AUTH-API-LIFECYCLE-01 (волна D).
+
+### TC-AUTH-API-LIFECYCLE-01: login → /me → logout → /me
+**Шаги:** POST login → GET `/auth/me` → POST logout → GET `/auth/me` без cookie.  
+**Ожидание:** 200 → 200 → 200 + clear Set-Cookie → 401; replay старого JWT на `/me` → **200** (не ревок).  
+🤖 **Автотест:** `e2e/tests/auth-api.spec.ts` (волна D).
 
 ### TC-AUTH-07: Главная без авторизации
 **Предусловия:** cookies очищены.  

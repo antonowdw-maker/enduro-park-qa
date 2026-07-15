@@ -1,10 +1,10 @@
 # Системные требования к проекту Enduro Park Manager
 
-**Версия:** 2.7  
-**Дата:** 14.07.2026  
-**Изменения от v2.6:** seed-каталог modern (Kayo/Regulmoto/Motoland + расширенный CATALOG); версия seed `2026.07.14`.
+**Версия:** 2.8  
+**Дата:** 15.07.2026  
+**Изменения от v2.7:** API-контракт GET query (нормализация целых, LIKE); формы ошибок; Auth lifecycle (logout clear cookie, JWT replay); CRUD статусы API; волны C–D + TL-ревью.
 
-**История:** v2.7 — каталог seed modern; v2.6 — фильтр марка/модель (F-FILTER-11…15) + ТТД E2E; v2.5 — текст `error-year` (текущий год) + приоритет сообщения VIN про I/O/Q; v2.4 — валидация фильтров; v2.3 — offset, фильтры год/пробег; v2.2 — валидация, BUG-03, дата ТО; v2.1 — публичная главная, без guest, VIN редактируем; v2.0 — исходный PDF.
+**История:** v2.8 — API/Auth контракт глубины (волны C–D); v2.7 — каталог seed modern; v2.6 — фильтр марка/модель (F-FILTER-11…15) + ТТД E2E; v2.5 — текст `error-year` (текущий год) + приоритет сообщения VIN про I/O/Q; v2.4 — валидация фильтров; v2.3 — offset, фильтры год/пробег; v2.2 — валидация, BUG-03, дата ТО; v2.1 — публичная главная, без guest, VIN редактируем; v2.0 — исходный PDF.
 
 ---
 
@@ -179,9 +179,9 @@
 | `yearFrom`, `yearTo` | Диапазон года выпуска (включительно) |
 | `mileageFrom`, `mileageTo` | Диапазон пробега (включительно) |
 | `sortBy`, `order` | Сортировка (asc/desc) |
-| `limit` | 1…50, по умолчанию 10 |
-| `offset` | Смещение (приоритет над `page`) |
-| `page` | Номер страницы (если `offset` не передан) |
+| `limit` | **Целое** 1…50, по умолчанию 10 (дробные / мусор → 10) |
+| `offset` | **Целое** смещение (приоритет над `page`) |
+| `page` | **Целое** номер страницы (если `offset` не передан) |
 
 Ответ: `{ bikes, total, limit, offset, page, totalPages, sortBy, order }`.
 
@@ -226,6 +226,25 @@
 | POST /bikes | Да | mechanic, admin | |
 | PUT /bikes/:id | Да | mechanic, admin | |
 | DELETE /bikes/:id | Да | admin | |
+
+### CRUD — коды ответа (волна D)
+
+| Операция | Успех | Типичные ошибки |
+|----------|-------|-----------------|
+| POST /bikes | **201** + тело байка | 401 anon; 400 валидация / duplicate VIN; 403 ловушка BUG-02 |
+| PUT /bikes/:id | **200** + тело | 401; 404 unknown id; 400 VIN/поля |
+| DELETE /bikes/:id | **204** пусто | 401; 403 mechanic; 404 unknown id |
+
+Лишние поля в теле create/update **игнорируются** (whitelist `prepareBikeData`) — не mass-assignment в БД.
+
+### Auth API — сессия (волна D)
+
+| Метод | Успех | Примечание |
+|-------|-------|------------|
+| POST /auth/login | **200** + `{ id, username, role }` + `Set-Cookie: token` | Cookie: `HttpOnly`, `SameSite=Lax`, `Max-Age`; `Secure` только production |
+| GET /auth/me | **200** user | Без / битый cookie → **401** |
+| POST /auth/logout | **200** `{ message: 'Logged out' }` + clear cookie | Клиентский jar очищается; **JWT не ревоцируется** — replay старого `token=` всё ещё **200** на `/me` (факт стенда) |
+| Login rate-limit | **429** | Только если `ENABLE_LOGIN_RATE_LIMIT=true` (по умолчанию выкл.) |
 
 ---
 
