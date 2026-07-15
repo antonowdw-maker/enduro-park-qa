@@ -1,7 +1,7 @@
 # Roadmap QA-стенда Enduro Park (после закрытия бэклога «на подумать»)
 
 **Дата:** 14.07.2026  
-**Статус:** план принят, код ещё не начинали (итерации A…J).  
+**Статус:** волны A–C в коде; D…J — план.  
 **Процесс:** каждая волна — отдельная ветка от актуального `main` → реализация → QA (часто headed + `SLOW_MO`) → коммит/пуш/merge **только по явному апруву**.
 
 Источник аудита: трассировка TC→E2E, ТТД/flake, роли BA/СА/QA/Dev/PM (чат 14.07.2026).
@@ -61,14 +61,14 @@
 ---
 
 ### C — API-контракт + ТТД на query  
-**Статус:** ⏳ не начата  
+**Статус:** ✅ сделано (`feature/qa-wave-c-api-query`)  
 **Роли:** QA, СА  
 **Объём:** M  
 
-- негативы: `limit` / `offset` / `page`, невалидный `sortBy` / `order` / `status`  
-- brand/model BVA 39/40/41 UI vs API maxLen 64; пробелы  
-- LIKE `%` / `_` — задокументировать факт + тесты  
-- описать формы ошибок API в доках  
+- ✅ негативы: `limit` / `offset` / `page`, невалидный `sortBy` / `order` / `status`  
+- ✅ brand/model BVA 39/40/41 UI vs API maxLen 64; пробелы  
+- ✅ LIKE `%` / `_` — задокументировано + тесты  
+- ✅ формы ошибок API в SYSTEM-REQUIREMENTS §6.2  
 
 ---
 
@@ -175,7 +175,7 @@
 
 - [x] A — TC leftovers  
 - [x] B — flake-hunt  
-- [ ] C — API query ТТД  
+- [x] C — API query ТТД  
 - [ ] D — CRUD/Auth API  
 - [ ] E — search UI + list errors  
 - [ ] F — a11y / mobile  

@@ -112,7 +112,14 @@ test.describe('Filters brand/model (TTD)', () => {
     await expect(mainPage.bikeRow(SEED_VINS.repairHonda)).toHaveCount(0);
   });
 
-  // --- Границы (BVA) ---
+  // --- Границы (BVA): UI maxLength 40; API truncate 64 (см. bikes-query-api / TC-API-BRAND-LEN-*) ---
+
+  test('TC-FILTER-BRAND-BVA-00: марка 39 символов вводится', async ({ page }) => {
+    const mainPage = new MainPage(page);
+    const thirtyNine = 'A'.repeat(39);
+    await mainPage.brandFilter().fill(thirtyNine);
+    await expect(mainPage.brandFilter()).toHaveValue(thirtyNine);
+  });
 
   test('TC-FILTER-BRAND-BVA-01: марка maxLength 40 — 41-й символ не вводится', async ({ page }) => {
     const mainPage = new MainPage(page);

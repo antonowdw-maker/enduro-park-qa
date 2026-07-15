@@ -271,6 +271,21 @@
 **Ожидание:** 200; `offset`=10; вторая «страница» данных; `total` без изменений.  
 🤖 **Автотест:** `e2e/tests/auth-api.spec.ts` (итерация 10.6).
 
+### API query-контракт (волна C) — нормализация, не 4xx
+
+Невалидный query на GET `/api/bikes` → **200** + coerce/drop/truncate (см. SYSTEM-REQUIREMENTS §6.2).
+
+| TC | Суть | Ожидание | Автотест |
+|----|------|----------|----------|
+| TC-API-LIMIT-01…04 | `limit` abc / 0 / −5 / 100 | 10 / 10 / 1 / 50 | `bikes-query-api.spec.ts` |
+| TC-API-OFFSET-02…04 | offset −10 / xyz; приоритет над page | 0; offset=10 при page=1 | то же |
+| TC-API-PAGE-01…03 | page 0 / abc / 2 | page 1; offset 10 | то же |
+| TC-API-SORT-NEG-01…02 / SORT-01 | sortBy hack; order up / desc | brand+asc; year+asc; year+desc | то же |
+| TC-API-STATUS-NEG-* / STATUS-01 | bogus; AVAILABLE; available,bogus | без фильтра; только available | то же |
+| TC-API-BRAND-LEN-01…02 | truncate 64 vs 65; длина 40 | одинаковый total; 200 | то же |
+| TC-API-MODEL-WS-01 | model пробелы | без фильтра | то же |
+| TC-API-LIKE-01…03 | `%` / `_` / `%%` в brand | wildcard → полный seed | то же |
+
 ### TC-FILTER-CLEAR-01: Сброс всех фильтров
 **Предусловия:** выбран статус «Доступен», заполнены марка и поля год/пробег.  
 **Шаги:** `filter-clear-all`.  
@@ -337,10 +352,12 @@
 | TC-FILTER-BRAND-MODEL-NEG-01 | decision / AND | KTM+CRF → 0 | UI + API |
 | TC-FILTER-BRAND-NEG-02 | EP пусто | пробелы → без фильтра | UI + API |
 | TC-FILTER-MODEL-NEG-02 | decision | Honda+EXC → 0 | UI |
-| TC-FILTER-BRAND-BVA-01 | BVA | maxLength 40 | UI |
+| TC-FILTER-BRAND-BVA-00 | BVA | 39 символов вводятся | UI |
+| TC-FILTER-BRAND-BVA-01 | BVA | maxLength 40 / 41-й отрезан | UI |
 | TC-FILTER-BRAND-DT-01…04 | decision table | марка×статус/год, модель×sold | UI |
 | TC-FILTER-BRAND-05 / MODEL-04 | EP каталог modern | Kayo / Athlete | UI |
 | TC-API-BRAND-* / MODEL-* | API-контракт | query `brand`/`model` (+ Kayo/Athlete) | `filters-brand-model-api.spec.ts` |
+| TC-API-LIMIT-* / OFFSET-* / PAGE-* / SORT-* / STATUS-* / LEN-* / LIKE-* | API query ТТД | нормализация + LIKE | `bikes-query-api.spec.ts` |
 
 ---
 
