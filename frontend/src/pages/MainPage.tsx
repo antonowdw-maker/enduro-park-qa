@@ -298,27 +298,27 @@ export default function MainPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8 font-sans text-slate-900">
+    <div className="min-h-screen bg-slate-50 p-4 font-sans text-slate-900 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-[88rem]">
 
         {/* ШАПКА */}
-        <header className="mb-10 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="rounded-xl bg-blue-600 p-3 text-white shadow-lg shadow-blue-200">
-              <Bike size={32} />
+        <header className="mb-6 flex min-w-0 items-center justify-between gap-3 sm:mb-8 sm:gap-4">
+          <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
+            <div className="shrink-0 rounded-xl bg-blue-600 p-2 text-white shadow-lg shadow-blue-200 sm:p-3">
+              <Bike className="h-6 w-6 sm:h-8 sm:w-8" />
             </div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-800 uppercase tracking-tighter">
+            <h1 className="truncate text-lg font-bold uppercase tracking-tighter text-slate-800 sm:text-2xl lg:text-3xl">
               Enduro Park Manager
             </h1>
           </div>
-          <div className="flex items-center gap-4 rounded-full border border-slate-200 bg-white p-2 px-4 shadow-sm">
+          <div className="flex min-w-0 max-w-[58%] shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2 py-1.5 shadow-sm sm:max-w-none sm:gap-3 sm:px-4 sm:py-2">
             {user ? (
               <>
-                <div className="flex flex-col items-end">
-                  <span className="text-[10px] font-black uppercase leading-none tracking-widest text-slate-400">
+                <div className="min-w-0 flex flex-col items-end">
+                  <span className="hidden text-[10px] font-black uppercase leading-none tracking-widest text-slate-400 sm:block">
                     Пользователь
                   </span>
-                  <span className="text-sm font-bold uppercase leading-tight tracking-tighter text-blue-600">
+                  <span className="max-w-full truncate text-xs font-bold uppercase leading-tight tracking-tighter text-blue-600 sm:text-sm">
                     <span data-testid="user-username">{user.username}</span>
                     {' '}
                     [<span data-testid="user-role">{user.role}</span>]
@@ -327,10 +327,11 @@ export default function MainPage() {
                 <button
                   data-testid="logout-btn"
                   onClick={handleLogout}
-                  className="rounded-full p-2 text-rose-500 transition-all hover:bg-rose-50"
+                  className="shrink-0 rounded-full p-1.5 text-rose-500 transition-all hover:bg-rose-50 sm:p-2"
                   title="Завершить сеанс"
+                  aria-label="Выйти"
                 >
-                  <LogOut size={20} />
+                  <LogOut size={18} />
                 </button>
               </>
             ) : (
@@ -338,7 +339,7 @@ export default function MainPage() {
                 type="button"
                 data-testid="header-login-btn"
                 onClick={() => navigate('/login')}
-                className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-xs font-black uppercase tracking-widest text-white shadow-md transition-all hover:bg-blue-700"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-blue-600 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white shadow-md transition-all hover:bg-blue-700 sm:gap-2 sm:px-4 sm:py-2 sm:text-xs"
               >
                 <LogIn size={16} /> Войти
               </button>

@@ -1,4 +1,7 @@
-import { Filter, Check, Wrench, RefreshCcw, Tag, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import {
+  Filter, Check, Wrench, RefreshCcw, Tag, X, ChevronDown, ChevronUp,
+} from 'lucide-react';
 import type { FilterFieldKey } from '../types/bike';
 
 const MAX_YEAR_FILTER_DIGITS = 4;
@@ -59,7 +62,6 @@ export function validateRangeFilters(
   return errors;
 }
 
-/** Поле числового фильтра с кнопкой очистки (×) — ширина из сетки родителя */
 function FilterNumberInput({
   label,
   testId,
@@ -89,7 +91,7 @@ function FilterNumberInput({
     <div className="min-w-0 w-full">
       <label
         htmlFor={testId}
-        className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400"
+        className="mb-0.5 block text-[9px] font-black uppercase tracking-widest text-slate-400"
       >
         {label}
       </label>
@@ -109,7 +111,7 @@ function FilterNumberInput({
               event.preventDefault();
             }
           }}
-          className={`w-full rounded-lg border py-1.5 pl-2 pr-7 text-sm font-semibold outline-none transition-all focus:ring-2 focus:ring-blue-500 ${error ? 'border-rose-500 bg-rose-50' : 'border-slate-200 bg-white'}`}
+          className={`w-full rounded-lg border py-1 pl-2 pr-7 text-sm font-semibold outline-none transition-all focus:ring-2 focus:ring-blue-500 ${error ? 'border-rose-500 bg-rose-50' : 'border-slate-200 bg-white'}`}
         />
         {value !== '' && (
           <button
@@ -124,7 +126,7 @@ function FilterNumberInput({
         )}
       </div>
       {error && (
-        <p data-testid={errorTestId} className="mt-1 text-[10px] font-bold uppercase leading-tight text-rose-500">
+        <p data-testid={errorTestId} className="mt-0.5 text-[10px] font-bold uppercase leading-tight text-rose-500">
           {error}
         </p>
       )}
@@ -132,7 +134,6 @@ function FilterNumberInput({
   );
 }
 
-/** Поле текстового фильтра с кнопкой очистки (×) — ширина из сетки родителя */
 function FilterTextInput({
   label,
   testId,
@@ -154,7 +155,7 @@ function FilterTextInput({
     <div className="min-w-0 w-full">
       <label
         htmlFor={testId}
-        className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400"
+        className="mb-0.5 block text-[9px] font-black uppercase tracking-widest text-slate-400"
       >
         {label}
       </label>
@@ -168,7 +169,7 @@ function FilterTextInput({
           placeholder={placeholder}
           value={value}
           onChange={onChange}
-          className="w-full rounded-lg border border-slate-200 bg-white py-1.5 pl-2 pr-7 text-sm font-semibold outline-none transition-all focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-lg border border-slate-200 bg-white py-1 pl-2 pr-7 text-sm font-semibold outline-none transition-all focus:ring-2 focus:ring-blue-500"
         />
         {value !== '' && (
           <button
@@ -182,26 +183,6 @@ function FilterTextInput({
           </button>
         )}
       </div>
-    </div>
-  );
-}
-
-/** Строка фильтра: подпись слева + сетка полей (волна F hotfix) */
-function FilterRow({
-  title,
-  children,
-  columnsClass = 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
-}: {
-  title: string;
-  children: React.ReactNode;
-  columnsClass?: string;
-}) {
-  return (
-    <div className="grid grid-cols-1 gap-3 border-t border-slate-100 bg-slate-50/50 px-4 py-3 sm:grid-cols-[8.5rem_minmax(0,1fr)] sm:items-start sm:gap-4">
-      <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 sm:pt-6">
-        {title}
-      </span>
-      <div className={`grid min-w-0 gap-3 ${columnsClass}`}>{children}</div>
     </div>
   );
 }
@@ -236,8 +217,8 @@ export type BikeFiltersProps = {
 };
 
 /**
- * ФИЛЬТРЫ СПИСКА (F-FILTER-01…11 + search волна E + adaptive F hotfix)
- * Статусы (wrap) + поиск + марка/модель + диапазоны — единая сетка.
+ * ФИЛЬТРЫ: статусы + поиск всегда; марка/модель/диапазоны — свёрнутый блок.
+ * Компактные отступы и на desktop, и на mobile.
  */
 export default function BikeFilters({
   activeStatuses,
@@ -269,45 +250,64 @@ export default function BikeFilters({
 }: BikeFiltersProps) {
   const isStatusFilterActive = (status: string) => activeStatuses.includes(status);
 
+  const hasAdvancedValues =
+    brand !== '' ||
+    model !== '' ||
+    yearFrom !== '' ||
+    yearTo !== '' ||
+    mileageFrom !== '' ||
+    mileageTo !== '' ||
+    Object.keys(filterErrors).length > 0;
+
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+
+  useEffect(() => {
+    if (hasAdvancedValues) setAdvancedOpen(true);
+  }, [hasAdvancedValues]);
+
+  const showAdvanced = advancedOpen;
+
+  const chip = (active: boolean, activeClass: string, idleClass: string) =>
+    `inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold transition-all sm:gap-1.5 sm:px-3 ${active ? activeClass : idleClass}`;
+
   return (
-    <div className="mb-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-      {/* Статусы: перенос / без обрезки «Продан» на узком экране */}
+    <div className="mb-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm sm:mb-6">
       <div
         data-testid="filter-status-row"
-        className="flex flex-wrap items-center gap-2 p-4"
+        className="flex flex-wrap items-center gap-1.5 px-3 py-2 sm:gap-2 sm:px-4 sm:py-2.5"
       >
-        <Filter size={18} className="shrink-0 text-slate-400" aria-hidden />
+        <Filter size={16} className="shrink-0 text-slate-400" aria-hidden />
         <button
           data-testid="filter-all"
           onClick={() => onStatusFilter('')}
-          className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-bold transition-all sm:px-4 ${activeStatuses.length === 0 ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-100 text-slate-600'}`}
+          className={chip(activeStatuses.length === 0, 'bg-blue-600 text-white shadow-sm', 'bg-slate-100 text-slate-600')}
         >
-          <RefreshCcw size={14} aria-hidden /> Все
+          <RefreshCcw size={12} aria-hidden /> Все
         </button>
         <button
           data-testid="filter-available"
           onClick={() => onStatusFilter('available')}
-          className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-bold transition-all sm:px-4 ${isStatusFilterActive('available') ? 'bg-emerald-600 text-white shadow-md' : 'bg-emerald-100 text-emerald-700'}`}
+          className={chip(isStatusFilterActive('available'), 'bg-emerald-600 text-white shadow-sm', 'bg-emerald-100 text-emerald-700')}
         >
-          <Check size={14} aria-hidden /> Доступен
+          <Check size={12} aria-hidden /> Доступен
         </button>
         <button
           data-testid="filter-repair"
           onClick={() => onStatusFilter('repair')}
-          className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-bold transition-all sm:px-4 ${isStatusFilterActive('repair') ? 'bg-amber-600 text-white shadow-md' : 'bg-amber-100 text-amber-700'}`}
+          className={chip(isStatusFilterActive('repair'), 'bg-amber-600 text-white shadow-sm', 'bg-amber-100 text-amber-700')}
         >
-          <Wrench size={14} aria-hidden /> Ремонт
+          <Wrench size={12} aria-hidden /> Ремонт
         </button>
         <button
           data-testid="filter-sold"
           onClick={() => onStatusFilter('sold')}
-          className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-bold transition-all sm:px-4 ${isStatusFilterActive('sold') ? 'bg-rose-600 text-white shadow-md' : 'bg-rose-100 text-rose-700'}`}
+          className={chip(isStatusFilterActive('sold'), 'bg-rose-600 text-white shadow-sm', 'bg-rose-100 text-rose-700')}
         >
-          <Tag size={14} aria-hidden /> Продан
+          <Tag size={12} aria-hidden /> Продан
         </button>
       </div>
 
-      <FilterRow title="Поиск" columnsClass="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-2 border-t border-slate-100 bg-slate-50/50 px-3 py-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end sm:gap-3 sm:px-4 sm:py-2.5">
         <FilterTextInput
           label="Марка или модель"
           testId="filter-search"
@@ -317,91 +317,102 @@ export default function BikeFilters({
           onChange={onSearchChange}
           onClear={onClearSearch}
         />
-      </FilterRow>
-
-      <FilterRow title="Марка / модель" columnsClass="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <FilterTextInput
-          label="Марка"
-          testId="filter-brand"
-          clearTestId="filter-brand-clear"
-          value={brand}
-          placeholder="KTM"
-          onChange={onBrandChange}
-          onClear={onClearBrand}
-        />
-        <FilterTextInput
-          label="Модель"
-          testId="filter-model"
-          clearTestId="filter-model-clear"
-          value={model}
-          placeholder="300 EXC"
-          onChange={onModelChange}
-          onClear={onClearModel}
-        />
-      </FilterRow>
-
-      <FilterRow title="Диапазоны" columnsClass="grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
-        <FilterNumberInput
-          label="Год от"
-          testId="filter-year-from"
-          clearTestId="filter-year-from-clear"
-          errorTestId="error-filter-year-from"
-          value={yearFrom}
-          error={filterErrors.yearFrom}
-          kind="year"
-          placeholder="1990"
-          onChange={onYearFromChange}
-          onClear={onClearYearFrom}
-        />
-        <FilterNumberInput
-          label="Год до"
-          testId="filter-year-to"
-          clearTestId="filter-year-to-clear"
-          errorTestId="error-filter-year-to"
-          value={yearTo}
-          error={filterErrors.yearTo}
-          kind="year"
-          placeholder="2026"
-          onChange={onYearToChange}
-          onClear={onClearYearTo}
-        />
-        <FilterNumberInput
-          label="Пробег от"
-          testId="filter-mileage-from"
-          clearTestId="filter-mileage-from-clear"
-          errorTestId="error-filter-mileage-from"
-          value={mileageFrom}
-          error={filterErrors.mileageFrom}
-          kind="mileage"
-          placeholder="0"
-          onChange={onMileageFromChange}
-          onClear={onClearMileageFrom}
-        />
-        <FilterNumberInput
-          label="Пробег до"
-          testId="filter-mileage-to"
-          clearTestId="filter-mileage-to-clear"
-          errorTestId="error-filter-mileage-to"
-          value={mileageTo}
-          error={filterErrors.mileageTo}
-          kind="mileage"
-          placeholder="100000"
-          onChange={onMileageToChange}
-          onClear={onClearMileageTo}
-        />
-      </FilterRow>
-
-      <div className="flex justify-end border-t border-slate-100 bg-slate-50/50 px-4 py-3">
-        <button
-          type="button"
-          data-testid="filter-clear-all"
-          onClick={onClearAll}
-          disabled={!hasActiveFilters}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-500 transition-all hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          <X size={14} aria-hidden /> Сбросить всё
-        </button>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <button
+            type="button"
+            data-testid="filter-advanced-toggle"
+            aria-expanded={showAdvanced}
+            onClick={() => setAdvancedOpen((open) => !open)}
+            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-600 transition-all hover:bg-slate-50"
+          >
+            {showAdvanced ? <ChevronUp size={14} aria-hidden /> : <ChevronDown size={14} aria-hidden />}
+            Ещё
+          </button>
+          <button
+            type="button"
+            data-testid="filter-clear-all"
+            onClick={onClearAll}
+            disabled={!hasActiveFilters}
+            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-500 transition-all hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <X size={14} aria-hidden /> Сброс
+          </button>
+        </div>
       </div>
+
+      {showAdvanced && (
+        <div
+          data-testid="filter-advanced"
+          className="grid grid-cols-2 gap-2 border-t border-slate-100 bg-slate-50/50 px-3 py-2 sm:grid-cols-3 lg:grid-cols-6 sm:gap-3 sm:px-4 sm:py-2.5"
+        >
+          <FilterTextInput
+            label="Марка"
+            testId="filter-brand"
+            clearTestId="filter-brand-clear"
+            value={brand}
+            placeholder="KTM"
+            onChange={onBrandChange}
+            onClear={onClearBrand}
+          />
+          <FilterTextInput
+            label="Модель"
+            testId="filter-model"
+            clearTestId="filter-model-clear"
+            value={model}
+            placeholder="300 EXC"
+            onChange={onModelChange}
+            onClear={onClearModel}
+          />
+          <FilterNumberInput
+            label="Год от"
+            testId="filter-year-from"
+            clearTestId="filter-year-from-clear"
+            errorTestId="error-filter-year-from"
+            value={yearFrom}
+            error={filterErrors.yearFrom}
+            kind="year"
+            placeholder="1990"
+            onChange={onYearFromChange}
+            onClear={onClearYearFrom}
+          />
+          <FilterNumberInput
+            label="Год до"
+            testId="filter-year-to"
+            clearTestId="filter-year-to-clear"
+            errorTestId="error-filter-year-to"
+            value={yearTo}
+            error={filterErrors.yearTo}
+            kind="year"
+            placeholder="2026"
+            onChange={onYearToChange}
+            onClear={onClearYearTo}
+          />
+          <FilterNumberInput
+            label="Пробег от"
+            testId="filter-mileage-from"
+            clearTestId="filter-mileage-from-clear"
+            errorTestId="error-filter-mileage-from"
+            value={mileageFrom}
+            error={filterErrors.mileageFrom}
+            kind="mileage"
+            placeholder="0"
+            onChange={onMileageFromChange}
+            onClear={onClearMileageFrom}
+          />
+          <FilterNumberInput
+            label="Пробег до"
+            testId="filter-mileage-to"
+            clearTestId="filter-mileage-to-clear"
+            errorTestId="error-filter-mileage-to"
+            value={mileageTo}
+            error={filterErrors.mileageTo}
+            kind="mileage"
+            placeholder="100000"
+            onChange={onMileageToChange}
+            onClear={onClearMileageTo}
+          />
+        </div>
+      )}
     </div>
   );
 }
