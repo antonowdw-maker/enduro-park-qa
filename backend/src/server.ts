@@ -6,6 +6,7 @@ import { PrismaClient } from '@prisma/client';
 import authRoutes from './routes/authRoutes';
 import bikeRoutes from './routes/bikeRoutes';
 import { CORS_ORIGIN, validateAppConfig } from './config';
+import { csrfProtection } from './middleware/csrf';
 
 validateAppConfig();
 
@@ -29,6 +30,7 @@ app.use(cors({
 
 app.use(express.json({ limit: JSON_BODY_LIMIT }));
 app.use(cookieParser());
+app.use(csrfProtection);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/bikes', bikeRoutes);

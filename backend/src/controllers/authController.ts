@@ -34,7 +34,7 @@ export const login = async (req: AuthRequest, res: Response) => {
 
 // POST /api/auth/logout — выход из системы (удаляем cookie)
 export const logout = (_req: AuthRequest, res: Response) => {
-  res.clearCookie('token');
+  res.clearCookie('token', { ...AUTH_COOKIE_OPTIONS, maxAge: undefined });
   res.json({ message: 'Logged out' });
 };
 
