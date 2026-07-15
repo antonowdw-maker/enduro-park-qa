@@ -56,7 +56,7 @@ jobs:
             echo "SEED_ADMIN_PASSWORD=${ADMIN}"
             echo "SEED_MECHANIC_PASSWORD=${MECH}"
             echo "CORS_ORIGIN=http://127.0.0.1:5173"
-            echo "ENABLE_LOGIN_RATE_LIMIT=false"
+            echo "DISABLE_LOGIN_RATE_LIMIT=true"
           } > backend/.env
           # не печатаем секреты в лог
           echo "backend/.env создан (пароли эфемерные, только для этого job)"
