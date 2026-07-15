@@ -49,7 +49,8 @@
 **Отклонения от PDF-требований и статус ручных ТК** — в [`docs/IMPLEMENTATION-NOTES.md`](docs/IMPLEMENTATION-NOTES.md).  
 **Roadmap следующих волн (A…J)** — [`docs/QA-STAND-ROADMAP.md`](docs/QA-STAND-ROADMAP.md).  
 **Безопасность и деплой** — [`docs/SECURITY.md`](docs/SECURITY.md).  
-**Актуальные требования и ТК** — [`docs/SYSTEM-REQUIREMENTS-v2.1.md`](docs/SYSTEM-REQUIREMENTS-v2.1.md), [`docs/MANUAL-TEST-CASES-v1.2.md`](docs/MANUAL-TEST-CASES-v1.2.md).
+**Актуальные требования и ТК** — [`docs/SYSTEM-REQUIREMENTS-v2.1.md`](docs/SYSTEM-REQUIREMENTS-v2.1.md), [`docs/MANUAL-TEST-CASES-v1.2.md`](docs/MANUAL-TEST-CASES-v1.2.md).  
+**Учебные баги BUG-01…03** — [`docs/KNOWN-BUGS.md`](docs/KNOWN-BUGS.md).
 
 ### UX / интерфейс
 - [x] Перенести `pagination-limit` из блока фильтров к пагинации под таблицей.
@@ -71,7 +72,7 @@
 ### Автотесты (практики, итерация 10 — **закрыта и влита в `main`**, 14.07.2026)
 - [x] Каталог `e2e/` (Playwright + TS), globalSetup (`db push` + seed), Page Object login/main, auth smoke.
 - [x] Page Object: `bike-form.page.ts`; спеки `roles.spec.ts` / `filters.spec.ts` (итерация 10.2).
-- [x] CRUD + `known-bugs.spec.ts` (правильные ожидания + `test.fail` для BUG-01…03) + roles API (итерация 10.3).
+- [x] CRUD + known-bugs UI/API (волна H: каталог, `markExpectedFailure`, `known-bugs-api.spec.ts`) + roles API.
 - [x] **10.5 Матрица валидации:** `validation.spec.ts` (+ `noValidate` на форме).
 - [x] GitHub Actions: E2E-гейт на PR/`push` (итерация 10.4).
 - [x] **10.6 Аудит покрытия** + sort/pagination + пере-seed перед счётчиками.  
@@ -88,7 +89,7 @@
 - [x] **Фильтр по марке и модели** — UI + API (`brand`/`model`), testid, ТК, smoke + ТТД. *(влито в `main`)*
 - [x] **Каталог/seed modern** — CN/EU эндуро, якоря SEED-05…07, счётчики 19/16/15. *(влито в `main`)*
 
-**Итог:** открытых пунктов в бэклоге «на подумать» нет (14.07.2026). Волны roadmap **A–G** в `main` (15.07.2026); далее — **H** (known-bugs contract).
+**Итог:** открытых пунктов в бэклоге «на подумать» нет (14.07.2026). Волны roadmap **A–H** в `main` (15.07.2026); далее — **I** (матрица покрытия + CI gates).
 
 ### Следующий план (волны A…J)
 Подробно: [`docs/QA-STAND-ROADMAP.md`](docs/QA-STAND-ROADMAP.md).  
@@ -102,7 +103,7 @@
 - [x] **E** — UI search + ошибка списка (+ retry) — `feature/qa-wave-e-search-ui` → `main`
 - [x] **F** — a11y / mobile + компактный фильтр — `feature/qa-wave-f-a11y-mobile` → `main` (`a9cae96`)
 - [x] **G** — security hardening (perimeter + CSRF + Zod + UI CSRF) — `feature/qa-wave-g-security` → `main`
-- [ ] **H** — known-bugs учебный контракт
+- [x] **H** — known-bugs учебный контракт — `feature/qa-wave-h-known-bugs` → `main` ([`docs/KNOWN-BUGS.md`](docs/KNOWN-BUGS.md))
 - [ ] **I** — матрица покрытия + CI gates
 - [ ] **J** — эпик прокат/аренда
 

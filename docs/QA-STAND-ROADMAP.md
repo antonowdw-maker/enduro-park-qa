@@ -122,13 +122,13 @@
 ---
 
 ### H — known-bugs как учебный контракт  
-**Статус:** ⏳ не начата  
+**Статус:** ✅ влита в `main` (15.07.2026)  
 **Роли:** QA, PM, BA  
 **Объём:** S–M  
 
-- каталог BUG-01…03: цель обучения, owner, `test.fail`, режим teaching / strict  
-- API-границы BUG-03 (1988 / 1989 / current+1 / +2)  
-- не путать демо-баги с «production-ready»  
+- ~~каталог BUG-01…03: цель обучения, owner, `test.fail`, режим teaching / strict~~ → [`KNOWN-BUGS.md`](KNOWN-BUGS.md) + `KNOWN_BUGS_MODE`  
+- ~~API-границы BUG-03 (1988 / 1989 / current+1 / +2)~~ → `known-bugs-api.spec.ts` (+ BUG-02)  
+- ~~не путать демо-баги с «production-ready»~~ → явный disclaimer в каталоге / §7  
 
 ---
 
@@ -180,7 +180,7 @@
 - [x] E — search UI + list errors  
 - [x] F — a11y / mobile  
 - [ ] G — security  
-- [ ] H — known-bugs contract  
+- [x] H — known-bugs contract → `main` (15.07.2026)
 - [ ] I — coverage matrix + CI gates  
 - [ ] J — rental epic  
 

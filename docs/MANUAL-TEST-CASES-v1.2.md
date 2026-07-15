@@ -1,7 +1,8 @@
 # Ручные тест-кейсы Enduro Park Manager (QA-Stand)
 
-**Версия:** 1.14  
+**Версия:** 1.15  
 **Дата:** 15.07.2026  
+**Изменения от v1.14:** волна H — каталог KNOWN-BUGS; TC-API-BUG-*; teaching/strict.  
 **Изменения от v1.13:** TC-SEC-CSRF-UI-01/02 — UI logout/create с проверкой заголовка CSRF.  
 **Изменения от v1.12:** волна G slice2 — TC-SEC-CSRF-*, TC-SEC-ZOD-*; loginAuth/CSRF в API E2E.  
 **Изменения от v1.11:** волна G slice1 — TC-SEC-HEALTH/READY/HEADERS/BODY, TC-SEC-XSS-01; rate-limit default on.  
@@ -13,7 +14,7 @@
 **14.07.2026 (+волна A):** TC-SEED-01 и TC-AUTH-01 httpOnly закрыты автотестами.  
 **14.07.2026:** текст NEG-08 / `error-year` — «позже {текущий год}»; VIN I/O/Q → отдельное сообщение (не «17 символов»); TC-SORT/PAGINATION; пере-seed в E2E.
 
-**История:** v1.14 — UI CSRF; v1.13 — CSRF+Zod G; v1.12 — security perimeter G; v1.11 — compact filter + header; v1.10 — a11y/mobile волна F; v1.9 — API волны C–D; v1.8 — каталог seed modern; v1.7 — фильтр марка/модель (+ТТД UI/API); v1.5 — валидация фильтров; v1.4 — offset, фильтры год/пробег; v1.3 — негативная валидация, BUG-03, дата ТО; v1.2 — публичная главная, без guest, VIN edit; v1.1 — исходный PDF.
+**История:** v1.15 — known-bugs H; v1.14 — UI CSRF; v1.13 — CSRF+Zod G; v1.12 — security perimeter G; v1.11 — compact filter + header; v1.10 — a11y/mobile волна F; v1.9 — API волны C–D; v1.8 — каталог seed modern; v1.7 — фильтр марка/модель (+ТТД UI/API); v1.5 — валидация фильтров; v1.4 — offset, фильтры год/пробег; v1.3 — негативная валидация, BUG-03, дата ТО; v1.2 — публичная главная, без guest, VIN edit; v1.1 — исходный PDF.
 
 **Трассировка автотестов:** после каждой волны Playwright помечаем ТК ниже строкой `🤖 Автотест:` (файл + итерация). Ручной прогон таких ТК — по желанию / регрессия UI.
 
@@ -174,27 +175,26 @@
 🤖 **Автотест:** `e2e/tests/validation.spec.ts` (итерация 10.5).
 
 ### TC-BIKE-NEG-06: BUG-03 — год 1989 (ошибка)
-**Ожидание:** `error-year`: «Год выпуска не может быть раньше 1990».  
-🤖 **Автотест:** `e2e/tests/known-bugs.spec.ts` (итерация 10.3; корректная граница — зелёный).
+**Ожидание:** `error-year` / API 400 «раньше 1990».  
+🤖 **Автотест:** `known-bugs.spec.ts` (UI); `known-bugs-api.spec.ts` TC-API-BUG-03-FACT-1989.
 
 ### TC-BIKE-NEG-07: BUG-03 — год 1988 (баг, проходит)
-**Ожидание (факт):** ошибки нет, сохранение возможно.  
-🤖 **Автотест (правильные ожидания):** `e2e/tests/known-bugs.spec.ts` — expect error + `test.fail()` (итерация 10.3).
+**Факт:** UI сохраняет / API **201**. **Цель:** должна быть ошибка.  
+🤖 **Автотест (правильные ожидания):** UI + API TARGET + `markExpectedFailure` / teaching; факт API: FACT-1988.
 
 ### TC-BIKE-NEG-08: BUG-03 — год текущий+1 (ошибка)
-**Предусловия:** текущий год 2026; год = 2027.  
-**Ожидание:** `error-year`: «Год не может быть позже **2026**» (в тексте — *текущий* год, не введённый current+1).  
-🤖 **Автотест:** `e2e/tests/validation.spec.ts` (итерация 10.5; текст поправлен 14.07.2026).
+**Ожидание:** ошибка; текст про **текущий** год.  
+🤖 **Автотест:** `validation.spec.ts` (UI); `known-bugs-api.spec.ts` FACT-CUR+1.
 
 ### TC-BIKE-NEG-09: BUG-03 — год текущий+2 (баг, проходит)
-**Предусловия:** текущий год 2026; год = 2028.  
-**Ожидание (факт):** ошибки нет, сохранение возможно.  
-🤖 **Автотест (правильные ожидания):** `e2e/tests/known-bugs.spec.ts` + `test.fail()` (итерация 10.3).
+**Факт:** проходит. **Цель:** ошибка.  
+🤖 **Автотест:** UI `test.fail`; API FACT-CUR+2 + TARGET-CUR+2.
 
 ### TC-BIKE-NEG-10: BUG-02 — TEST / 123
-**Данные:** марка = `TEST`, модель = `123`, остальное валидно.  
-**Ожидание:** `form-server-error`: «Ошибка безопасности: Ваша роль [guest] не позволяет создавать тестовые записи»; байк не создан.  
-🤖 **Автотест (правильные ожидания):** create должен пройти + `test.fail()` (итерация 10.3).
+**Факт:** `form-server-error` / API **403** про guest. **Цель:** успешный create.  
+🤖 **Автотест:** UI `test.fail`; API FACT + TARGET в `known-bugs-api.spec.ts`.
+
+Каталог: [`docs/KNOWN-BUGS.md`](KNOWN-BUGS.md). Режим: `KNOWN_BUGS_MODE=teaching|strict`.
 
 ### TC-BIKE-NEG-11: Дата ТО раньше 1990
 **Данные:** `input-lastService` = `1989-12-31`.  
@@ -437,6 +437,22 @@
 | TC-SEC-ZOD-03 | CSRF ok, без token | 401 (не 403) | то же |
 | TC-SEC-CSRF-UI-01 | UI logout | POST /logout с `X-CSRF-Token` = cookie `csrf` → anon | `security-csrf-ui.spec.ts` |
 | TC-SEC-CSRF-UI-02 | UI create | POST /bikes с тем же CSRF header → 201 | то же |
+
+### Known bugs contract (волна H)
+
+Каталог: [`KNOWN-BUGS.md`](KNOWN-BUGS.md). Env: `KNOWN_BUGS_MODE=teaching` (default) | `strict`.
+
+| TC | Суть | Ожидание | Автотест |
+|----|------|----------|----------|
+| BUG-01 (UI target) | фильтр = текст статуса | одинаковый label | `known-bugs.spec.ts` + `markExpectedFailure` |
+| TC-BIKE-NEG-06 | год 1989 | UI error / API 400 | UI known-bugs; API `TC-API-BUG-03-FACT-1989` |
+| TC-BIKE-NEG-07 | год 1988 | факт: проходит; цель: ошибка | UI fail; API FACT-1988 + TARGET-1988 |
+| TC-BIKE-NEG-08 | год current+1 | ошибка, текст про текущий год | `validation.spec.ts`; API FACT-CUR+1 |
+| TC-BIKE-NEG-09 | год current+2 | факт: проходит; цель: ошибка | UI fail; API FACT/TARGET-CUR+2 |
+| TC-BIKE-NEG-10 | TEST/123 | факт: 403 guest; цель: 201 | UI fail; API FACT + TARGET |
+| TC-API-BUG-03-FACT-* | матрица года на API | 201 / 400 / 400 / 201 | `known-bugs-api.spec.ts` |
+| TC-API-BUG-03-TARGET-* | целевые 1988 и +2 | 400 + fail in teaching | то же |
+| TC-API-BUG-02-FACT/TARGET | TEST/123 API | 403 / целевой 201 | то же |
 
 ---
 
