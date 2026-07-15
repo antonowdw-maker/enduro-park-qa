@@ -8,6 +8,7 @@
 2. Заполните в `.env`:
    - `JWT_SECRET` — случайная строка ≥ 32 символов (`openssl rand -base64 48`)
    - `SEED_ADMIN_PASSWORD`, `SEED_MECHANIC_PASSWORD` — ≥ 12 символов, **не** `admin123` и подобные
+   - для локального Playwright: `DISABLE_LOGIN_RATE_LIMIT=true` (иначе 429 на многократных login)
 3. `cd backend && npm run seed`
 4. Логины фиксированы: `admin`, `mechanic`. Пароли — **только из вашего `.env`**.
 
@@ -20,21 +21,30 @@
 | `CORS_ORIGIN` = URL вашего фронта | Чужие сайты не дергают API |
 | Пароли работодателю — **в личку**, не в README | Не светить в открытом доступе |
 | Перед демо: `npm run seed` | Сброс вандализма в БД |
-| (Опционально) `ENABLE_LOGIN_RATE_LIMIT=true` | Защита от перебора на публичном URL; **не включать** для CI/Playwright |
+| **Не** задавать `DISABLE_LOGIN_RATE_LIMIT` на публичном URL | Rate-limit login 10 / 15 мин (волна G — по умолчанию вкл.) |
 | Сменить `JWT_SECRET` если старый светился в git | Старые сессии недействительны |
 
 ## GitHub Actions (E2E)
 
-Воркфлоу `.github/workflows/e2e.yml` **сам генерирует** `JWT_SECRET` и пароли seed на каждый job (в `backend/.env`).  
+Воркфлоу `.github/workflows/e2e.yml` **сам генерирует** `JWT_SECRET` и пароли seed на каждый job (в `backend/.env`) и пишет `DISABLE_LOGIN_RATE_LIMIT=true`.  
 Отдельные GitHub Secrets для локальных паролей **не обязательны**. Не коммитьте `.env`.
 
-## Что сделано в коде
+## Что сделано в коде (волна G — perimeter)
 
 - `.env` в `.gitignore`, в репо только `.env.example`
 - Старт сервера и seed **падают** без валидного `JWT_SECRET` и паролей seed
 - Блок слабых паролей (`admin123`, `password`, …)
-- Rate limit на login — **опционально** (`ENABLE_LOGIN_RATE_LIMIT=true` только на публичном деплое; для Playwright выключен)
+- **Helmet** (базовые security headers; CSP для API выкл.)
+- Явный лимит JSON-тела **100kb** → **413**
+- `GET /health` (liveness), `GET /ready` (БД)
+- Rate limit на login — **включён по умолчанию**; отключение: `DISABLE_LOGIN_RATE_LIMIT=true` (CI / Playwright). Legacy: `ENABLE_LOGIN_RATE_LIMIT=false`
 - Пароли в БД — bcrypt; в логах seed пароли не выводятся
+
+## Ещё в бэклоге волны G
+
+- CSRF для cookie-мутаций
+- Zod/DTO на границе API
+- (частично) XSS regression E2E на `notes`
 
 ## Если репозиторий уже был публичным со старыми секретами
 

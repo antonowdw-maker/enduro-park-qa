@@ -1,7 +1,8 @@
 # Ручные тест-кейсы Enduro Park Manager (QA-Stand)
 
-**Версия:** 1.11  
+**Версия:** 1.12  
 **Дата:** 15.07.2026  
+**Изменения от v1.11:** волна G slice1 — TC-SEC-HEALTH/READY/HEADERS/BODY, TC-SEC-XSS-01; rate-limit default on.  
 **Изменения от v1.10:** hotfix F — компактный фильтр («Ещё»/«Сброс»), адаптивная шапка; TC-MOBILE-05; mobile-sort / модалка dvh уже в v1.10.  
 **Изменения от v1.9:** волна F — a11y (Escape/Tab/Enter, aria-sort, accessible names) + mobile cards (`bike-card-*`).  
 **Изменения от v1.8:** волны C–D — API query/CRUD; волна E — UI `search` (OR) + `list-empty`/`list-error`/`list-retry`; search **не заменяет** brand/model (AND).  
@@ -10,7 +11,7 @@
 **14.07.2026 (+волна A):** TC-SEED-01 и TC-AUTH-01 httpOnly закрыты автотестами.  
 **14.07.2026:** текст NEG-08 / `error-year` — «позже {текущий год}»; VIN I/O/Q → отдельное сообщение (не «17 символов»); TC-SORT/PAGINATION; пере-seed в E2E.
 
-**История:** v1.11 — compact filter + header; v1.10 — a11y/mobile волна F; v1.9 — API волны C–D; v1.8 — каталог seed modern; v1.7 — фильтр марка/модель (+ТТД UI/API); v1.5 — валидация фильтров; v1.4 — offset, фильтры год/пробег; v1.3 — негативная валидация, BUG-03, дата ТО; v1.2 — публичная главная, без guest, VIN edit; v1.1 — исходный PDF.
+**История:** v1.12 — security perimeter G; v1.11 — compact filter + header; v1.10 — a11y/mobile волна F; v1.9 — API волны C–D; v1.8 — каталог seed modern; v1.7 — фильтр марка/модель (+ТТД UI/API); v1.5 — валидация фильтров; v1.4 — offset, фильтры год/пробег; v1.3 — негативная валидация, BUG-03, дата ТО; v1.2 — публичная главная, без guest, VIN edit; v1.1 — исходный PDF.
 
 **Трассировка автотестов:** после каждой волны Playwright помечаем ТК ниже строкой `🤖 Автотест:` (файл + итерация). Ручной прогон таких ТК — по желанию / регрессия UI.
 
@@ -409,6 +410,17 @@
 | TC-MOBILE-03 | mobile sort field/order | GET с sortBy/order | то же |
 | TC-MOBILE-04 | модалка create в viewport | panel внутри окна, scrollable | то же |
 | TC-MOBILE-05 | шапка + «Ещё» | logout в экране; advanced collapse | то же |
+
+### Security perimeter (волна G slice1)
+
+| TC | Суть | Ожидание | Автотест |
+|----|------|----------|----------|
+| TC-SEC-HEALTH-01 | GET /health | 200 `{ status: ok }` | `security-perimeter-api.spec.ts` |
+| TC-SEC-READY-01 | GET /ready | 200 `{ status: ready }` | то же |
+| TC-SEC-HEADERS-01 | Helmet nosniff | header `x-content-type-options` | то же |
+| TC-SEC-BODY-01 | JSON > 100kb | 413 | то же |
+| TC-SEC-XSS-01 | notes с `<script>` / onerror | текст в DOM, без исполняемого HTML после reload | `security-xss.spec.ts` |
+| TC-AUTH-RATE-LIMIT-01 | 11-я попытка login | 429 (isolated, rate-limit вкл.) | `auth-rate-limit-api.spec.ts` |
 
 ---
 

@@ -1,10 +1,10 @@
 # Системные требования к проекту Enduro Park Manager
 
-**Версия:** 2.10  
+**Версия:** 2.11  
 **Дата:** 15.07.2026  
-**Изменения от v2.9:** компактный/сворачиваемый фильтр («Ещё»), адаптивная шапка; mobile-sort; модалки `100dvh` (hotfix волны F).
+**Изменения от v2.10:** волна G (slice1) — Helmet, JSON 100kb→413, `/health`/`/ready`, login rate-limit по умолчанию вкл. (`DISABLE_LOGIN_RATE_LIMIT` для CI).
 
-**История:** v2.10 — compact filter + header adaptive; v2.9 — a11y/mobile (волна F); v2.8 — API/Auth контракт глубины (волны C–D); v2.7 — каталог seed modern; v2.6 — фильтр марка/модель (F-FILTER-11…15) + ТТД E2E; v2.5 — текст `error-year` (текущий год) + приоритет сообщения VIN про I/O/Q; v2.4 — валидация фильтров; v2.3 — offset, фильтры год/пробег; v2.2 — валидация, BUG-03, дата ТО; v2.1 — публичная главная, без guest, VIN редактируем; v2.0 — исходный PDF.
+**История:** v2.11 — security perimeter; v2.10 — compact filter + header adaptive; v2.9 — a11y/mobile (волна F); v2.8 — API/Auth контракт глубины (волны C–D); v2.7 — каталог seed modern; v2.6 — фильтр марка/модель (F-FILTER-11…15) + ТТД E2E; v2.5 — текст `error-year` (текущий год) + приоритет сообщения VIN про I/O/Q; v2.4 — валидация фильтров; v2.3 — offset, фильтры год/пробег; v2.2 — валидация, BUG-03, дата ТО; v2.1 — публичная главная, без guest, VIN редактируем; v2.0 — исходный PDF.
 
 ---
 
@@ -264,7 +264,11 @@
 | POST /auth/login | **200** + `{ id, username, role }` + `Set-Cookie: token` | Cookie: `HttpOnly`, `SameSite=Lax`, `Max-Age`; `Secure` только production |
 | GET /auth/me | **200** user | Без / битый cookie → **401** |
 | POST /auth/logout | **200** `{ message: 'Logged out' }` + clear cookie | Клиентский jar очищается; **JWT не ревоцируется** — replay старого `token=` всё ещё **200** на `/me` (факт стенда) |
-| Login rate-limit | **429** | Только если `ENABLE_LOGIN_RATE_LIMIT=true` (по умолчанию выкл.) |
+| Login rate-limit | **429** | По умолчанию **вкл.** (10 / 15 мин). CI/локальный Playwright: `DISABLE_LOGIN_RATE_LIMIT=true`. Legacy: `ENABLE_LOGIN_RATE_LIMIT=false` |
+| JSON body | **413** | Лимит `100kb` (`express.json`) |
+| Liveness | **200** `{ status: "ok" }` | `GET /health` |
+| Readiness | **200** `{ status: "ready" }` / **503** | `GET /ready` (Prisma) |
+| Security headers | Helmet | напр. `X-Content-Type-Options: nosniff` (CSP для API выкл.) |
 
 ---
 

@@ -114,10 +114,10 @@
 **Объём:** M–L  
 
 - CSRF для cookie-мутаций  
-- security headers, body size limit, health / ready  
-- rate-limit defaults (не только «выкл в демо»)  
-- XSS regression на notes (create → reload)  
-- Zod / DTO на границе API  
+- ~~security headers, body size limit, health / ready~~ → **сделано (slice1)**  
+- ~~rate-limit defaults~~ → **сделано (default on + DISABLE…)**  
+- ~~XSS regression на notes~~ → **сделано (TC-SEC-XSS-01)**  
+- Zod / DTO на границе API — **ещё в бэклоге G**  
 
 ---
 
