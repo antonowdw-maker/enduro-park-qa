@@ -1,4 +1,5 @@
 import { Page, expect } from '@playwright/test';
+import { waitForBikesApi } from '../helpers/bikes-api';
 
 /**
  * Page Object: главная / — шапка, фильтры, таблица, пагинация.
@@ -74,9 +75,22 @@ export class MainPage {
     return this.page.getByTestId(`delete-bike-${vin}`);
   }
 
-  /** Открыть главную (публичный список) */
+  /**
+   * UI-действие, которое должно вызвать GET /api/bikes, + опциональный assert query.
+   * Волна B: не ассертим строки по устаревшему DOM.
+   */
+  async runAndWaitForBikes(
+    action: () => Promise<unknown>,
+    expectedQuery?: Record<string, string | RegExp>,
+  ) {
+    return waitForBikesApi(this.page, action, expectedQuery);
+  }
+
+  /** Открыть главную и дождаться первой загрузки списка */
   async open() {
-    await this.page.goto('/');
+    await this.runAndWaitForBikes(async () => {
+      await this.page.goto('/');
+    });
   }
 
   /** Дождаться, что таблица отрисовала хотя бы одну строку байка */
@@ -86,7 +100,12 @@ export class MainPage {
 
   /** Показать максимум строк на странице (удобно для фильтров по якорным VIN) */
   async setLimit50() {
-    await this.paginationLimit().selectOption('50');
+    await this.runAndWaitForBikes(
+      async () => {
+        await this.paginationLimit().selectOption('50');
+      },
+      { limit: '50' },
+    );
     await this.expectTableHasRows();
   }
 
@@ -100,9 +119,11 @@ export class MainPage {
         await expect(this.bikeRow(vin)).toBeVisible();
         return;
       }
-      const next = this.page.getByTestId('pagination-next');
+      const next = this.paginationNext();
       if (await next.isDisabled()) break;
-      await next.click();
+      await this.runAndWaitForBikes(async () => {
+        await next.click();
+      });
       await this.expectTableHasRows();
     }
     await expect(this.bikeRow(vin)).toBeVisible();

@@ -50,14 +50,13 @@
 ---
 
 ### B — flake-hunt + стабильность E2E  
-**Статус:** ⏳ не начата  
+**Статус:** ✅ сделано (`feature/qa-wave-b-flake-hunt`)  
 **Роли:** QA, Dev  
 **Объём:** M  
 
-- wait на `GET /api/bikes` после фильтра / сортировки / пагинации  
-- assert query params + строки после обновления данных  
-- политика изоляции данных (явный re-seed / cleanup) → `e2e/README`  
-- опц.: grouped expect для независимых проверок  
+- ✅ wait на `GET /api/bikes` после фильтра / сортировки / пагинации (`runAndWaitForBikes`)  
+- ✅ assert query params (+ soft expects точечно)  
+- ✅ политика изоляции данных → `e2e/README`  
 
 ---
 
@@ -175,7 +174,7 @@
 ## Чеклист прогресса
 
 - [x] A — TC leftovers  
-- [ ] B — flake-hunt  
+- [x] B — flake-hunt  
 - [ ] C — API query ТТД  
 - [ ] D — CRUD/Auth API  
 - [ ] E — search UI + list errors  

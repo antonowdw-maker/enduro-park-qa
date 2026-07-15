@@ -94,7 +94,7 @@
 Подробно: [`docs/QA-STAND-ROADMAP.md`](docs/QA-STAND-ROADMAP.md).
 
 - [x] **A** — остатки TC→авто (SEED-01, httpOnly) — `feature/qa-wave-a-tc-leftovers`
-- [ ] **B** — flake-hunt E2E
+- [x] **B** — flake-hunt E2E — `feature/qa-wave-b-flake-hunt`
 - [ ] **C** — API query ТТД / контракт
 - [ ] **D** — CRUD/Auth API глубина
 - [ ] **E** — UI search + ошибка списка

@@ -49,7 +49,9 @@ test.describe('Seed anchors', () => {
 
   test('TC-SEED-03: filter-available → total 19', async ({ page }) => {
     const mainPage = new MainPage(page);
-    await mainPage.filterAvailable().click();
+    await mainPage.runAndWaitForBikes(() => mainPage.filterAvailable().click(), {
+      status: 'available',
+    });
     await expect(mainPage.totalInDb()).toContainText('19');
     await expect(mainPage.bikeRow(SEED_VINS.availableKtm)).toBeVisible();
     await expect(mainPage.bikeRow(SEED_VINS.repairHonda)).toHaveCount(0);
@@ -57,7 +59,9 @@ test.describe('Seed anchors', () => {
 
   test('TC-SEED-04: filter-repair → якорный Honda', async ({ page }) => {
     const mainPage = new MainPage(page);
-    await mainPage.filterRepair().click();
+    await mainPage.runAndWaitForBikes(() => mainPage.filterRepair().click(), {
+      status: 'repair',
+    });
     await expect(mainPage.bikeRow(SEED_VINS.repairHonda)).toBeVisible();
     // BUG-01: в таблице «В ремонте», не «Ремонт»
     await expect(mainPage.statusCell(SEED_VINS.repairHonda)).toContainText('В ремонте');
@@ -73,14 +77,18 @@ test.describe('Seed anchors', () => {
     await expect(row).toContainText('Доступен');
 
     // После влития фильтра: марка отсекает чужие якоря
-    await mainPage.brandFilter().fill('Kayo');
+    await mainPage.runAndWaitForBikes(() => mainPage.brandFilter().fill('Kayo'), {
+      brand: 'Kayo',
+    });
     await expect(row).toBeVisible();
     await expect(mainPage.bikeRow(SEED_VINS.availableKtm)).toHaveCount(0);
   });
 
   test('TC-SEED-06: якорный Regulmoto в ремонте', async ({ page }) => {
     const mainPage = new MainPage(page);
-    await mainPage.filterRepair().click();
+    await mainPage.runAndWaitForBikes(() => mainPage.filterRepair().click(), {
+      status: 'repair',
+    });
     const row = mainPage.bikeRow(SEED_VINS.repairRegulmoto);
     await expect(row).toBeVisible();
     await expect(row).toContainText('Regulmoto');
@@ -89,7 +97,9 @@ test.describe('Seed anchors', () => {
 
   test('TC-SEED-07: якорный Motoland продан', async ({ page }) => {
     const mainPage = new MainPage(page);
-    await mainPage.filterSold().click();
+    await mainPage.runAndWaitForBikes(() => mainPage.filterSold().click(), {
+      status: 'sold',
+    });
     const row = mainPage.bikeRow(SEED_VINS.soldMotoland);
     await expect(row).toBeVisible();
     await expect(row).toContainText('Motoland');
@@ -98,7 +108,7 @@ test.describe('Seed anchors', () => {
 
   test('smoke: после seed в базе SEED_BIKE_COUNT байков', async ({ page }) => {
     const mainPage = new MainPage(page);
-    await mainPage.filterAll().click();
+    await mainPage.runAndWaitForBikes(() => mainPage.filterAll().click());
     await expect(mainPage.totalInDb()).toContainText(String(SEED_BIKE_COUNT));
   });
 });
