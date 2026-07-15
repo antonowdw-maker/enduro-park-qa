@@ -5,18 +5,17 @@ import { getSeedCredentials } from '../src/helpers/env';
 import { loginAs } from '../src/helpers/auth';
 import { buildUniqueVin } from '../src/helpers/vin';
 import { SEED_VINS } from '../src/data/seed-vins';
+import { markExpectedFailure } from '../src/helpers/known-bugs';
 
 /**
- * Намеренные баги стенда (волна 10.3).
- * Пишем «правильные» ожидания (как в требованиях без багов).
- * test.fail() — падение ожидаемо, пока баг жив в продукте.
+ * Намеренные баги (волна H — учебный контракт).
+ * Правильные ожидания + markExpectedFailure() в режиме teaching (KNOWN_BUGS.md).
  */
 test.describe('Known bugs (правильные ожидания)', () => {
   const { admin } = getSeedCredentials();
 
   test('BUG-01 / метки: фильтр repair совпадает с текстом статуса в таблице', async ({ page }) => {
-    // Корректное поведение: одна терминология «В ремонте»
-    test.fail(true, 'BUG-01: в фильтре «Ремонт», в таблице «В ремонте»');
+    markExpectedFailure('BUG-01: в фильтре «Ремонт», в таблице «В ремонте»');
 
     const mainPage = new MainPage(page);
     await mainPage.open();
@@ -28,8 +27,7 @@ test.describe('Known bugs (правильные ожидания)', () => {
   });
 
   test('BUG-02 / TC-BIKE-NEG-10: валидная форма TEST/123 успешно сохраняется', async ({ page }) => {
-    // Корректное поведение: нет фейковой ошибки про guest
-    test.fail(true, 'BUG-02: TEST/123 даёт ложную ошибку про роль guest');
+    markExpectedFailure('BUG-02: TEST/123 даёт ложную ошибку про роль guest');
 
     const mainPage = new MainPage(page);
     const form = new BikeFormPage(page);
@@ -53,8 +51,7 @@ test.describe('Known bugs (правильные ожидания)', () => {
   });
 
   test('BUG-03 / TC-BIKE-NEG-07: год 1988 должен быть ошибкой', async ({ page }) => {
-    // Корректное поведение: год < 1990 → error-year
-    test.fail(true, 'BUG-03: год 1988 ошибочно проходит валидацию');
+    markExpectedFailure('BUG-03: год 1988 ошибочно проходит валидацию');
 
     const mainPage = new MainPage(page);
     const form = new BikeFormPage(page);
@@ -75,7 +72,7 @@ test.describe('Known bugs (правильные ожидания)', () => {
 
   test('BUG-03 / TC-BIKE-NEG-09: год current+2 должен быть ошибкой', async ({ page }) => {
     const currentYear = new Date().getFullYear();
-    test.fail(true, 'BUG-03: год current+2 ошибочно проходит валидацию');
+    markExpectedFailure('BUG-03: год current+2 ошибочно проходит валидацию');
 
     const mainPage = new MainPage(page);
     const form = new BikeFormPage(page);
