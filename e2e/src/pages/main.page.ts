@@ -29,8 +29,13 @@ export class MainPage {
   readonly mileageTo = () => this.page.getByTestId('filter-mileage-to');
   readonly brandFilter = () => this.page.getByTestId('filter-brand');
   readonly modelFilter = () => this.page.getByTestId('filter-model');
+  readonly searchFilter = () => this.page.getByTestId('filter-search');
   readonly brandFilterClear = () => this.page.getByTestId('filter-brand-clear');
   readonly modelFilterClear = () => this.page.getByTestId('filter-model-clear');
+  readonly searchFilterClear = () => this.page.getByTestId('filter-search-clear');
+  readonly listEmpty = () => this.page.getByTestId('list-empty');
+  readonly listError = () => this.page.getByTestId('list-error');
+  readonly listRetry = () => this.page.getByTestId('list-retry');
   readonly yearFromClear = () => this.page.getByTestId('filter-year-from-clear');
   readonly yearToClear = () => this.page.getByTestId('filter-year-to-clear');
 
@@ -82,8 +87,9 @@ export class MainPage {
   async runAndWaitForBikes(
     action: () => Promise<unknown>,
     expectedQuery?: Record<string, string | RegExp>,
+    options?: import('../helpers/bikes-api').WaitForBikesOptions,
   ) {
-    return waitForBikesApi(this.page, action, expectedQuery);
+    return waitForBikesApi(this.page, action, expectedQuery, options);
   }
 
   /** Открыть главную и дождаться первой загрузки списка */

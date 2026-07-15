@@ -236,4 +236,37 @@ test.describe('API GET /bikes query contract (TTD)', () => {
     const body = (await res.json()) as BikeListBody;
     expect(body.total).toBe(SEED_BIKE_COUNT);
   });
+
+  // --- search (волна E, API уже был) ---
+
+  test('TC-API-SEARCH-01: search=KTM — brand OR model', async ({ request }) => {
+    const res = await request.get(`${API}/api/bikes?limit=50&search=KTM`);
+    expect(res.status()).toBe(200);
+    const body = (await res.json()) as BikeListBody;
+    expect(body.total).toBeGreaterThan(0);
+    expect(
+      body.bikes.every((b) => /ktm/i.test(b.brand) || /ktm/i.test(b.model)),
+    ).toBeTruthy();
+  });
+
+  test('TC-API-SEARCH-02: search=EXC — по модели', async ({ request }) => {
+    const res = await request.get(`${API}/api/bikes?limit=50&search=EXC`);
+    expect(res.status()).toBe(200);
+    const body = (await res.json()) as BikeListBody;
+    expect(body.bikes.some((b) => b.vin === 'KTM2020QA00000001' || /exc/i.test(b.model))).toBeTruthy();
+  });
+
+  test('TC-API-SEARCH-NEG-01: нет совпадений → total 0', async ({ request }) => {
+    const res = await request.get(`${API}/api/bikes?limit=50&search=NoSuchBikeZZZ`);
+    expect(res.status()).toBe(200);
+    const body = (await res.json()) as BikeListBody;
+    expect(body.total).toBe(0);
+  });
+
+  test('TC-API-SEARCH-WS-01: search пробелы — без фильтра', async ({ request }) => {
+    const res = await request.get(`${API}/api/bikes?limit=50&search=${encodeURIComponent('   ')}`);
+    expect(res.status()).toBe(200);
+    const body = (await res.json()) as BikeListBody;
+    expect(body.total).toBe(SEED_BIKE_COUNT);
+  });
 });
