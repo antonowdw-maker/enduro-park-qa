@@ -48,8 +48,9 @@ Subject на русском OK; body — зачем. Старые коммиты
 
 ## Push / merge
 
-- Только по явным «коммит» / «пуш» / «мерж».
-- Merge в `main`: fast-forward предпочтителен.
+- Только по явным «коммит» / «пуш» / «мерж» (после dual TL в чате — см. `roles-and-reviews.mdc`).
+- Сообщения коммитов — **только вариант B** (`feat(frontend):`, `fix(e2e):`, `test(e2e):`, `docs:`, …).
+- Merge в `main`: fast-forward предпочтителен; title/body PR тоже согласованы со стилем коммитов (scope волны / hotfix).
 - После merge волны — обновить README чеклист A…J + roadmap/NOTES/ТЗ/ТК по чеклисту ниже.
 
 ## Синхрон docs перед merge
