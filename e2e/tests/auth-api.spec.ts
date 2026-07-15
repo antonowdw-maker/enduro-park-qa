@@ -1,13 +1,13 @@
 import { test, expect } from '@playwright/test';
 import { getSeedCredentials, loadBackendEnv } from '../src/helpers/env';
-import { getApiBaseUrl } from '../src/helpers/api';
+import { fetchCsrf, getApiBaseUrl } from '../src/helpers/api';
 
 loadBackendEnv();
 
 const API = getApiBaseUrl();
 
 /**
- * Cookie / offset / session lifecycle (волна 10.6 + A + D).
+ * Cookie / offset / session lifecycle (волна 10.6 + A + D + G CSRF).
  */
 test.describe('Auth & pagination API', () => {
   const { admin } = getSeedCredentials();
@@ -39,9 +39,11 @@ test.describe('Auth & pagination API', () => {
   test('TC-AUTH-API-LIFECYCLE-01: login → /me → logout → /me (+ JWT replay)', async ({
     request,
   }) => {
-    // Cookie jar Playwright: Set-Cookie с login попадает в контекст request
+    const csrf = await fetchCsrf(request, API);
+
     const login = await request.post(`${API}/api/auth/login`, {
       data: { username: admin.username, password: admin.password },
+      headers: { Cookie: csrf.cookie },
     });
     expect(login.status()).toBe(200);
     const user = await login.json();
@@ -49,13 +51,20 @@ test.describe('Auth & pagination API', () => {
     expect(setCookie).toBeTruthy();
     const cookiePair = setCookie!.split(';')[0];
 
-    const me = await request.get(`${API}/api/auth/me`);
+    const me = await request.get(`${API}/api/auth/me`, {
+      headers: { Cookie: `${cookiePair}; ${csrf.cookie}` },
+    });
     expect(me.status()).toBe(200);
     const meBody = await me.json();
     expect(meBody.username).toBe(user.username);
     expect(meBody.role).toBe(user.role);
 
-    const logout = await request.post(`${API}/api/auth/logout`);
+    const logout = await request.post(`${API}/api/auth/logout`, {
+      headers: {
+        Cookie: `${cookiePair}; ${csrf.cookie}`,
+        'X-CSRF-Token': csrf.token,
+      },
+    });
     expect(logout.status()).toBe(200);
     expect(await logout.json()).toEqual({ message: 'Logged out' });
     const logoutCookies = logout.headersArray().filter((h) => h.name.toLowerCase() === 'set-cookie');
@@ -66,7 +75,6 @@ test.describe('Auth & pagination API', () => {
     );
     expect(cleared, 'logout должен слать clear Set-Cookie для token').toBeTruthy();
 
-    // Клиент после clearCookie не шлёт token → 401
     const meAnon = await request.get(`${API}/api/auth/me`);
     expect(meAnon.status()).toBe(401);
 

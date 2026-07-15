@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { getApiBaseUrl, loginCookie, bikePayload } from '../src/helpers/api';
+import { getApiBaseUrl, loginAuth, bikePayload } from '../src/helpers/api';
 import { getSeedCredentials, loadBackendEnv } from '../src/helpers/env';
 
 loadBackendEnv();
@@ -30,10 +30,10 @@ test.describe('Security perimeter API (wave G)', () => {
   });
 
   test('TC-SEC-BODY-01: JSON больше 100kb → 413', async ({ request }) => {
-    const cookie = await loginCookie(request, API, admin);
+    const auth = await loginAuth(request, API, admin);
     const hugeNotes = 'x'.repeat(120 * 1024);
     const res = await request.post(`${API}/api/bikes`, {
-      headers: { Cookie: cookie },
+      headers: auth,
       data: bikePayload({ notes: hugeNotes, brand: 'AaaHuge' }),
     });
     expect(res.status()).toBe(413);
