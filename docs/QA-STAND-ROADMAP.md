@@ -136,13 +136,13 @@
 ---
 
 ### I — матрица покрытия + CI quality gates  
-**Статус:** ⏳ не начата  
+**Статус:** ✅ влита в `main` (15.07.2026)  
 **Роли:** QA, PM, Dev  
 **Объём:** S–M  
 
-- живая матрица F-* ↔ TC-* ↔ spec  
-- в CI: typecheck / lint (+ опц. audit) рядом с E2E  
-- единообразие артефактов trace / report  
+- ~~живая матрица F-* ↔ TC-* ↔ spec~~ → [`COVERAGE-MATRIX.md`](COVERAGE-MATRIX.md)  
+- ~~в CI: typecheck / lint рядом с E2E~~ → job `quality` в `e2e.yml` (playwright `needs: quality`)  
+- ~~единообразие артефактов trace / report~~ → `e2e/README` § Artifacts + имена `playwright-report-chromium` / nightly-`{browser}`  
 
 ---
 
@@ -184,7 +184,7 @@
 - [x] F — a11y / mobile  
 - [x] G — security → `main`  
 - [x] H — known-bugs contract → `main` (15.07.2026)  
-- [ ] I — coverage matrix + CI gates  
+- [x] I — coverage matrix + CI gates → `main` (15.07.2026)
 - [ ] J — rental epic  
 
 После завершения волны: отметить `[x]` здесь **и в корневом README** (секция «Дальше» / статус); статус «✅» в теле волны; запись ревью в `IMPLEMENTATION-NOTES.md`. Историю чеклистов не копировать в README — см. `PROJECT-HISTORY.md`.

@@ -3,7 +3,7 @@
 Учебно-демонстрационный **QA product-стенд**: приложение учёта эндуро-байков + зрелый набор автотестов, контрактов API и процессов ревью.
 
 > **Как начинали:** отработка автотестов (Recording + LLM + Playwright) на простом CRUD.  
-> **Где сейчас:** ~180+ Playwright-тестов, CI gate + nightly, волны A–H (API TTD, a11y, security, known-bugs).  
+> **Где сейчас:** ~180+ Playwright-тестов, CI quality+E2E + nightly, волны A–I.  
 > Подробная летопись: [`docs/PROJECT-HISTORY.md`](docs/PROJECT-HISTORY.md). Ранний snapshot: [`RELEASE_NOTES.md`](RELEASE_NOTES.md).
 
 Это **не** production-система проката. Намеренные дефекты (BUG-01…03) — учебный контракт, см. [`docs/KNOWN-BUGS.md`](docs/KNOWN-BUGS.md).
@@ -55,6 +55,7 @@
 | [`docs/QA-STAND-ROADMAP.md`](docs/QA-STAND-ROADMAP.md) | Что дальше (I, J…) и статус волн |
 | [`docs/SYSTEM-REQUIREMENTS-v2.1.md`](docs/SYSTEM-REQUIREMENTS-v2.1.md) | Поведение продукта (F-*, API) |
 | [`docs/MANUAL-TEST-CASES-v1.2.md`](docs/MANUAL-TEST-CASES-v1.2.md) | Ручные ТК + трассировка 🤖 автотестов |
+| [`docs/COVERAGE-MATRIX.md`](docs/COVERAGE-MATRIX.md) | F-\* ↔ TC-\* ↔ spec + gaps |
 | [`docs/KNOWN-BUGS.md`](docs/KNOWN-BUGS.md) | BUG-01…03: факт vs цель, teaching/strict |
 | [`docs/SECURITY.md`](docs/SECURITY.md) | Секреты, деплой, CSRF/rate-limit |
 | [`docs/IMPLEMENTATION-NOTES.md`](docs/IMPLEMENTATION-NOTES.md) | Отклонения от PDF, TL-ревью, аудит |
@@ -66,16 +67,15 @@
 
 ## Статус и план
 
-**Закрыто в `main`:** итерации 1–10, бэклог «на подумать», волны **A–H**.
+**Закрыто в `main`:** итерации 1–10, бэклог «на подумать», волны **A–I**.  
 
 **Дальше** (детали в roadmap):
 
 | Волна | Фокус | Статус |
 |-------|--------|--------|
-| **I** | Матрица покрытия F-\*/TC-\*/spec + CI quality gates | ⏳ |
 | **J** | Эпик «прокат / аренда» | ⏳ |
 
-Ветки после мержа обычно удаляем; для ориентира сейчас: `main` + последние feature волн (F/G/H).
+Ветки после мержа обычно удаляем; для ориентира: `main` + последние feature (F–I по желанию).
 
 ---
 

@@ -1,7 +1,8 @@
 # Ручные тест-кейсы Enduro Park Manager (QA-Stand)
 
-**Версия:** 1.15  
+**Версия:** 1.16  
 **Дата:** 15.07.2026  
+**Изменения от v1.15:** волна I — [`COVERAGE-MATRIX.md`](COVERAGE-MATRIX.md); CI quality job.  
 **Изменения от v1.14:** волна H — каталог KNOWN-BUGS; TC-API-BUG-*; teaching/strict.  
 **Изменения от v1.13:** TC-SEC-CSRF-UI-01/02 — UI logout/create с проверкой заголовка CSRF.  
 **Изменения от v1.12:** волна G slice2 — TC-SEC-CSRF-*, TC-SEC-ZOD-*; loginAuth/CSRF в API E2E.  
@@ -14,7 +15,7 @@
 **14.07.2026 (+волна A):** TC-SEED-01 и TC-AUTH-01 httpOnly закрыты автотестами.  
 **14.07.2026:** текст NEG-08 / `error-year` — «позже {текущий год}»; VIN I/O/Q → отдельное сообщение (не «17 символов»); TC-SORT/PAGINATION; пере-seed в E2E.
 
-**История:** v1.15 — known-bugs H; v1.14 — UI CSRF; v1.13 — CSRF+Zod G; v1.12 — security perimeter G; v1.11 — compact filter + header; v1.10 — a11y/mobile волна F; v1.9 — API волны C–D; v1.8 — каталог seed modern; v1.7 — фильтр марка/модель (+ТТД UI/API); v1.5 — валидация фильтров; v1.4 — offset, фильтры год/пробег; v1.3 — негативная валидация, BUG-03, дата ТО; v1.2 — публичная главная, без guest, VIN edit; v1.1 — исходный PDF.
+**История:** v1.16 — coverage matrix I; v1.15 — known-bugs H; v1.14 — UI CSRF; v1.13 — CSRF+Zod G; v1.12 — security perimeter G; v1.11 — compact filter + header; v1.10 — a11y/mobile волна F; v1.9 — API волны C–D; v1.8 — каталог seed modern; v1.7 — фильтр марка/модель (+ТТД UI/API); v1.5 — валидация фильтров; v1.4 — offset, фильтры год/пробег; v1.3 — негативная валидация, BUG-03, дата ТО; v1.2 — публичная главная, без guest, VIN edit; v1.1 — исходный PDF.
 
 **Трассировка автотестов:** после каждой волны Playwright помечаем ТК ниже строкой `🤖 Автотест:` (файл + итерация). Ручной прогон таких ТК — по желанию / регрессия UI.
 
