@@ -1,7 +1,8 @@
 # Ручные тест-кейсы Enduro Park Manager (QA-Stand)
 
-**Версия:** 1.10  
+**Версия:** 1.11  
 **Дата:** 15.07.2026  
+**Изменения от v1.10:** hotfix F — компактный фильтр («Ещё»/«Сброс»), адаптивная шапка; TC-MOBILE-05; mobile-sort / модалка dvh уже в v1.10.  
 **Изменения от v1.9:** волна F — a11y (Escape/Tab/Enter, aria-sort, accessible names) + mobile cards (`bike-card-*`).  
 **Изменения от v1.8:** волны C–D — API query/CRUD; волна E — UI `search` (OR) + `list-empty`/`list-error`/`list-retry`; search **не заменяет** brand/model (AND).  
 **Изменения от v1.7:** seed-каталог modern — TC-SEED-05…07 (Kayo, Regulmoto, Motoland).  
@@ -9,7 +10,7 @@
 **14.07.2026 (+волна A):** TC-SEED-01 и TC-AUTH-01 httpOnly закрыты автотестами.  
 **14.07.2026:** текст NEG-08 / `error-year` — «позже {текущий год}»; VIN I/O/Q → отдельное сообщение (не «17 символов»); TC-SORT/PAGINATION; пере-seed в E2E.
 
-**История:** v1.10 — a11y/mobile волна F; v1.9 — API волны C–D; v1.8 — каталог seed modern; v1.7 — фильтр марка/модель (+ТТД UI/API); v1.5 — валидация фильтров; v1.4 — offset, фильтры год/пробег; v1.3 — негативная валидация, BUG-03, дата ТО; v1.2 — публичная главная, без guest, VIN edit; v1.1 — исходный PDF.
+**История:** v1.11 — compact filter + header; v1.10 — a11y/mobile волна F; v1.9 — API волны C–D; v1.8 — каталог seed modern; v1.7 — фильтр марка/модель (+ТТД UI/API); v1.5 — валидация фильтров; v1.4 — offset, фильтры год/пробег; v1.3 — негативная валидация, BUG-03, дата ТО; v1.2 — публичная главная, без guest, VIN edit; v1.1 — исходный PDF.
 
 **Трассировка автотестов:** после каждой волны Playwright помечаем ТК ниже строкой `🤖 Автотест:` (файл + итерация). Ручной прогон таких ТК — по желанию / регрессия UI.
 
@@ -294,10 +295,11 @@
 | TC-API-LIKE-01…03 | `%` / `_` / `%%` в brand | wildcard → полный seed | то же |
 
 ### TC-FILTER-CLEAR-01: Сброс всех фильтров
-**Предусловия:** выбран статус «Доступен», заполнены марка и поля год/пробег.  
-**Шаги:** `filter-clear-all`.  
-**Ожидание:** статус «Все»; марка/модель и диапазоны пусты; полный список.  
-🤖 **Автотест:** `e2e/tests/filters.spec.ts` (итерация 10.6 + brand).
+**Предусловия:** выбран статус «Доступен»; через «Ещё» (`filter-advanced-toggle`) заполнены марка и поля год/пробег.  
+**Шаги:** `filter-clear-all` (лейбл «Сброс»).  
+**Ожидание:** статус «Все»; поиск/марка/модель и диапазоны пусты; полный список.  
+**Примечание UI:** марка/модель/диапазоны в свёрнутой панели `filter-advanced` — перед ручным заполнением нажать «Ещё».  
+🤖 **Автотест:** `e2e/tests/filters.spec.ts` (волна F: `expandAdvancedFilters` в beforeEach).
 
 ### TC-FILTER-CLEAR-02: Очистка одного поля
 **Предусловия:** `filter-year-from` = 2020.  
@@ -326,7 +328,7 @@
 🤖 **Автотест:** `e2e/tests/filters.spec.ts` (итерация 10.6).
 
 ### TC-FILTER-BRAND-01: Фильтр по марке KTM
-**Предусловия:** свежий seed, лимит 50.  
+**Предусловия:** свежий seed, лимит 50; открыть «Ещё» (`filter-advanced-toggle`), если `filter-brand` скрыт.  
 **Шаги:** ввести `KTM` в `filter-brand`.  
 **Ожидание:** есть `bike-row-KTM2020QA00000001`; нет Honda/Yamaha якорей.  
 🤖 **Автотест:** `e2e/tests/filters.spec.ts`.
@@ -391,7 +393,9 @@
 | TC-LIST-ERROR-01 | GET 500 | `list-error` + retry | то же |
 | TC-API-SEARCH-* | API search EP/WS | 200 + total | `bikes-query-api.spec.ts` |
 
-### A11y + mobile (волна F)
+### A11y + mobile + компактный фильтр (волна F)
+
+`filter-search` всегда на виду (**OR**). Марка/модель/диапазоны — за «Ещё» (`filter-advanced-toggle`). Поля марка/модель (**AND**) search не заменяет.
 
 | TC | Суть | Ожидание | Автотест |
 |----|------|----------|----------|
@@ -404,6 +408,7 @@
 | TC-MOBILE-02 | статусы фильтра на узком | `filter-sold` fully visible (wrap) | то же |
 | TC-MOBILE-03 | mobile sort field/order | GET с sortBy/order | то же |
 | TC-MOBILE-04 | модалка create в viewport | panel внутри окна, scrollable | то же |
+| TC-MOBILE-05 | шапка + «Ещё» | logout в экране; advanced collapse | то же |
 
 ---
 

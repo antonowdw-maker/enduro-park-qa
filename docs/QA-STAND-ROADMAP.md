@@ -96,14 +96,15 @@
 
 ---
 
-### F — a11y + мобильная таблица  
-**Статус:** ✅ на ветке `feature/qa-wave-f-a11y-mobile`  
+### F — a11y + мобильная таблица + компактный фильтр  
+**Статус:** ✅ на ветке `feature/qa-wave-f-a11y-mobile` (push)  
 **Роли:** BA, Dev, QA  
 **Объём:** M  
 
 - ✅ focus trap модалок (`useModalA11y`), Escape / Enter, accessible names edit/delete  
-- ✅ `aria-sort` на sortable `<th>`; узкий viewport → карточки + `mobile-sort`; wrap статусов; сетка фильтра; модалка `100dvh`  
-- ✅ тесты keyboard + viewport: `e2e/tests/a11y-mobile.spec.ts` (TC-A11Y-* + TC-MOBILE-01…04)  
+- ✅ `aria-sort` на sortable `<th>`; узкий viewport → карточки + `mobile-sort`; wrap статусов  
+- ✅ компактный фильтр: search+статусы всегда; марка/модель/диапазоны за «Ещё»; адаптивная шапка  
+- ✅ тесты: `e2e/tests/a11y-mobile.spec.ts` (TC-A11Y-* + TC-MOBILE-01…05); filters PO `expandAdvancedFilters`  
 
 ---
 

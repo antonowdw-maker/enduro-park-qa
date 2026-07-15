@@ -88,7 +88,7 @@
 - [x] **Фильтр по марке и модели** — UI + API (`brand`/`model`), testid, ТК, smoke + ТТД. *(влито в `main`)*
 - [x] **Каталог/seed modern** — CN/EU эндуро, якоря SEED-05…07, счётчики 19/16/15. *(влито в `main`)*
 
-**Итог:** открытых пунктов в бэклоге «на подумать» нет (14.07.2026). Волны roadmap **A–E** в `main`; **F** — a11y/mobile на `feature/qa-wave-f-a11y-mobile` (15.07.2026).
+**Итог:** открытых пунктов в бэклоге «на подумать» нет (14.07.2026). Волны **A–E** в `main`; **F** (a11y/mobile + компактный фильтр) — `feature/qa-wave-f-a11y-mobile` (15.07.2026).
 
 ### Следующий план (волны A…J)
 Подробно: [`docs/QA-STAND-ROADMAP.md`](docs/QA-STAND-ROADMAP.md).  
@@ -100,7 +100,7 @@
 - [x] **D** — CRUD/Auth API глубина — `feature/qa-wave-d-crud-auth-api` (`bikes-crud-api`, lifecycle, rate-limit opt-in)
 - [x] **TL-ревью A–D** — целая пагинация, fingerprint, waits — `fix/tl-review-waves-a-d` (`7c7478c`)
 - [x] **E** — UI search + ошибка списка (+ retry) — `feature/qa-wave-e-search-ui` → `main`
-- [x] **F** — a11y / mobile — `feature/qa-wave-f-a11y-mobile` (ожидает merge)
+- [x] **F** — a11y / mobile + компактный фильтр («Ещё») — `feature/qa-wave-f-a11y-mobile` (ожидает merge)
 - [ ] **G** — security hardening
 - [ ] **H** — known-bugs учебный контракт
 - [ ] **I** — матрица покрытия + CI gates
