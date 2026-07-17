@@ -72,7 +72,7 @@ test.describe('Sort & pagination UI', () => {
     const mainPage = new MainPage(page);
     await mainPage.setLimit50();
 
-    await mainPage.runAndWaitForBikes(() => mainPage.sortHeader('year').click(), {
+    await mainPage.runAndWaitForBikes(() => mainPage.tap(mainPage.sortHeader('year')), {
       sortBy: 'year',
     });
     const yearsAsc = (await cellTexts(page, 2)).map(Number);
@@ -80,7 +80,7 @@ test.describe('Sort & pagination UI', () => {
     expect.soft(yearsAsc[0]).toBe(1990);
     await expect(mainPage.bikeRow(SEED_VINS.minYearBeta)).toBeVisible();
 
-    await mainPage.runAndWaitForBikes(() => mainPage.sortHeader('year').click(), {
+    await mainPage.runAndWaitForBikes(() => mainPage.tap(mainPage.sortHeader('year')), {
       sortBy: 'year',
     });
     const yearsDesc = (await cellTexts(page, 2)).map(Number);
@@ -92,14 +92,14 @@ test.describe('Sort & pagination UI', () => {
     const mainPage = new MainPage(page);
     await mainPage.setLimit50();
 
-    await mainPage.runAndWaitForBikes(() => mainPage.sortHeader('mileage').click(), {
+    await mainPage.runAndWaitForBikes(() => mainPage.tap(mainPage.sortHeader('mileage')), {
       sortBy: 'mileage',
     });
     const milesAsc = (await cellTexts(page, 4)).map(parseMileageKm);
     expect(isSortedAscNumbers(milesAsc)).toBeTruthy();
     expect(milesAsc[0]).toBe(0);
 
-    await mainPage.runAndWaitForBikes(() => mainPage.sortHeader('mileage').click(), {
+    await mainPage.runAndWaitForBikes(() => mainPage.tap(mainPage.sortHeader('mileage')), {
       sortBy: 'mileage',
     });
     const milesDesc = (await cellTexts(page, 4)).map(parseMileageKm);
@@ -117,7 +117,7 @@ test.describe('Sort & pagination UI', () => {
 
     const firstPageVin = await mainPage.bikeRows().first().getAttribute('data-testid');
 
-    await mainPage.runAndWaitForBikes(() => mainPage.paginationNext().click(), { offset: '10' });
+    await mainPage.runAndWaitForBikes(() => mainPage.tap(mainPage.paginationNext()), { offset: '10' });
     await expect(mainPage.pageIndicator()).toContainText(/СТРАНИЦА\s+2\s+ИЗ\s+5/i);
     await expect(mainPage.paginationPrev()).toBeEnabled();
     await expect(mainPage.bikeRows()).toHaveCount(10);
@@ -129,10 +129,11 @@ test.describe('Sort & pagination UI', () => {
   test('TC-PAGINATION-02: prev возвращает на страницу 1', async ({ page }) => {
     const mainPage = new MainPage(page);
 
-    await mainPage.runAndWaitForBikes(() => mainPage.paginationNext().click(), { offset: '10' });
+    await mainPage.runAndWaitForBikes(() => mainPage.tap(mainPage.paginationNext()), { offset: '10' });
     await expect(mainPage.pageIndicator()).toContainText(/СТРАНИЦА\s+2/i);
+    await expect(mainPage.paginationPrev()).toBeEnabled();
 
-    await mainPage.runAndWaitForBikes(() => mainPage.paginationPrev().click(), { offset: '0' });
+    await mainPage.tap(mainPage.paginationPrev());
     await expect(mainPage.pageIndicator()).toContainText(/СТРАНИЦА\s+1\s+ИЗ\s+5/i);
     await expect(mainPage.paginationPrev()).toBeDisabled();
   });

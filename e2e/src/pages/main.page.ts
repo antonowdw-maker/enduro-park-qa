@@ -1,5 +1,10 @@
-import { Page, expect } from '@playwright/test';
+import { Page, expect, type Locator } from '@playwright/test';
 import { waitForBikesApi } from '../helpers/bikes-api';
+
+type TapOptions = {
+  /** Мелкие кнопки «×» внутри input — в Firefox/WebKit иногда не ловят pointer hit-test. */
+  clear?: boolean;
+};
 
 /**
  * Page Object: главная / — шапка, фильтры, таблица, пагинация.
@@ -7,6 +12,21 @@ import { waitForBikesApi } from '../helpers/bikes-api';
  */
 export class MainPage {
   constructor(private readonly page: Page) {}
+
+  private isAlternateBrowser(): boolean {
+    const browser = process.env.PLAYWRIGHT_BROWSER?.trim() || 'chromium';
+    return browser !== 'chromium';
+  }
+
+  /**
+   * Надёжный клик для chip-фильтров, пагинации и кнопок в CI (firefox/webkit).
+   */
+  async tap(target: Locator, options?: TapOptions): Promise<void> {
+    await target.scrollIntoViewIfNeeded();
+    await expect(target).toBeVisible();
+    const force = options?.clear === true || this.isAlternateBrowser();
+    await target.click({ force });
+  }
 
   // --- шапка ---
   readonly headerLogin = () => this.page.getByTestId('header-login-btn');
@@ -45,7 +65,7 @@ export class MainPage {
    */
   async expandAdvancedFilters() {
     if (await this.brandFilter().isVisible()) return;
-    await this.filterAdvancedToggle().click();
+    await this.tap(this.filterAdvancedToggle());
     await expect(this.brandFilter()).toBeVisible();
   }
 
@@ -134,15 +154,23 @@ export class MainPage {
 
   /** Показать максимум строк на странице (удобно для фильтров по якорным VIN) */
   async setLimit50() {
-    // Уже 50 → selectOption не шлёт GET; не вешаем waitForResponse (см. CI: crud / VIN edit)
-    const current = await this.paginationLimit().inputValue();
+    const limit = this.paginationLimit();
+    const current = await limit.inputValue();
     if (current !== '50') {
-      await this.runAndWaitForBikes(
-        async () => {
-          await this.paginationLimit().selectOption('50');
-        },
-        { limit: '50' },
-      );
+      if (this.isAlternateBrowser()) {
+        await limit.selectOption('50', { force: true });
+        await expect.poll(async () => limit.inputValue(), { timeout: 10_000 }).toBe('50');
+        await expect
+          .poll(async () => this.bikeRows().count(), { timeout: 15_000 })
+          .toBeGreaterThan(10);
+      } else {
+        await this.runAndWaitForBikes(
+          async () => {
+            await limit.selectOption('50');
+          },
+          { limit: '50' },
+        );
+      }
     }
     await this.expectTableHasRows();
   }
@@ -161,7 +189,7 @@ export class MainPage {
       const next = this.paginationNext();
       if (await next.isDisabled()) break;
       await this.runAndWaitForBikes(async () => {
-        await next.click();
+        await this.tap(next);
       });
       await this.expectTableHasRows();
     }

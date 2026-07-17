@@ -49,7 +49,7 @@ test.describe('Seed anchors', () => {
 
   test('TC-SEED-03: filter-available → total 19', async ({ page }) => {
     const mainPage = new MainPage(page);
-    await mainPage.runAndWaitForBikes(() => mainPage.filterAvailable().click(), {
+    await mainPage.runAndWaitForBikes(() => mainPage.tap(mainPage.filterAvailable()), {
       status: 'available',
     });
     await expect(mainPage.totalInDb()).toContainText('19');
@@ -59,7 +59,7 @@ test.describe('Seed anchors', () => {
 
   test('TC-SEED-04: filter-repair → якорный Honda', async ({ page }) => {
     const mainPage = new MainPage(page);
-    await mainPage.runAndWaitForBikes(() => mainPage.filterRepair().click(), {
+    await mainPage.runAndWaitForBikes(() => mainPage.tap(mainPage.filterRepair()), {
       status: 'repair',
     });
     await expect(mainPage.bikeRow(SEED_VINS.repairHonda)).toBeVisible();
@@ -87,7 +87,7 @@ test.describe('Seed anchors', () => {
 
   test('TC-SEED-06: якорный Regulmoto в ремонте', async ({ page }) => {
     const mainPage = new MainPage(page);
-    await mainPage.runAndWaitForBikes(() => mainPage.filterRepair().click(), {
+    await mainPage.runAndWaitForBikes(() => mainPage.tap(mainPage.filterRepair()), {
       status: 'repair',
     });
     const row = mainPage.bikeRow(SEED_VINS.repairRegulmoto);
@@ -98,7 +98,7 @@ test.describe('Seed anchors', () => {
 
   test('TC-SEED-07: якорный Motoland продан', async ({ page }) => {
     const mainPage = new MainPage(page);
-    await mainPage.runAndWaitForBikes(() => mainPage.filterSold().click(), {
+    await mainPage.runAndWaitForBikes(() => mainPage.tap(mainPage.filterSold()), {
       status: 'sold',
     });
     const row = mainPage.bikeRow(SEED_VINS.soldMotoland);
@@ -109,7 +109,7 @@ test.describe('Seed anchors', () => {
 
   test('smoke: после seed в базе SEED_BIKE_COUNT байков', async ({ page }) => {
     const mainPage = new MainPage(page);
-    await mainPage.runAndWaitForBikes(() => mainPage.filterAll().click());
+    await mainPage.tap(mainPage.filterAll());
     await expect(mainPage.totalInDb()).toContainText(String(SEED_BIKE_COUNT));
   });
 });

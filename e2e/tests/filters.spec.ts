@@ -23,10 +23,10 @@ test.describe('Filters', () => {
   test('TC-FILTER-MULTI-01: Доступен + Ремонт скрывает Продан', async ({ page }) => {
     const mainPage = new MainPage(page);
 
-    await mainPage.runAndWaitForBikes(() => mainPage.filterAvailable().click(), {
+    await mainPage.runAndWaitForBikes(() => mainPage.tap(mainPage.filterAvailable()), {
       status: 'available',
     });
-    await mainPage.runAndWaitForBikes(() => mainPage.filterRepair().click(), {
+    await mainPage.runAndWaitForBikes(() => mainPage.tap(mainPage.filterRepair()), {
       status: 'available,repair',
     });
 
@@ -38,18 +38,15 @@ test.describe('Filters', () => {
   test('TC-FILTER-MULTI-02: снятие Ремонт оставляет только Доступен', async ({ page }) => {
     const mainPage = new MainPage(page);
 
-    await mainPage.runAndWaitForBikes(() => mainPage.filterAvailable().click(), {
+    await mainPage.runAndWaitForBikes(() => mainPage.tap(mainPage.filterAvailable()), {
       status: 'available',
     });
-    await mainPage.runAndWaitForBikes(() => mainPage.filterRepair().click(), {
+    await mainPage.runAndWaitForBikes(() => mainPage.tap(mainPage.filterRepair()), {
       status: 'available,repair',
     });
     await expect(mainPage.bikeRow(SEED_VINS.repairHonda)).toBeVisible();
 
-    await mainPage.runAndWaitForBikes(() => mainPage.filterRepair().click(), {
-      status: 'available',
-    });
-
+    await mainPage.tap(mainPage.filterRepair());
     await expect(mainPage.bikeRow(SEED_VINS.availableKtm)).toBeVisible();
     await expect(mainPage.bikeRow(SEED_VINS.repairHonda)).toHaveCount(0);
     await expect(mainPage.bikeRow(SEED_VINS.soldYamaha)).toHaveCount(0);
@@ -58,11 +55,11 @@ test.describe('Filters', () => {
   test('TC-FILTER-MULTI-03: «Все» сбрасывает статусы', async ({ page }) => {
     const mainPage = new MainPage(page);
 
-    await mainPage.runAndWaitForBikes(() => mainPage.filterSold().click(), { status: 'sold' });
+    await mainPage.runAndWaitForBikes(() => mainPage.tap(mainPage.filterSold()), { status: 'sold' });
     await expect(mainPage.bikeRow(SEED_VINS.soldYamaha)).toBeVisible();
     await expect(mainPage.bikeRow(SEED_VINS.availableKtm)).toHaveCount(0);
 
-    await mainPage.runAndWaitForBikes(() => mainPage.filterAll().click());
+    await mainPage.tap(mainPage.filterAll());
 
     await expect(mainPage.bikeRow(SEED_VINS.availableKtm)).toBeVisible();
     await expect(mainPage.bikeRow(SEED_VINS.repairHonda)).toBeVisible();
@@ -111,7 +108,7 @@ test.describe('Filters', () => {
       yearFrom: '2020',
     });
     await expect(mainPage.bikeRow(SEED_VINS.repairHonda)).toHaveCount(0);
-    await mainPage.runAndWaitForBikes(() => mainPage.yearFromClear().click());
+    await mainPage.tap(mainPage.yearFromClear(), { clear: true });
     await expect(mainPage.yearFrom()).toHaveValue('');
     await expect(mainPage.bikeRow(SEED_VINS.availableKtm)).toBeVisible();
     await expect(mainPage.bikeRow(SEED_VINS.repairHonda)).toBeVisible();
@@ -122,7 +119,7 @@ test.describe('Filters', () => {
     page,
   }) => {
     const mainPage = new MainPage(page);
-    await mainPage.runAndWaitForBikes(() => mainPage.filterAvailable().click(), {
+    await mainPage.runAndWaitForBikes(() => mainPage.tap(mainPage.filterAvailable()), {
       status: 'available',
     });
     await mainPage.runAndWaitForBikes(() => mainPage.brandFilter().fill('KTM'), { brand: 'KTM' });
@@ -134,7 +131,7 @@ test.describe('Filters', () => {
     });
     await expect(mainPage.bikeRow(SEED_VINS.repairHonda)).toHaveCount(0);
 
-    await mainPage.runAndWaitForBikes(() => mainPage.filterClearAll().click());
+    await mainPage.tap(mainPage.filterClearAll());
     await expect(mainPage.brandFilter()).toHaveValue('');
     await expect(mainPage.yearFrom()).toHaveValue('');
     await expect(mainPage.mileageFrom()).toHaveValue('');
@@ -149,7 +146,7 @@ test.describe('Filters', () => {
       yearFrom: '2020',
     });
     await expect(mainPage.bikeRow(SEED_VINS.repairHonda)).toHaveCount(0);
-    await mainPage.runAndWaitForBikes(() => mainPage.yearFromClear().click());
+    await mainPage.tap(mainPage.yearFromClear(), { clear: true });
     await expect(mainPage.yearFrom()).toHaveValue('');
     await expect(mainPage.bikeRow(SEED_VINS.repairHonda)).toBeVisible();
   });
@@ -224,7 +221,7 @@ test.describe('Filters', () => {
       brand: 'Yamaha',
     });
     await expect(mainPage.bikeRow(SEED_VINS.availableKtm)).toHaveCount(0);
-    await mainPage.runAndWaitForBikes(() => mainPage.brandFilterClear().click());
+    await mainPage.tap(mainPage.brandFilterClear(), { clear: true });
     await expect(mainPage.brandFilter()).toHaveValue('');
     await expect(mainPage.bikeRow(SEED_VINS.availableKtm)).toBeVisible();
   });

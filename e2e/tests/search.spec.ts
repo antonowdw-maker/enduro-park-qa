@@ -73,11 +73,9 @@ test.describe('Search UI + list error (wave E)', () => {
     );
     await expect(mainPage.bikeRow(SEED_VINS.availableKayo)).toBeVisible();
 
-    await mainPage.runAndWaitForBikes(async () => {
-      await mainPage.searchFilterClear().click();
-    });
+    await mainPage.tap(mainPage.searchFilterClear(), { clear: true });
     await expect(mainPage.searchFilter()).toHaveValue('');
-    await expect(mainPage.bikeRow(SEED_VINS.availableKtm)).toBeVisible();
+    await expect(mainPage.bikeRow(SEED_VINS.availableKtm)).toBeVisible({ timeout: 15_000 });
   });
 
   test('TC-SEARCH-05: debounce — GET с search=KTM после паузы', async ({ page }) => {

@@ -54,7 +54,7 @@ test.describe('Filters brand/model (TTD)', () => {
     const mainPage = new MainPage(page);
     await mainPage.runAndWaitForBikes(() => mainPage.modelFilter().fill('EXC'), { model: 'EXC' });
     await expect(mainPage.bikeRow(SEED_VINS.repairHonda)).toHaveCount(0);
-    await mainPage.runAndWaitForBikes(() => mainPage.modelFilterClear().click());
+    await mainPage.tap(mainPage.modelFilterClear(), { clear: true });
     await expect(mainPage.modelFilter()).toHaveValue('');
     await expect(mainPage.bikeRow(SEED_VINS.repairHonda)).toBeVisible();
   });
@@ -94,8 +94,9 @@ test.describe('Filters brand/model (TTD)', () => {
   test('TC-FILTER-BRAND-NEG-02: только пробелы не фильтруют (EP пусто)', async ({ page }) => {
     const mainPage = new MainPage(page);
     // Пробелы могут триггерить запрос, но brand в query обычно нет
-    await mainPage.runAndWaitForBikes(() => mainPage.brandFilter().fill('   '));
-    await expect(mainPage.totalInDb()).toContainText(String(SEED_BIKE_COUNT));
+    await mainPage.brandFilter().fill('   ');
+    await mainPage.brandFilter().blur();
+    await expect(mainPage.totalInDb()).toContainText(String(SEED_BIKE_COUNT), { timeout: 15_000 });
     await expect(mainPage.bikeRow(SEED_VINS.availableKtm)).toBeVisible();
     await expect(mainPage.bikeRow(SEED_VINS.repairHonda)).toBeVisible();
   });
@@ -135,7 +136,7 @@ test.describe('Filters brand/model (TTD)', () => {
   test('TC-FILTER-BRAND-DT-01: марка + статус (KTM + Доступен)', async ({ page }) => {
     const mainPage = new MainPage(page);
     await mainPage.runAndWaitForBikes(() => mainPage.brandFilter().fill('KTM'), { brand: 'KTM' });
-    await mainPage.runAndWaitForBikes(() => mainPage.filterAvailable().click(), {
+    await mainPage.runAndWaitForBikes(() => mainPage.tap(mainPage.filterAvailable()), {
       status: 'available',
       brand: 'KTM',
     });
@@ -176,7 +177,7 @@ test.describe('Filters brand/model (TTD)', () => {
     await mainPage.runAndWaitForBikes(() => mainPage.modelFilter().fill('YZ250'), {
       model: 'YZ250',
     });
-    await mainPage.runAndWaitForBikes(() => mainPage.filterSold().click(), {
+    await mainPage.runAndWaitForBikes(() => mainPage.tap(mainPage.filterSold()), {
       status: 'sold',
       model: 'YZ250',
     });

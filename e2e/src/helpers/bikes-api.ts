@@ -3,6 +3,10 @@ import type { Page, Response } from '@playwright/test';
 export type WaitForBikesOptions = {
   /** false — ждать и ошибочные ответы (для UI list-error / wave E). По умолчанию только ok. */
   requireOk?: boolean;
+  /** Переопределить таймаут ожидания GET /api/bikes (мс). */
+  timeout?: number;
+  /** Пауза после action (debounce search 300ms и т.п.). */
+  postActionDelayMs?: number;
 };
 
 function isBikesListGet(response: Response, requireOk: boolean): boolean {
@@ -10,7 +14,6 @@ function isBikesListGet(response: Response, requireOk: boolean): boolean {
   if (requireOk && !response.ok()) return false;
   try {
     const url = new URL(response.url());
-    // Точный путь списка (не /api/bikes/:id)
     return url.pathname === '/api/bikes' || url.pathname === '/bikes';
   } catch {
     return false;
@@ -30,9 +33,15 @@ function matchesQuery(
   });
 }
 
+/** Firefox/WebKit в CI медленнее; nightly matrix задаёт PLAYWRIGHT_BROWSER. */
+export function bikesApiWaitTimeout(): number {
+  const browser = process.env.PLAYWRIGHT_BROWSER?.trim() || 'chromium';
+  return browser === 'chromium' ? 15_000 : 25_000;
+}
+
 /**
  * Дождаться GET /api/bikes после UI-действия (фильтр / сорт / пагинация).
- * Опционально — проверить query-параметры ответа (волна B / flake-hunt).
+ * Promise.all — рекомендуемый паттерн Playwright (меньше гонок в firefox/webkit).
  */
 export async function waitForBikesApi(
   page: Page,
@@ -41,10 +50,22 @@ export async function waitForBikesApi(
   options?: WaitForBikesOptions,
 ): Promise<Response> {
   const requireOk = options?.requireOk !== false;
-  const responsePromise = page.waitForResponse(
-    (response) =>
-      isBikesListGet(response, requireOk) && matchesQuery(response, expectedQuery),
-  );
-  await action();
-  return responsePromise;
+  const timeout = options?.timeout ?? bikesApiWaitTimeout();
+  const postDelay = options?.postActionDelayMs ?? 0;
+
+  const predicate = (response: Response) =>
+    isBikesListGet(response, requireOk) && matchesQuery(response, expectedQuery);
+
+  const runAction = async () => {
+    await action();
+    if (postDelay > 0) {
+      await page.waitForTimeout(postDelay);
+    }
+  };
+
+  const [response] = await Promise.all([
+    page.waitForResponse(predicate, { timeout }),
+    runAction(),
+  ]);
+  return response;
 }
