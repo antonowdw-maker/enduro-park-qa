@@ -86,14 +86,21 @@ export default function MainPage() {
     mileageFrom !== '' ||
     mileageTo !== '';
 
-  // Debounce поиска 300 ms (волна E) — в API уходит debouncedSearch
+  // Debounce поиска 300 ms (волна E) — в API уходит debouncedSearch.
+  // setPage(1) только когда debounced-значение реально сменилось (не mount-таймер).
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      setDebouncedSearch(searchFilter);
-      setPage(1);
+      setDebouncedSearch((prev) => (prev === searchFilter ? prev : searchFilter));
     }, 300);
     return () => window.clearTimeout(timer);
   }, [searchFilter]);
+
+  const prevDebouncedSearch = useRef(debouncedSearch);
+  useEffect(() => {
+    if (prevDebouncedSearch.current === debouncedSearch) return;
+    prevDebouncedSearch.current = debouncedSearch;
+    setPage(1);
+  }, [debouncedSearch]);
 
   // Загрузка списка байков с бэкенда (фильтр, пагинация, сортировка) — доступна без авторизации
   const loadData = useCallback(() => {

@@ -130,10 +130,10 @@ test.describe('Sort & pagination UI', () => {
     const mainPage = new MainPage(page);
 
     await mainPage.runAndWaitForBikes(() => mainPage.tap(mainPage.paginationNext()), { offset: '10' });
-    await expect(mainPage.pageIndicator()).toContainText(/СТРАНИЦА\s+2/i);
+    await expect(mainPage.pageIndicator()).toContainText(/СТРАНИЦА\s+2\s+ИЗ\s+5/i);
     await expect(mainPage.paginationPrev()).toBeEnabled();
 
-    await mainPage.tap(mainPage.paginationPrev());
+    await mainPage.runAndWaitForBikes(() => mainPage.tap(mainPage.paginationPrev()), { offset: '0' });
     await expect(mainPage.pageIndicator()).toContainText(/СТРАНИЦА\s+1\s+ИЗ\s+5/i);
     await expect(mainPage.paginationPrev()).toBeDisabled();
   });
