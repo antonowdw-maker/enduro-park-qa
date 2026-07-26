@@ -74,6 +74,7 @@ CI сам пишет эфемерный `backend/.env` (случайные JWT/�
 - `MainPage.tap()`: `scrollIntoView` + `force` на firefox/webkit и для кнопок «×» (`clear: true`).
 - `setLimit50()`: на firefox/webkit — `selectOption` + poll строк; на chromium — `runAndWaitForBikes` с `limit=50`.
 - Пагинация next/prev: после клика ассертить индикатор страницы; product не должен сбрасывать `page` на mount search-debounce (только при смене `debouncedSearch`).
+- **TC-PAGINATION-02 prev:** не вешать `waitForBikes` с `offset: '0'` — в firefox nightly response часто не ловится; `tap` + `pageIndicator` / `prev` disabled.
 - Опционально: `expect.soft` для нескольких независимых проверок в одном тесте.
 - **Ревью:** после кода волны — блоки тимлида fullstack + QA automation (см. `.cursor/rules/roles-and-reviews.mdc`).
 
