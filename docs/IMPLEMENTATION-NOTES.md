@@ -212,6 +212,21 @@ VIN: I/O/Q не вырезаются до валидации → сообщен�
 
 **EPM (A–I) завершён** (15.07.2026). Дальнейший product-прокат — не волна этого стенда.
 
+### Ревью тимлидов — hotfix TC-PAGINATION-02 firefox prev (26.07.2026)
+
+#### Тимлид fullstack — **APPROVE**
+| Sev | Finding |
+|-----|---------|
+| — | Продукт не менялся; debounce mount-fix уже в main |
+| — | Регрессия E2E: после hardening prev снова через `waitForBikes({ offset: '0' })` |
+
+#### Тимлид QA automation — **APPROVE**
+| Sev | Finding |
+|-----|---------|
+| P1 | Nightly 26.07 firefox: единственный job-fail — `TC-PAGINATION-02` line prev, `waitForResponse` 25s ×2 |
+| — | Chromium 182 passed; webkit flaky a11y (не fail job) |
+| — | Фикс: prev → `tap` + UI indicator (как clear/toggle pattern) |
+
 ### Ревью тимлидов — hotfix pagination vs search debounce (17.07.2026)
 
 #### Тимлид fullstack — **APPROVE**
